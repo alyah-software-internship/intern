@@ -19,12 +19,14 @@ import {
   DownOutlined,
 } from "@ant-design/icons";
 
-import { Link, NavLink } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import { useState, useEffect, useContext } from "react";
+import {AppContext} from "../context/AppContext.jsx";
 
 const { Header: AntHeader } = Layout;
 const { Text } = Typography;
 
+ 
 const navLinkStyle = ({ isActive }) => ({
   color: isActive ? "#1890ff" : undefined,
   fontWeight: isActive ? 600 : undefined,
@@ -152,6 +154,17 @@ const profileItems = [
   },
 ];
 
+const guestItems = [
+  {
+    key: "signin",
+    label: <Link to="/signin">Sign In</Link>,
+  },
+  {
+    key: "get-started",
+    label: <Link to="/signup">Get Started</Link>,
+  },
+];
+
 const drawerItems = [
   ...navItems,
   {
@@ -161,14 +174,18 @@ const drawerItems = [
 ];
 
 const Header = () => {
+  const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [isWide, setIsWide] = useState(window.innerWidth >= 1300);
+  const {isSignedIn} = useContext(AppContext);
 
   useEffect(() => {
     const handleResize = () => setIsWide(window.innerWidth >= 1300);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+
 
   return (
     <AntHeader
@@ -238,9 +255,11 @@ const Header = () => {
 
       {/* Right */}
       <Space size={18}>
-        <Badge count={2}>
-          <Button shape="circle" icon={<BellOutlined />} />
-        </Badge>
+        {isSignedIn && (
+          <Badge count={2}>
+            <Button shape="circle" icon={<BellOutlined />} />
+          </Badge>
+        )}
 
         {!isWide && (
           <Button
@@ -251,51 +270,70 @@ const Header = () => {
         )}
 
         {isWide ? (
-          <>
-            <Button shape="circle" icon={<MoonOutlined />} />
+          isSignedIn ? (
+            <>
+              <Button shape="circle" icon={<MoonOutlined />} />
 
-            <Badge>
-              <Button shape="circle" icon={<HeartOutlined />} />
-            </Badge>
+              <Badge>
+                <Button shape="circle" icon={<HeartOutlined />} />
+              </Badge>
 
-            <Dropdown menu={{ items: profileItems }} trigger={["click"]}>
-              <Button
-                style={{
-                  height: 52,
-                  borderRadius: 30,
-                }}
-              >
-                <Space>
-                  <Avatar
-                    style={{
-                      background: "#1677ff",
-                    }}
-                    icon={<UserOutlined />}
-                  />
-
-                  <div
-                    style={{
-                      textAlign: "left",
-                      lineHeight: 1.1,
-                    }}
-                  >
-                    <Text strong>Marcus</Text>
-                    <br />
-                    <Text
-                      type="secondary"
+              <Dropdown menu={{ items: profileItems }} trigger={["click"]}>
+                <Button
+                  style={{
+                    height: 52,
+                    borderRadius: 30,
+                  }}
+                >
+                  <Space>
+                    <Avatar
                       style={{
-                        fontSize: 12,
+                        background: "#1677ff",
+                      }}
+                      icon={<UserOutlined />}
+                    />
+
+                    <div
+                      style={{
+                        textAlign: "left",
+                        lineHeight: 1.1,
                       }}
                     >
-                      Premium
-                    </Text>
-                  </div>
+                      <Text strong>Marcus</Text>
+                      <br />
+                      <Text
+                        type="secondary"
+                        style={{
+                          fontSize: 12,
+                        }}
+                      >
+                        Premium
+                      </Text>
+                    </div>
 
-                  <DownOutlined />
-                </Space>
+                    <DownOutlined />
+                  </Space>
+                </Button>
+              </Dropdown>
+            </>
+          ) : (
+            <>
+              <Button
+                type="default"
+                shape="round"
+                onClick={() => navigate("/signin")}
+              >
+                Sign In
               </Button>
-            </Dropdown>
-          </>
+              <Button
+                type="primary"
+                shape="round"
+                onClick={() => navigate("/signup")}
+              >
+                Get Started
+              </Button>
+            </>
+          )
         ) : null}
       </Space>
 
@@ -309,7 +347,11 @@ const Header = () => {
         <Menu
           mode="inline"
           selectable={false}
-          items={drawerItems}
+          items={
+            isSignedIn
+              ? drawerItems
+              : [...navItems, { type: "divider" }, ...guestItems]
+          }
           style={{ borderRight: 0 }}
           onClick={() => setDrawerOpen(false)}
         />
