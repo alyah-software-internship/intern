@@ -21,12 +21,11 @@ import {
 
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useState, useEffect, useContext } from "react";
-import {AppContext} from "../context/AppContext.jsx";
+import { AppContext } from "../context/AppContext.jsx";
 
 const { Header: AntHeader } = Layout;
 const { Text } = Typography;
 
- 
 const navLinkStyle = ({ isActive }) => ({
   color: isActive ? "#1890ff" : undefined,
   fontWeight: isActive ? 600 : undefined,
@@ -91,7 +90,7 @@ const navItems = [
   },
 ];
 
-const profileItems = [
+const createProfileItems = (handleLogout) => [
   {
     key: "dashboard",
     label: (
@@ -151,6 +150,7 @@ const profileItems = [
     key: "logout",
     danger: true,
     label: "Logout",
+    onClick: handleLogout,
   },
 ];
 
@@ -165,27 +165,32 @@ const guestItems = [
   },
 ];
 
-const drawerItems = [
-  ...navItems,
-  {
-    type: "divider",
-  },
-  ...profileItems,
-];
-
 const Header = () => {
   const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [isWide, setIsWide] = useState(window.innerWidth >= 1300);
-  const {isSignedIn} = useContext(AppContext);
+  const { isSignedIn, setIsSignedIn } = useContext(AppContext);
+
+  const handleLogout = () => {
+    setIsSignedIn(false);
+    setDrawerOpen(false);
+    navigate("/");
+  };
+
+  const profileItems = createProfileItems(handleLogout);
+  const drawerItems = [
+    ...navItems,
+    {
+      type: "divider",
+    },
+    ...profileItems,
+  ];
 
   useEffect(() => {
     const handleResize = () => setIsWide(window.innerWidth >= 1300);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-
-
 
   return (
     <AntHeader
@@ -205,37 +210,25 @@ const Header = () => {
       {/* Left */}
       <Space size={24} align="center">
         <Link to="/">
-          <Space>
+          <Space align="center" size={16}>
             <div
               style={{
-                width: 42,
-                height: 42,
-                borderRadius: 12,
-                background: "linear-gradient(135deg,#2563EB,#10B981)",
+                width: 56,
+                height: 56,
+                borderRadius: 16,
+                overflow: "hidden",
+                boxShadow: "0 6px 18px rgba(37, 99, 235, 0.12)",
               }}
-            />
-
-            <div>
-              <Text
+            >
+              <img
+                src="/logo1.png"
+                alt="i-Share logo"
                 style={{
-                  fontSize: 28,
-                  fontWeight: 700,
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
                 }}
-              >
-                i-Share
-              </Text>
-
-              <br />
-
-              <Text
-                type="secondary"
-                style={{
-                  letterSpacing: 1,
-                  fontSize: 11,
-                }}
-              >
-                MARKETPLACE
-              </Text>
+              />
             </div>
           </Space>
         </Link>
@@ -257,7 +250,11 @@ const Header = () => {
       <Space size={18}>
         {isSignedIn && (
           <Badge count={2}>
-            <Button shape="circle" icon={<BellOutlined />} />
+            <Button
+              shape="circle"
+              icon={<BellOutlined />}
+              onClick={() => navigate("/notifications")}
+            />
           </Badge>
         )}
 
@@ -275,7 +272,11 @@ const Header = () => {
               <Button shape="circle" icon={<MoonOutlined />} />
 
               <Badge>
-                <Button shape="circle" icon={<HeartOutlined />} />
+                <Button
+                  shape="circle"
+                  icon={<HeartOutlined />}
+                  onClick={() => navigate("/wishlist")}
+                />
               </Badge>
 
               <Dropdown menu={{ items: profileItems }} trigger={["click"]}>
