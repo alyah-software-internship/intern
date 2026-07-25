@@ -19,6 +19,53 @@ body {
   box-sizing: border-box;
 }
 
+html.dark body,
+.app-root--dark {
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+html.dark .ant-layout,
+html.dark .ant-layout-header,
+html.dark .ant-layout-content,
+html.dark .ant-layout-footer,
+.app-root--dark .ant-layout,
+.app-root--dark .ant-layout-header,
+.app-root--dark .ant-layout-content,
+.app-root--dark .ant-layout-footer {
+  background: #0f172a !important;
+}
+
+html.dark .bg-white,
+.app-root--dark .bg-white {
+  background-color: #1a1a2e !important;
+}
+
+html.dark [class*="bg-white"],
+.app-root--dark [class*="bg-white"] {
+  background-color: #1a1a2e !important;
+}
+
+html.dark .text-red-700,
+.app-root--dark .text-red-700 {
+  color: #e2e8f0 !important;
+}
+
+html.dark [class*="bg-[#eef4fb]"],
+.app-root--dark [class*="bg-[#eef4fb]"] {
+  background-color: #0f172a !important;
+}
+
+html.dark .text-slate-950,
+.app-root--dark .text-slate-950 {
+  color: #f8fafc !important;
+}
+
+html.dark .text-slate-500,
+.app-root--dark .text-slate-500 {
+  color: #94a3b8 !important;
+}
+
 .active {
   color: #5920aa;
 }

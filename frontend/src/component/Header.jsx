@@ -22,6 +22,10 @@ import {
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useState, useEffect, useContext } from "react";
 import { AppContext } from "../context/AppContext.jsx";
+import { useTranslation } from "./LanguageProvider.jsx";
+import { useTheme } from "../context/ThemeProvider.jsx";
+import LanguageSwitcher from "./LanguageSwitcher.jsx";
+import ThemeSwitcher from "./ThemeSwitcher.jsx";
 
 const { Header: AntHeader } = Layout;
 const { Text } = Typography;
@@ -31,71 +35,12 @@ const navLinkStyle = ({ isActive }) => ({
   fontWeight: isActive ? 600 : undefined,
 });
 
-const navItems = [
-  {
-    key: "home",
-    label: (
-      <NavLink to="/" style={navLinkStyle}>
-        Home
-      </NavLink>
-    ),
-  },
-  {
-    key: "rentals",
-    label: (
-      <NavLink to="/rentals" style={navLinkStyle}>
-        Rentals
-      </NavLink>
-    ),
-  },
-  {
-    key: "categories",
-    label: (
-      <NavLink to="/categories" style={navLinkStyle}>
-        Categories
-      </NavLink>
-    ),
-  },
-  {
-    key: "works",
-    label: (
-      <NavLink to="/how-it-works" style={navLinkStyle}>
-        How It Works
-      </NavLink>
-    ),
-  },
-  {
-    key: "pricing",
-    label: (
-      <NavLink to="/pricing" style={navLinkStyle}>
-        Pricing
-      </NavLink>
-    ),
-  },
-  {
-    key: "about",
-    label: (
-      <NavLink to="/about" style={navLinkStyle}>
-        About
-      </NavLink>
-    ),
-  },
-  {
-    key: "contact",
-    label: (
-      <NavLink to="/contact" style={navLinkStyle}>
-        Contact
-      </NavLink>
-    ),
-  },
-];
-
-const createProfileItems = (handleLogout) => [
+const createProfileItems = (handleLogout, t) => [
   {
     key: "dashboard",
     label: (
       <NavLink to="/dashboard" style={navLinkStyle}>
-        My Dashboard
+        {t.nav.dashboard}
       </NavLink>
     ),
   },
@@ -103,7 +48,7 @@ const createProfileItems = (handleLogout) => [
     key: "profile",
     label: (
       <NavLink to="/profile" style={navLinkStyle}>
-        Profile
+        {t.nav.profile}
       </NavLink>
     ),
   },
@@ -111,7 +56,7 @@ const createProfileItems = (handleLogout) => [
     key: "settings",
     label: (
       <NavLink to="/settings" style={navLinkStyle}>
-        Settings
+        {t.nav.settings}
       </NavLink>
     ),
   },
@@ -119,7 +64,7 @@ const createProfileItems = (handleLogout) => [
     key: "booking",
     label: (
       <NavLink to="/bookings" style={navLinkStyle}>
-        My Bookings
+        {t.nav.myBookings}
       </NavLink>
     ),
   },
@@ -127,7 +72,7 @@ const createProfileItems = (handleLogout) => [
     key: "wishlist",
     label: (
       <NavLink to="/wishlist" style={navLinkStyle}>
-        Wishlist
+        {t.nav.wishlist}
       </NavLink>
     ),
   },
@@ -135,7 +80,7 @@ const createProfileItems = (handleLogout) => [
     key: "messages",
     label: (
       <NavLink to="/messages" style={navLinkStyle}>
-        Messages
+        {t.nav.messages}
       </NavLink>
     ),
   },
@@ -144,24 +89,13 @@ const createProfileItems = (handleLogout) => [
   },
   {
     key: "vendor",
-    label: <Link to="/vendor">Become a Vendor</Link>,
+    label: <Link to="/vendor">{t.nav.becomeVendor}</Link>,
   },
   {
     key: "logout",
     danger: true,
-    label: "Logout",
+    label: t.nav.logout,
     onClick: handleLogout,
-  },
-];
-
-const guestItems = [
-  {
-    key: "signin",
-    label: <Link to="/signin">Sign In</Link>,
-  },
-  {
-    key: "get-started",
-    label: <Link to="/signup">Get Started</Link>,
   },
 ];
 
@@ -169,7 +103,10 @@ const Header = () => {
   const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [isWide, setIsWide] = useState(window.innerWidth >= 1300);
+  const [langHover, setLangHover] = useState(false);
   const { isSignedIn, setIsSignedIn } = useContext(AppContext);
+  const { theme } = useTheme();
+  const { setLanguage, translation: t } = useTranslation();
 
   const handleLogout = () => {
     setIsSignedIn(false);
@@ -177,7 +114,77 @@ const Header = () => {
     navigate("/");
   };
 
-  const profileItems = createProfileItems(handleLogout);
+  const navItems = [
+    {
+      key: "home",
+      label: (
+        <NavLink to="/" style={navLinkStyle}>
+          {t.nav.home}
+        </NavLink>
+      ),
+    },
+    {
+      key: "rentals",
+      label: (
+        <NavLink to="/rentals" style={navLinkStyle}>
+          {t.nav.rentals}
+        </NavLink>
+      ),
+    },
+    {
+      key: "categories",
+      label: (
+        <NavLink to="/categories" style={navLinkStyle}>
+          {t.nav.categories}
+        </NavLink>
+      ),
+    },
+    {
+      key: "works",
+      label: (
+        <NavLink to="/how-it-works" style={navLinkStyle}>
+          {t.nav.howItWorks}
+        </NavLink>
+      ),
+    },
+    {
+      key: "pricing",
+      label: (
+        <NavLink to="/pricing" style={navLinkStyle}>
+          {t.nav.pricing}
+        </NavLink>
+      ),
+    },
+    {
+      key: "about",
+      label: (
+        <NavLink to="/about" style={navLinkStyle}>
+          {t.nav.about}
+        </NavLink>
+      ),
+    },
+    {
+      key: "contact",
+      label: (
+        <NavLink to="/contact" style={navLinkStyle}>
+          {t.nav.contact}
+        </NavLink>
+      ),
+    },
+  ];
+
+  const profileItems = createProfileItems(handleLogout, t);
+  const guestItems = [
+    {
+      key: "signin",
+      label: <Link to="/signin">{t.nav.login}</Link>,
+    },
+    {
+      key: "get-started",
+      label: <Link to="/signup">{t.nav.register}</Link>,
+    },
+  ];
+
   const drawerItems = [
     ...navItems,
     {
@@ -195,13 +202,21 @@ const Header = () => {
   return (
     <AntHeader
       style={{
-        background: "#fff",
-        height: 80,
+        background: theme === "dark" ? "#111827" : "#fff",
+        height: langHover ? 110 : 80,
+        transition: "height 0.2s ease, background 0.2s ease",
         paddingInline: 24,
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
-        boxShadow: "0 2px 12px rgba(0,0,0,.05)",
+        boxShadow:
+          theme === "dark"
+            ? "0 2px 16px rgba(0,0,0,0.35)"
+            : "0 2px 12px rgba(0,0,0,.05)",
+        borderBottom:
+          theme === "dark"
+            ? "1px solid rgba(148,163,184,0.12)"
+            : "1px solid rgba(15,23,42,0.08)",
         position: "sticky",
         top: 0,
         zIndex: 1000,
@@ -209,6 +224,7 @@ const Header = () => {
     >
       {/* Left */}
       <Space size={24} align="center">
+        {/* logo image */}
         <Link to="/">
           <Space align="center" size={16}>
             <div
@@ -234,26 +250,35 @@ const Header = () => {
         </Link>
 
         {isWide && (
-          <Menu
-            mode="horizontal"
-            selectable={false}
-            style={{
-              borderBottom: 0,
-              minWidth: 650,
-            }}
-            items={navItems}
-          />
+          <>
+            <Menu
+              mode="horizontal"
+              selectable={false}
+              style={{
+                borderBottom: 0,
+                minWidth: 650,
+                background: "transparent",
+              }}
+              items={navItems}
+            />
+          </>
         )}
       </Space>
 
       {/* Right */}
       <Space size={18}>
+        <LanguageSwitcher />
+        <ThemeSwitcher />
         {isSignedIn && (
           <Badge count={2}>
             <Button
               shape="circle"
               icon={<BellOutlined />}
               onClick={() => navigate("/notifications")}
+              style={{
+                background: theme === "dark" ? "#1f2937" : undefined,
+                color: theme === "dark" ? "#f8fafc" : undefined,
+              }}
             />
           </Badge>
         )}
@@ -269,8 +294,6 @@ const Header = () => {
         {isWide ? (
           isSignedIn ? (
             <>
-              <Button shape="circle" icon={<MoonOutlined />} />
-
               <Badge>
                 <Button
                   shape="circle"
@@ -324,14 +347,14 @@ const Header = () => {
                 shape="round"
                 onClick={() => navigate("/signin")}
               >
-                Sign In
+                {t.nav.login}
               </Button>
               <Button
                 type="primary"
                 shape="round"
                 onClick={() => navigate("/signup")}
               >
-                Get Started
+                {t.nav.register}
               </Button>
             </>
           )
@@ -339,7 +362,7 @@ const Header = () => {
       </Space>
 
       <Drawer
-        title="Menu"
+        title={t.nav.menu}
         placement="left"
         onClose={() => setDrawerOpen(false)}
         open={drawerOpen}

@@ -1,6 +1,7 @@
 import React from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
+import { useTheme } from "./context/ThemeProvider.jsx";
 
 import Home from "./page/public/Home";
 import Header from "./component/Header";
@@ -23,9 +24,10 @@ import VendorPage from "./page/vendor/VendorPage";
 
 const App = () => {
   const location = useLocation();
+  const { theme } = useTheme();
 
   return (
-    <div className="text-red-700">
+    <div className={theme === "dark" ? "app-root app-root--dark" : "app-root"}>
       <Header />
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>

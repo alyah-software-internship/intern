@@ -5,7 +5,7 @@ import { Button } from "antd";
 function Home() {
   return (
     < >
-      home page  
+      <Button type="primary">Home page</Button>
   
     </>
    

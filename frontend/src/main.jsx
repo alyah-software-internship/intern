@@ -5,14 +5,20 @@ import "./index.css";
 import "antd/dist/reset.css";
 
 import App from "./App.jsx";
+import LanguageProvider from "./component/LanguageProvider.jsx";
 import { AppContextProvider } from "./context/AppContext.jsx";
+import ThemeProvider from "./context/ThemeProvider.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter>
-      <AppContextProvider>
-        <App />
-      </AppContextProvider>
+      <ThemeProvider>
+        <LanguageProvider>
+          <AppContextProvider>
+            <App />
+          </AppContextProvider>
+        </LanguageProvider>
+      </ThemeProvider>
     </BrowserRouter>
   </StrictMode>,
 );

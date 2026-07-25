@@ -1,144 +1,411 @@
-import React from "react";
-import { motion } from "framer-motion";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "../../component/LanguageProvider.jsx";
+import { GoogleOutlined, LockOutlined, MailOutlined } from "@ant-design/icons";
+import {
+  Button,
+  Card,
+  Checkbox,
+  Col,
+  Divider,
+  Form,
+  Input,
+  Row,
+  Segmented,
+  Typography,
+} from "antd";
 import carImage from "../../assets/car.png";
 
+const { Title, Paragraph, Text } = Typography;
+
 const Login = () => {
+  const [loading, setLoading] = useState(false);
+  const { lang, setLanguage, translation: t } = useTranslation();
+
+  const onFinish = (values) => {
+    setLoading(true);
+    setTimeout(() => {
+      console.log("Login success", values);
+      setLoading(false);
+    }, 900);
+  };
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.45, ease: "easeOut" }}
-      className="min-h-screen bg-slate-100 px-4 py-10 sm:px-6 lg:px-12"
+    <Row
+      justify="center"
+      align="middle"
+      style={{ minHeight: "100vh", background: "#eef4fb", padding: 24 }}
     >
-      <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[1.15fr_0.85fr] items-center">
-        <section className="overflow-hidden rounded-[2rem] bg-white p-8 shadow-2xl shadow-slate-200/60 sm:p-10">
-          <div className="mb-10">
-            <div className="inline-flex items-center gap-3 rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700">
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-sky-500 text-white">
-                i
-              </span>
-              i-Share — Rent. Share. Save.
-            </div>
-            <h1 className="mt-8 text-4xl font-extrabold text-slate-950 sm:text-5xl">
-              Welcome Back
-            </h1>
-            <p className="mt-4 max-w-xl text-sm text-slate-500 sm:text-base">
-              Login to your account and manage vehicles, reservations, and
-              rental workflows from one place.
-            </p>
-          </div>
-
-          <form className="grid gap-6">
-            <label className="block text-sm font-semibold text-slate-700">
-              Email or Phone
-            </label>
-            <input
-              type="text"
-              placeholder="example@email.com"
-              className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-5 py-4 text-sm text-slate-900 shadow-sm outline-none transition focus:border-slate-300 focus:ring-2 focus:ring-slate-200"
-            />
-
-            <label className="block text-sm font-semibold text-slate-700">
-              Password
-            </label>
-            <input
-              type="password"
-              placeholder="Enter your password"
-              className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-5 py-4 text-sm text-slate-900 shadow-sm outline-none transition focus:border-slate-300 focus:ring-2 focus:ring-slate-200"
-            />
-
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <label className="flex items-center gap-2 text-sm text-slate-600">
-                <input
-                  type="checkbox"
-                  className="h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500"
-                />
-                Remember me
-              </label>
-              <Link
-                className="text-sm font-semibold text-sky-600 hover:text-sky-700"
-                to="/forgot-password"
+      <Col xs={24} lg={20} xl={16}>
+        <Card
+          variant="borderless"
+          style={{
+            borderRadius: 32,
+            boxShadow: "0 30px 90px rgba(15,23,42,0.14)",
+            overflow: "hidden",
+          }}
+        >
+          <Row gutter={[24, 24]} style={{ minHeight: "calc(100vh - 80px)" }}>
+            <Col xs={0} sm={0} md={0} lg={12}>
+              <div
+                style={{
+                  position: "relative",
+                  minHeight: 660,
+                  background: "#0f172a",
+                  color: "#fff",
+                }}
               >
-                Forgot password?
-              </Link>
-            </div>
-
-            <button
-              type="submit"
-              className="mt-2 rounded-3xl bg-linear-to-r from-sky-600 to-blue-600 px-6 py-4 text-base font-semibold text-white shadow-xl shadow-sky-500/20 transition hover:-translate-y-0.5 hover:shadow-2xl"
-            >
-              Login
-            </button>
-          </form>
-
-          <div className="mt-8 border-t border-slate-200 pt-6 text-center text-sm text-slate-500">
-            or continue with
-          </div>
-
-          <div className="mt-5 grid gap-3 sm:grid-cols-3">
-            <button className="flex items-center justify-center gap-2 rounded-3xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-300">
-              <span className="text-2xl">G</span>
-              Google
-            </button>
-            <button className="flex items-center justify-center gap-2 rounded-3xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-300">
-              <span className="text-2xl"></span>
-              Apple
-            </button>
-            <button className="flex items-center justify-center gap-2 rounded-3xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-300">
-              <span className="text-2xl">f</span>
-              Facebook
-            </button>
-          </div>
-        </section>
-
-        <section className="relative overflow-hidden rounded-[2rem] bg-linear-to-br from-sky-500 via-slate-950 to-slate-950 p-8 text-white shadow-2xl shadow-slate-950/20 sm:p-10">
-          <div className="absolute inset-x-0 top-0 h-1/2 bg-white/10 blur-3xl" />
-          <div className="flex h-full flex-col justify-between gap-8">
-            <div className="space-y-4">
-              <p className="inline-flex rounded-full bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-slate-100">
-                Heavy Equipment
-              </p>
-              <h2 className="text-4xl font-extrabold leading-tight sm:text-5xl">
-                Drive revenue with every rental
-              </h2>
-              <p className="max-w-xl text-sm text-slate-200/90 sm:text-base">
-                Discover the smarter fleet experience with local asset
-                protection, fast bookings, and an easy customer dashboard.
-              </p>
-            </div>
-
-            <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-white/10 p-6 backdrop-blur-xl">
-              <div className="absolute right-4 top-4 h-16 w-16 rounded-full bg-sky-400/20 blur-2xl" />
-              <img
-                src={carImage}
-                alt="Car asset"
-                className="mx-auto w-full max-w-[320px] object-contain"
-              />
-              <div className="mt-8 rounded-3xl bg-slate-950/80 p-5">
-                <p className="text-xs uppercase tracking-[0.28em] text-slate-300">
-                  Titan Heavy Rentals
-                </p>
-                <div className="mt-3 flex items-center justify-between gap-4">
+                <img
+                  src={carImage}
+                  alt={t.backgroundImageAlt}
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    opacity: 0.72,
+                  }}
+                />
+                <div
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    background: "rgba(15,23,42,0.62)",
+                  }}
+                />
+                <div
+                  style={{
+                    position: "relative",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    height: "100%",
+                    padding: 32,
+                  }}
+                >
                   <div>
-                    <p className="text-xs uppercase tracking-[0.28em] text-slate-400">
-                      Daily Rate
-                    </p>
-                    <p className="mt-2 text-2xl font-semibold text-white">
-                      $320/day
-                    </p>
+                    <div
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 12,
+                        borderRadius: 999,
+                        background: "rgba(15,23,42,0.45)",
+                        border: "1px solid rgba(56,189,248,0.24)",
+                        padding: "10px 16px",
+                        fontSize: 12,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.18em",
+                        fontWeight: 700,
+                        color: "#e2e8f0",
+                      }}
+                    >
+                      <span
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          width: 40,
+                          height: 40,
+                          borderRadius: 16,
+                          background: "#0ea5e9",
+                          color: "#fff",
+                          fontWeight: 700,
+                        }}
+                      >
+                        i
+                      </span>
+                      i-Share
+                    </div>
+                    <div
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 8,
+                        borderRadius: 999,
+                        border: "1px solid rgba(56,189,248,0.24)",
+                        background: "rgba(56,189,248,0.1)",
+                        padding: "10px 16px",
+                        marginTop: 24,
+                        fontSize: 11,
+                        fontWeight: 700,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.24em",
+                        color: "#7dd3fc",
+                      }}
+                    >
+                      {t.heroBadge}
+                    </div>
+                    <Title
+                      level={1}
+                      style={{
+                        marginTop: 32,
+                        maxWidth: 420,
+                        color: "#fff",
+                        lineHeight: 1.02,
+                        fontSize: 44,
+                      }}
+                    >
+                      {t.heroTitle}
+                    </Title>
+                    <Paragraph
+                      style={{
+                        maxWidth: 420,
+                        marginTop: 20,
+                        color: "rgba(241,245,249,0.85)",
+                        fontSize: 16,
+                      }}
+                    >
+                      {t.heroSubtitle}
+                    </Paragraph>
                   </div>
-                  <button className="rounded-full bg-emerald-400 px-5 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-emerald-400/30 transition hover:bg-emerald-300">
-                    Book Now
-                  </button>
+                  <div
+                    style={{
+                      borderRadius: 26,
+                      border: "1px solid rgba(229,231,235,0.12)",
+                      background: "rgba(15,23,42,0.78)",
+                      padding: 24,
+                      backdropFilter: "blur(16px)",
+                    }}
+                  >
+                    <Text
+                      strong
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 10,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.28em",
+                        color: "#7dd3fc",
+                        fontSize: 13,
+                      }}
+                    >
+                      ★ {t.heroProductName}
+                    </Text>
+                    <div
+                      style={{
+                        marginTop: 20,
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 20,
+                      }}
+                    >
+                      <div>
+                        <Text
+                          style={{
+                            display: "block",
+                            textTransform: "uppercase",
+                            letterSpacing: "0.35em",
+                            color: "#94a3b8",
+                            fontSize: 12,
+                          }}
+                        >
+                          {t.heroProductDescription}
+                        </Text>
+                        <Title
+                          level={3}
+                          style={{
+                            marginTop: 12,
+                            color: "#fff",
+                            fontSize: 28,
+                          }}
+                        >
+                          {t.heroProductRate}
+                        </Title>
+                      </div>
+                      <div
+                        style={{
+                          alignSelf: "flex-start",
+                          borderRadius: 999,
+                          background: "rgba(255,255,255,0.08)",
+                          padding: "8px 16px",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.20em",
+                          color: "#7dd3fc",
+                          fontSize: 12,
+                          fontWeight: 700,
+                        }}
+                      >
+                        {t.heroProductLabel}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
-        </section>
-      </div>
-    </motion.div>
+            </Col>
+
+            <Col
+              xs={24}
+              lg={12}
+              style={{ display: "flex", alignItems: "center" }}
+            >
+              <div style={{ width: "100%", maxWidth: 420, padding: 24 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    gap: 16,
+                    marginBottom: 24,
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontWeight: 700,
+                      textTransform: "uppercase",
+                      letterSpacing: "0.14em",
+                      color: "#475569",
+                    }}
+                  >
+                    {t.language}
+                  </Text>
+                  <Segmented
+                    options={[
+                      { label: "EN", value: "en" },
+                      { label: "አማ", value: "am" },
+                    ]}
+                    value={lang}
+                    onChange={setLanguage}
+                    style={{ width: 180 }}
+                  />
+                </div>
+
+                <Title level={2} style={{ marginBottom: 8, color: "#0f172a" }}>
+                  {t.loginTitle}
+                </Title>
+                <Paragraph style={{ marginBottom: 32, color: "#64748b" }}>
+                  {t.loginSubtitle}
+                </Paragraph>
+
+                <Form
+                  layout="vertical"
+                  name="login"
+                  initialValues={{ remember: true }}
+                  onFinish={onFinish}
+                  size="large"
+                >
+                  <Form.Item
+                    label={t.email}
+                    name="email"
+                    rules={[
+                      {
+                        required: true,
+                        message: t.emailRequired,
+                      },
+                    ]}
+                  >
+                    <Input
+                      prefix={<MailOutlined />}
+                      placeholder={t.placeholderEmail}
+                      style={{ borderRadius: 18, height: 56 }}
+                    />
+                  </Form.Item>
+
+                  <Form.Item
+                    label={
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "flex-start",
+                          gap: 12,
+                        }}
+                      >
+                        <span style={{ lineHeight: 1.3 }}>{t.password}</span>
+                        <Link
+                          style={{
+                            fontSize: 14,
+                            fontWeight: 600,
+                            color: "#0ea5e9",
+                          }}
+                          to="/forgot-password"
+                        >
+                          {t.forgot}
+                        </Link>
+                      </div>
+                    }
+                    name="password"
+                    rules={[
+                      {
+                        required: true,
+                        message: t.passwordRequired,
+                      },
+                    ]}
+                  >
+                    <Input.Password
+                      prefix={<LockOutlined />}
+                      placeholder={t.placeholderPassword}
+                      style={{ borderRadius: 18, height: 56 }}
+                    />
+                  </Form.Item>
+
+                  <Form.Item
+                    name="remember"
+                    valuePropName="checked"
+                    style={{ marginBottom: 24 }}
+                  >
+                    <Checkbox>{t.remember}</Checkbox>
+                  </Form.Item>
+
+                  <Form.Item>
+                    <Button
+                      type="primary"
+                      htmlType="submit"
+                      block
+                      loading={loading}
+                      style={{
+                        height: 56,
+                        borderRadius: 18,
+                        fontSize: 16,
+                        fontWeight: 700,
+                      }}
+                    >
+                      {t.submitLogin}
+                    </Button>
+                  </Form.Item>
+                </Form>
+
+                <Divider style={{ color: "#cbd5e1", margin: "32px 0" }}>
+                  {t.orContinue}
+                </Divider>
+
+                <Button
+                  icon={<GoogleOutlined />}
+                  block
+                  style={{
+                    height: 56,
+                    borderRadius: 18,
+                    background: "#fff",
+                    color: "#0f172a",
+                    borderColor: "#d1d5db",
+                    fontWeight: 700,
+                  }}
+                >
+                  {t.continueWithGoogle}
+                </Button>
+
+                <Paragraph
+                  style={{
+                    marginTop: 32,
+                    textAlign: "center",
+                    color: "#64748b",
+                  }}
+                >
+                  {t.noAccount}{" "}
+                  <Link
+                    style={{ fontWeight: 700, color: "#0ea5e9" }}
+                    to="/signup"
+                  >
+                    {t.signUp}
+                  </Link>
+                </Paragraph>
+              </div>
+            </Col>
+          </Row>
+        </Card>
+      </Col>
+    </Row>
   );
 };
 
