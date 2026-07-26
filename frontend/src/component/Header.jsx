@@ -323,7 +323,7 @@ const Header = () => {
                         lineHeight: 1.1,
                       }}
                     >
-                      <Text strong>Marcus</Text>
+                      <Text strong>Marshal</Text>
                       <br />
                       <Text
                         type="secondary"

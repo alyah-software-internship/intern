@@ -15,7 +15,7 @@ export const LanguageProvider = ({ children }) => {
     const browserLang = navigator.language.split("-")[0];
     if (languages[browserLang]) return browserLang;
 
-    return "en"; // Default to English
+    return "am"; // Default to Amharic
   };
 
   const [lang, setLang] = useState(getInitialLang);

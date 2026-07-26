@@ -53,6 +53,26 @@ const en = {
     heroSubtitle:
       "From construction equipment to beauty tools - find everything you need for rent",
     heroSearch: "What are you looking for?",
+    search: {
+      assetCategory: "Asset Category",
+      location: "Location",
+      rentalPeriod: "Rental Period",
+      searchButton: "Search",
+      browseCategories: "Browse Categories",
+      viewCatalog: "View Entire Catalog",
+      categoryPlaceholder: "Select Category",
+      locationPlaceholder: "All Ethiopia Cities",
+      categories: {
+        construction: "Construction Equipment",
+        vehicles: "Commercial Vehicles",
+        tools: "Tools & Machinery",
+      },
+      locations: {
+        ethiopia: "All Ethiopia Cities",
+        addis: "Addis Ababa",
+        bahirDar: "Bahir Dar",
+      },
+    },
     categoriesTitle: "Browse Categories",
     categoriesSubtitle: "Find the perfect rental in any category",
     featuredTitle: "Featured Products",
@@ -70,6 +90,14 @@ const en = {
     joinCommunity: "Join Our Community",
     joinCommunitySubtitle: "Start renting or listing your items today",
     getStarted: "Get Started",
+    dashboardShortcutsTitle: "Dashboard Shortcuts",
+    dashboardShortcutsSubtitle: "Access quick links and recent activity.",
+    yourActiveBookings: "Your Active Bookings",
+    yourActiveBookingsCount: "4 contracts",
+    recentlyViewedTitle: "Recently Viewed Items",
+  },
+  alerts: {
+    panelTitle: "Alerts Panel",
   },
 
   // Products Page
