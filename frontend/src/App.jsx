@@ -21,6 +21,7 @@ import Messagespage from "./page/customer/Messagespage";
 import WishlistPage from "./page/customer/WishlistPage";
 import NotificationPage from "./page/customer/NotificationPage";
 import VendorPage from "./page/vendor/VendorPage";
+import Footer from "./component/Footer.jsx";
 
 const App = () => {
   const location = useLocation();
@@ -49,7 +50,9 @@ const App = () => {
           <Route path="/notifications" element={<NotificationPage />} />
           <Route path="/vendor" element={<VendorPage />} />
         </Routes>
+
       </AnimatePresence>
+      <Footer />
     </div>
   );
 };

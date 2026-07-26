@@ -7,7 +7,7 @@ import MarketPlaceJourny from "../../component/home/MarketPlaceJourny.jsx";
 import TrustedBy from "../../component/home/TrustedBy.jsx";
 import UserReview from "../../component/home/UserReview.jsx";
 import Subscribe from "../../component/home/Subscribe.jsx";
-import FooterLink from "../../component/home/FooterLink.jsx";
+import Footer from "../../component/Footer.jsx";
 
 function Home() {
   return (
@@ -31,9 +31,7 @@ function Home() {
         <div style={{ marginTop: 24 }}>
           <Subscribe />
         </div>
-        <div style={{ marginTop: 24 }}>
-          <FooterLink />
-        </div>
+       
       </div>
     </div>
   );
