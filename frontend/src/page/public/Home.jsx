@@ -1,31 +1,39 @@
 import DashboardShortcut from "../../component/home/DashboardShortcut.jsx";
 import Hero from "../../component/home/Hero.jsx";
-import Bookings from "../../component/home/Bookings.jsx";
-import Wishlist from "../../component/home/Wishlist.jsx";
-import RecentlyViewed from "../../component/home/RecentlyViewed.jsx";
-import AlertsPanel from "../../component/home/AlertsPanel.jsx";
+import BrowseCategories from "../../component/home/BrowseCategories.jsx";
+import HandPicked from "../../component/home/HandPicked.jsx";
 import { Row, Col } from "antd";
+import MarketPlaceJourny from "../../component/home/MarketPlaceJourny.jsx";
+import TrustedBy from "../../component/home/TrustedBy.jsx";
+import UserReview from "../../component/home/UserReview.jsx";
+import Subscribe from "../../component/home/Subscribe.jsx";
+import FooterLink from "../../component/home/FooterLink.jsx";
 
 function Home() {
   return (
     <div>
       <Hero />
 
-      <div style={{ maxWidth: 1180, margin: "0 auto", padding: "24px" }}>
-        <Row gutter={[24, 24]}>
-          <Col xs={24} lg={14}>
-            <DashboardShortcut />
-            <Bookings />
-            <Wishlist />
-          </Col>
+      <DashboardShortcut />
+      <div style={{ marginTop: 24 }}>
+        <BrowseCategories />
+        <div style={{ marginTop: 24 }}>
+          <HandPicked />
+        </div>
 
-          <Col xs={24} lg={10}>
-            <AlertsPanel />
-            <div style={{ marginTop: 16 }}>
-              <RecentlyViewed />
-            </div>
-          </Col>
-        </Row>
+        <div style={{ marginTop: 24 }}>
+          <MarketPlaceJourny />
+        </div>
+        <TrustedBy />
+        <div style={{ marginTop: 24 }}>
+          <UserReview />
+        </div>
+        <div style={{ marginTop: 24 }}>
+          <Subscribe />
+        </div>
+        <div style={{ marginTop: 24 }}>
+          <FooterLink />
+        </div>
       </div>
     </div>
   );

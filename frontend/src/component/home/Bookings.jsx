@@ -28,12 +28,20 @@ const Bookings = () => {
   const { translation: t } = useTranslation();
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const [isMobile, setIsMobile] = React.useState(false);
+
+  React.useEffect(() => {
+    const updateMobile = () => setIsMobile(window.innerWidth < 768);
+    updateMobile();
+    window.addEventListener("resize", updateMobile);
+    return () => window.removeEventListener("resize", updateMobile);
+  }, []);
 
   return (
     <Card
       style={{
         borderRadius: 12,
-        padding: 18,
+        padding: 14,
         marginTop: 16,
         background: isDark ? "#0b1220" : "#fff",
         border: isDark
@@ -48,10 +56,13 @@ const Bookings = () => {
             <div
               style={{
                 display: "flex",
+                flexDirection: "row",
                 alignItems: "center",
                 justifyContent: "space-between",
                 padding: 12,
                 borderRadius: 12,
+                gap: 12,
+                flexWrap: "wrap",
                 background: isDark ? "rgba(255,255,255,0.02)" : "#fbfdff",
                 border: isDark
                   ? "1px solid rgba(255,255,255,0.03)"
@@ -81,15 +92,17 @@ const Bookings = () => {
 
               <AntdButton
                 type="text"
-                style={{ color: isDark ? "#60a5fa" : "#0ea5e9" }}
+                style={{
+                  color: isDark ? "#60a5fa" : "#0ea5e9",
+                  padding: "8px 0",
+                }}
               >
-                {t.common?.viewAll || "View"}
+                {t.common?.viewAll || "View All"}
               </AntdButton>
             </div>
           </Col>
         </Row>
       </div>
-      
 
       <div>
         {sampleBookings.map((b) => (
@@ -97,55 +110,80 @@ const Bookings = () => {
             key={b.id}
             style={{
               display: "flex",
-              alignItems: "center",
+              flexDirection: isMobile ? "column" : "row",
+              alignItems: isMobile ? "stretch" : "center",
               justifyContent: "space-between",
-              padding: 12,
+              padding: isMobile ? 12 : 14,
               borderRadius: 12,
               marginBottom: 12,
               border: isDark
                 ? "1px solid rgba(255,255,255,0.04)"
                 : "1px solid rgba(15,23,42,0.06)",
               background: isDark ? "rgba(255,255,255,0.02)" : "#fbfdff",
+              gap: isMobile ? 12 : 0,
             }}
           >
-            <div>
+            <div style={{ flex: 1, minWidth: 0 }}>
               <Text
                 style={{
                   fontWeight: 700,
                   color: isDark ? "#f8fafc" : "#0f172a",
+                  display: "block",
                 }}
               >
                 {b.title}
               </Text>
-              <div>
+              <div style={{ marginTop: 8 }}>
                 <Text
                   style={{
                     color: isDark ? "#94a3b8" : "#6b7280",
                     fontSize: 13,
                   }}
-                >{`Vendor: ${b.vendor}`}</Text>
+                >
+                  {`Vendor: ${b.vendor}`}
+                </Text>
               </div>
-              <div>
+              <div style={{ marginTop: 6 }}>
                 <Text
                   style={{
                     color: isDark ? "#94a3b8" : "#6b7280",
                     fontSize: 12,
                   }}
-                >{`${b.period} • ${b.days}`}</Text>
+                >
+                  {`${b.period} • ${b.days}`}
+                </Text>
               </div>
             </div>
 
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <div style={{ textAlign: "right" }}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: isMobile ? "row" : "column",
+                alignItems: isMobile ? "center" : "flex-end",
+                justifyContent: isMobile ? "space-between" : "center",
+                gap: 10,
+                width: isMobile ? "100%" : "auto",
+                minWidth: 0,
+                marginTop: isMobile ? 8 : 0,
+              }}
+            >
+              <div
+                style={{
+                  textAlign: isMobile ? "left" : "right",
+                  minWidth: isMobile ? 0 : 100,
+                }}
+              >
                 <Text
                   style={{
                     fontSize: 12,
                     color: isDark ? "#94a3b8" : "#6b7280",
+                    letterSpacing: "0.12em",
+                    textTransform: "uppercase",
                   }}
                 >
                   ESCROW HOLDING
                 </Text>
-                <div>
+                <div style={{ marginTop: 4 }}>
                   <Text
                     strong
                     style={{
@@ -162,7 +200,10 @@ const Bookings = () => {
                 </div>
               </div>
 
-              <AntdButton type="default" style={{ borderRadius: 999 }}>
+              <AntdButton
+                type="default"
+                style={{ borderRadius: 999, minWidth: isMobile ? 42 : 48 }}
+              >
                 &gt;
               </AntdButton>
             </div>

@@ -20,6 +20,25 @@ const en = {
     messages: "Messages",
     becomeVendor: "Become a Vendor",
     menu: "Menu",
+    trusted: {
+      badge: "TRUSTED BY THOUSANDS",
+      title: "Ethiopia's Fastest-Growing Rental Marketplace",
+      subtitle:
+        "Empowering local builders, farmers, salons, and planners with friction-free peer assets",
+      rentalsCompleted: "Rentals Completed",
+      verifiedVendors: "Verified Vendors",
+      productCategories: "Product Categories",
+      averageRating: "Average User Rating",
+    },
+    userReviewsBadge: "USER REVIEWS",
+    userReviewsTitle: "User Reviews",
+    userReviewsSubtitle:
+      "Honest feedback from verified active renters and rental store operators",
+    subscribeTitle: "Ready to Start Renting?",
+    subscribeSubtitle:
+      "Join thousands of verified business users and vendors on i-Share today.",
+    subscribePlaceholder: "Enter your email address",
+    subscribeCTA: "Join Now",
   },
   language: "Language",
 
@@ -28,6 +47,7 @@ const en = {
     search: "Search...",
     rent: "Rent Now",
     details: "View Details",
+    vendor: "Vendor",
     addToCart: "Add to Cart",
     bookNow: "Book Now",
     cancel: "Cancel",
@@ -75,6 +95,7 @@ const en = {
     },
     categoriesTitle: "Browse Categories",
     categoriesSubtitle: "Find the perfect rental in any category",
+    browseCategories: "Explore All Categories",
     featuredTitle: "Featured Products",
     featuredSubtitle: "Handpicked rentals for you",
     howItWorks: "How It Works",
@@ -120,6 +141,21 @@ const en = {
       itemsLabel: "ITEMS",
       remove: "Remove",
     },
+    marketplaceTitle: "How the Marketplace Works",
+    marketplaceSubtitle: "A simple 3-step journey to start renting",
+    marketplaceStep1Title: "Search & Discover",
+    marketplaceStep1Desc:
+      "Find the perfect equipment across categories and locations.",
+    marketplaceStep2Title: "Book & Secure",
+    marketplaceStep2Desc:
+      "Choose dates, confirm booking, and secure via escrow.",
+    marketplaceStep3Title: "Pickup & Return",
+    marketplaceStep3Desc: "Collect, use, and return the item when done.",
+    marketplaceCTA: "Start Exploring",
+    marketplaceBadge: "MARKETPLACE JOURNEY",
+    marketplaceMainTitle: "How i-Share Works",
+    marketplaceMainSubtitle:
+      "Five intuitive phases representing a secure, escrow-backed rental contract",
   },
   alerts: {
     panelTitle: "Alerts Panel",

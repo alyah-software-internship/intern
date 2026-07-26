@@ -1,7 +1,9 @@
 import React from "react";
-import { Card, List, Avatar, Typography } from "antd";
+import { Card, Avatar, Typography } from "antd";
 import { useTranslation } from "../LanguageProvider.jsx";
 import { useTheme } from "../../context/ThemeProvider.jsx";
+import excavatorImage from "../../assets/excavator.png";
+import carImage from "../../assets/car.png";
 
 const { Text } = Typography;
 
@@ -11,12 +13,14 @@ const sample = [
     title: "Caterpillar 301.8 Mini Excavator",
     categoryKey: "construction",
     price: "$250/day",
+    image: excavatorImage,
   },
   {
     id: 2,
     title: "John Deere 1025R Sub-Compact Tractor",
     categoryKey: "agriculture",
     price: "$180/day",
+    image: carImage,
   },
 ];
 
@@ -29,7 +33,7 @@ const RecentlyViewed = () => {
     <Card
       style={{
         borderRadius: 12,
-        padding: 12,
+        padding: 2,
         background: isDark ? "#0b1220" : "#fff",
         border: isDark
           ? "1px solid rgba(255,255,255,0.06)"
@@ -47,19 +51,29 @@ const RecentlyViewed = () => {
         {t.home?.recentlyViewedTitle || "Recently Viewed Items"}
       </Text>
 
-      <List
-        itemLayout="horizontal"
-        dataSource={sample}
-        renderItem={(item) => (
-          <List.Item style={{ padding: 8, borderRadius: 10 }}>
-            <List.Item.Meta
-              avatar={<Avatar shape="square" size={48} src={null} />}
-              title={
-                <Text strong style={{ color: isDark ? "#f8fafc" : undefined }}>
-                  {item.title}
-                </Text>
-              }
-              description={
+      {sample.map((item) => (
+        <div
+          key={item.id}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: 10,
+            borderRadius: 10,
+            marginBottom: 10,
+            background: isDark ? "rgba(255,255,255,0.02)" : "#f8fafc",
+            border: isDark
+              ? "1px solid rgba(255,255,255,0.04)"
+              : "1px solid rgba(15,23,42,0.08)",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <Avatar shape="square" size={48} src={item.image} />
+            <div>
+              <Text strong style={{ color: isDark ? "#f8fafc" : undefined }}>
+                {item.title}
+              </Text>
+              <div>
                 <Text
                   style={{
                     color: isDark ? "#94a3b8" : "#6b7280",
@@ -70,17 +84,15 @@ const RecentlyViewed = () => {
                     t.home?.search?.categories?.[item.categoryKey] ||
                     ""}
                 </Text>
-              }
-            />
-
-            <div>
-              <Text style={{ color: "#10b981", fontWeight: 700 }}>
-                {item.price}
-              </Text>
+              </div>
             </div>
-          </List.Item>
-        )}
-      />
+          </div>
+
+          <Text style={{ color: "#10b981", fontWeight: 700 }}>
+            {item.price}
+          </Text>
+        </div>
+      ))}
 
       <div style={{ marginTop: 12 }}>
         <div

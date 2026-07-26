@@ -2,6 +2,10 @@ import React from "react";
 import { Card, Col, Row, Typography, Button as AntdButton, Space } from "antd";
 import { useTranslation } from "../LanguageProvider.jsx";
 import { useTheme } from "../../context/ThemeProvider.jsx";
+import Bookings from "./Bookings.jsx";
+import Wishlist from "./Wishlist.jsx";
+import AlertsPanel from "./AlertsPanel.jsx";
+import RecentlyViewed from "./RecentlyViewed.jsx";
 
 const { Title, Text } = Typography;
 
@@ -9,6 +13,14 @@ const DashboardShortcut = () => {
   const { translation: t } = useTranslation();
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const [isMobile, setIsMobile] = React.useState(false);
+
+  React.useEffect(() => {
+    const updateMobile = () => setIsMobile(window.innerWidth < 768);
+    updateMobile();
+    window.addEventListener("resize", updateMobile);
+    return () => window.removeEventListener("resize", updateMobile);
+  }, []);
 
   return (
     <Card
@@ -49,7 +61,7 @@ const DashboardShortcut = () => {
           >
             {t.home?.dashboardWelcome || "Welcome back"}{" "}
             <Text style={{ color: "#2563eb" }}>
-              {t.home?.dashboardWelcomeName || "Marcus!"}
+              {t.home?.dashboardWelcomeName || "Marshal!"}
             </Text>
           </Title>
 
@@ -69,13 +81,17 @@ const DashboardShortcut = () => {
         <Col xs={24} lg={10}>
           <Space
             wrap
-            style={{ justifyContent: "flex-end", display: "flex" }}
+            style={{
+              justifyContent: isMobile ? "flex-start" : "flex-end",
+              display: "flex",
+            }}
             size={12}
           >
             <AntdButton
               type="primary"
+              block={isMobile}
               style={{
-                minWidth: 160,
+                minWidth: isMobile ? "100%" : 160,
                 borderRadius: 999,
                 padding: "12px 20px",
                 fontWeight: 700,
@@ -88,8 +104,9 @@ const DashboardShortcut = () => {
             </AntdButton>
             <AntdButton
               type="default"
+              block={isMobile}
               style={{
-                minWidth: 160,
+                minWidth: isMobile ? "100%" : 160,
                 borderRadius: 999,
                 padding: "12px 20px",
                 fontWeight: 700,
@@ -103,8 +120,9 @@ const DashboardShortcut = () => {
             </AntdButton>
             <AntdButton
               type="default"
+              block={isMobile}
               style={{
-                minWidth: 160,
+                minWidth: isMobile ? "100%" : 160,
                 borderRadius: 999,
                 padding: "12px 20px",
                 fontWeight: 700,
@@ -116,6 +134,22 @@ const DashboardShortcut = () => {
             >
               {t.home?.dashboardButtons?.viewBookings || "View Bookings"}
             </AntdButton>
+          </Space>
+        </Col>
+      </Row>
+
+      <Row gutter={[12, 12]} style={{ marginTop: 14 }}>
+        <Col xs={24} md={12}>
+          <Space orientation="vertical" size={22} style={{ width: "100%" }}>
+            <Bookings />
+            <Wishlist />
+          </Space>
+        </Col>
+
+        <Col xs={24} md={12}>
+          <Space orientation="vertical" size={12} style={{ width: "100%" }}>
+            <AlertsPanel />
+            <RecentlyViewed />
           </Space>
         </Col>
       </Row>

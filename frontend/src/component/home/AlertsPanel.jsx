@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, List, Typography, Badge } from "antd";
+import { Card, Typography, Badge } from "antd";
 import { BellOutlined } from "@ant-design/icons";
 import { useTranslation } from "../LanguageProvider.jsx";
 import { useTheme } from "../../context/ThemeProvider.jsx";
@@ -63,55 +63,52 @@ const AlertsPanel = () => {
       </div>
 
       <div style={{ marginTop: 12 }}>
-        <List
-          dataSource={sampleAlerts}
-          renderItem={(item) => (
-            <List.Item style={{ padding: 0 }}>
-              <div
-                style={{
-                  width: "100%",
-                  padding: 12,
-                  borderRadius: 10,
-                  background: isDark
-                    ? "linear-gradient(90deg, rgba(99,102,241,0.06), rgba(56,189,248,0.04))"
-                    : "linear-gradient(180deg, #f0faf6 0%, #f9fbff 100%)",
-                  border: isDark
-                    ? "1px solid rgba(255,255,255,0.02)"
-                    : "1px solid rgba(14,165,233,0.06)",
-                }}
-              >
-                <Text
-                  strong
-                  style={{
-                    display: "block",
-                    color: isDark ? "#052e56" : "#052e56",
-                  }}
-                >
-                  {item.title}
-                </Text>
-                <Text
-                  style={{
-                    display: "block",
-                    color: isDark ? "#94a3b8" : "#6b7280",
-                    marginTop: 6,
-                  }}
-                >
-                  {item.body}
-                </Text>
-                <Text
-                  style={{
-                    display: "block",
-                    color: isDark ? "#94a3b8" : "#94a3b8",
-                    fontSize: 12,
-                    marginTop: 8,
-                  }}
-                >
-                  {item.date}
-                </Text>
-              </div>
-            </List.Item>
-          )}
-        />
+        {sampleAlerts.map((item) => (
+          <div
+            key={item.id}
+            style={{
+              width: "100%",
+              padding: 12,
+              borderRadius: 10,
+              background: isDark
+                ? "linear-gradient(90deg, rgba(99,102,241,0.06), rgba(56,189,248,0.04))"
+                : "linear-gradient(180deg, #f0faf6 0%, #f9fbff 100%)",
+              border: isDark
+                ? "1px solid rgba(255,255,255,0.02)"
+                : "1px solid rgba(14,165,233,0.06)",
+              marginBottom: 12,
+            }}
+          >
+            <Text
+              strong
+              style={{
+                display: "block",
+                color: isDark ? "#052e56" : "#052e56",
+              }}
+            >
+              {item.title}
+            </Text>
+            <Text
+              style={{
+                display: "block",
+                color: isDark ? "#94a3b8" : "#6b7280",
+                marginTop: 6,
+              }}
+            >
+              {item.body}
+            </Text>
+            <Text
+              style={{
+                display: "block",
+                color: isDark ? "#94a3b8" : "#94a3b8",
+                fontSize: 12,
+                marginTop: 8,
+              }}
+            >
+              {item.date}
+            </Text>
+          </div>
+        ))}
       </div>
     </Card>
   );
