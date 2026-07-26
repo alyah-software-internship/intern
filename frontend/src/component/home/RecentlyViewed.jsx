@@ -9,13 +9,13 @@ const sample = [
   {
     id: 1,
     title: "Caterpillar 301.8 Mini Excavator",
-    category: "Construction & Tools",
+    categoryKey: "construction",
     price: "$250/day",
   },
   {
     id: 2,
     title: "John Deere 1025R Sub-Compact Tractor",
-    category: "Agriculture & Tractors",
+    categoryKey: "agriculture",
     price: "$180/day",
   },
 ];
@@ -26,18 +26,18 @@ const RecentlyViewed = () => {
   const isDark = theme === "dark";
 
   return (
-    {
-      id: 1,
-      title: "Caterpillar 301.8 Mini Excavator",
-      categoryKey: "construction",
-      price: "$250/day",
-    },
-    {
-      id: 2,
-      title: "John Deere 1025R Sub-Compact Tractor",
-      categoryKey: "agriculture",
-      price: "$180/day",
-    },
+    <Card
+      style={{
+        borderRadius: 12,
+        padding: 12,
+        background: isDark ? "#0b1220" : "#fff",
+        border: isDark
+          ? "1px solid rgba(255,255,255,0.06)"
+          : "1px solid rgba(15,23,42,0.06)",
+      }}
+    >
+      <Text
+        strong
         style={{
           display: "block",
           marginBottom: 12,
@@ -66,25 +66,69 @@ const RecentlyViewed = () => {
                     fontSize: 13,
                   }}
                 >
-                  {item.category}
+                  {t.home?.recentlyViewed?.categories?.[item.categoryKey] ||
+                    t.home?.search?.categories?.[item.categoryKey] ||
+                    ""}
                 </Text>
               }
             />
+
             <div>
-              <Text
-                style={{
-                  color: isDark ? "#10b981" : "#10b981",
-                  fontWeight: 700,
-                }}
-              >
+              <Text style={{ color: "#10b981", fontWeight: 700 }}>
                 {item.price}
               </Text>
             </div>
           </List.Item>
         )}
       />
+
+      <div style={{ marginTop: 12 }}>
+        <div
+          style={{ borderTop: "1px solid rgba(15,23,42,0.06)", paddingTop: 12 }}
+        />
+        <Text
+          style={{
+            display: "block",
+            color: isDark ? "#94a3b8" : "#6b7280",
+            fontSize: 12,
+            marginTop: 12,
+          }}
+        >
+          {t.home?.recentlyViewed?.continueBrowsing ||
+            t.home?.recentlyViewedTitle}
+        </Text>
+
+        <div
+          style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}
+        >
+          <button
+            style={{
+              padding: "8px 12px",
+              borderRadius: 20,
+              background: isDark ? "rgba(255,255,255,0.04)" : "#eef7ff",
+              border: "none",
+              cursor: "pointer",
+            }}
+          >
+            {t.home?.recentlyViewed?.buttons?.construction ||
+              "Construction & Tools"}
+          </button>
+
+          <button
+            style={{
+              padding: "8px 12px",
+              borderRadius: 20,
+              background: isDark ? "rgba(255,255,255,0.04)" : "#eef7ff",
+              border: "none",
+              cursor: "pointer",
+            }}
+          >
+            {t.home?.recentlyViewed?.buttons?.beauty || "Beauty & Wellness"}
+          </button>
+        </div>
+      </div>
     </Card>
   );
-                    {t.home?.recentlyViewed?.categories?.[item.categoryKey] || t.home?.search?.categories?.[item.categoryKey] || ""}
+};
 
 export default RecentlyViewed;

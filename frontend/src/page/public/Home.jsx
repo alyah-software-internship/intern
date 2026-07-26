@@ -1,6 +1,7 @@
 import DashboardShortcut from "../../component/home/DashboardShortcut.jsx";
 import Hero from "../../component/home/Hero.jsx";
 import Bookings from "../../component/home/Bookings.jsx";
+import Wishlist from "../../component/home/Wishlist.jsx";
 import RecentlyViewed from "../../component/home/RecentlyViewed.jsx";
 import AlertsPanel from "../../component/home/AlertsPanel.jsx";
 import { Row, Col } from "antd";
@@ -15,6 +16,7 @@ function Home() {
           <Col xs={24} lg={14}>
             <DashboardShortcut />
             <Bookings />
+            <Wishlist />
           </Col>
 
           <Col xs={24} lg={10}>

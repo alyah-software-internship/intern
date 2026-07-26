@@ -1,6 +1,5 @@
 import React from "react";
-import { Card, Col, Row, Typography, Button as AntdButton } from "antd";
-import { ArrowRightOutlined } from "@ant-design/icons";
+import { Card, Col, Row, Typography, Button as AntdButton, Space } from "antd";
 import { useTranslation } from "../LanguageProvider.jsx";
 import { useTheme } from "../../context/ThemeProvider.jsx";
 
@@ -14,57 +13,112 @@ const DashboardShortcut = () => {
   return (
     <Card
       style={{
-        borderRadius: 12,
-        padding: 18,
-        background: isDark ? "#0b1220" : "#fff",
+        borderRadius: 24,
+        padding: "28px 26px",
+        background: isDark ? "#0b1220" : "#ffffff",
         border: isDark
-          ? "1px solid rgba(255,255,255,0.06)"
-          : "1px solid rgba(15,23,42,0.06)",
+          ? "1px solid rgba(255,255,255,0.08)"
+          : "1px solid rgba(15,23,42,0.08)",
         boxShadow: isDark
-          ? "0 8px 24px rgba(2,6,23,0.6)"
-          : "0 8px 24px rgba(15,23,42,0.06)",
+          ? "0 24px 80px rgba(0,0,0,0.12)"
+          : "0 24px 60px rgba(15,23,42,0.08)",
       }}
     >
-      <Row align="middle" justify="space-between">
-        <Col>
-          <Title
-            level={4}
+      <Row align="middle" justify="space-between" gutter={[24, 24]}>
+        <Col xs={24} lg={14}>
+          <Text
+            strong
             style={{
-              margin: 0,
-              color: isDark ? "#f8fafc" : undefined,
-              fontWeight: 800,
+              textTransform: "uppercase",
+              letterSpacing: "0.18em",
+              fontSize: 12,
+              color: "#22c55e",
+              display: "block",
             }}
           >
-            {t.home?.dashboardShortcutsTitle || "Dashboard Shortcuts"}
+            {t.home?.dashboardShortcutsCaption || "Dashboard Shortcuts"}
+          </Text>
+
+          <Title
+            level={2}
+            style={{
+              margin: "12px 0 8px",
+              color: isDark ? "#f8fafc" : "#0f172a",
+              fontWeight: 900,
+            }}
+          >
+            {t.home?.dashboardWelcome || "Welcome back"}{" "}
+            <Text style={{ color: "#2563eb" }}>
+              {t.home?.dashboardWelcomeName || "Marcus!"}
+            </Text>
           </Title>
+
           <Text
             style={{
-              color: isDark ? "#94a3b8" : "#6b7280",
-              display: "block",
-              marginTop: 6,
+              color: isDark ? "#94a3b8" : "#475569",
+              fontSize: 16,
+              lineHeight: 1.8,
+              maxWidth: 680,
             }}
           >
             {t.home?.dashboardShortcutsSubtitle ||
-              "Access quick links and recent activity."}
+              "Access your active contracts, security escrow holding, and recommended machinery."}
           </Text>
         </Col>
 
-        <Col>
-          <AntdButton
-            type="default"
-            icon={<ArrowRightOutlined />}
-            style={{
-              borderRadius: 999,
-              minWidth: 44,
-              height: 44,
-              background: isDark ? "rgba(255,255,255,0.04)" : "#f1f5f9",
-              borderColor: isDark ? "rgba(255,255,255,0.06)" : undefined,
-            }}
-          />
+        <Col xs={24} lg={10}>
+          <Space
+            wrap
+            style={{ justifyContent: "flex-end", display: "flex" }}
+            size={12}
+          >
+            <AntdButton
+              type="primary"
+              style={{
+                minWidth: 160,
+                borderRadius: 999,
+                padding: "12px 20px",
+                fontWeight: 700,
+                background: "linear-gradient(90deg, #3b82f6 0%, #10b981 100%)",
+                borderColor: "transparent",
+                color: "#ffffff",
+              }}
+            >
+              {t.home?.dashboardButtons?.browseRentals || "Browse Rentals"}
+            </AntdButton>
+            <AntdButton
+              type="default"
+              style={{
+                minWidth: 160,
+                borderRadius: 999,
+                padding: "12px 20px",
+                fontWeight: 700,
+                background: isDark ? "rgba(255,255,255,0.05)" : "#f8fafc",
+                borderColor: isDark
+                  ? "rgba(255,255,255,0.08)"
+                  : "rgba(15,23,42,0.12)",
+              }}
+            >
+              {t.home?.dashboardButtons?.becomeVendor || "Become a Vendor"}
+            </AntdButton>
+            <AntdButton
+              type="default"
+              style={{
+                minWidth: 160,
+                borderRadius: 999,
+                padding: "12px 20px",
+                fontWeight: 700,
+                background: isDark ? "rgba(255,255,255,0.05)" : "#f8fafc",
+                borderColor: isDark
+                  ? "rgba(255,255,255,0.08)"
+                  : "rgba(15,23,42,0.12)",
+              }}
+            >
+              {t.home?.dashboardButtons?.viewBookings || "View Bookings"}
+            </AntdButton>
+          </Space>
         </Col>
       </Row>
-
-     
     </Card>
   );
 };

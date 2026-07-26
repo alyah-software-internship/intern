@@ -94,10 +94,36 @@ const am = {
       },
     },
     dashboardShortcutsTitle: "የዳሽቦርድ አጭር አገናኝ",
-    dashboardShortcutsSubtitle: "ፈጣን አገናኝና የቅርብ እንቅስቃሴዎችን ያድርጉ።",
+    dashboardShortcutsCaption: "የዳሽቦርድ አጭር አገናኝ",
+    dashboardWelcome: "እንኳን በደህና መጣህ",
+    dashboardWelcomeName: "Marcus!",
+    dashboardShortcutsSubtitle:
+      "የተጠናከሩ ውሎዎችዎን፣ የኢስክሮ ማስተናገድንና የተመከሩ ማሽነሪያዎችን ያገኙ።",
+    dashboardButtons: {
+      browseRentals: "ኪራይ ያድርጉ",
+      becomeVendor: "የሻጭ ይሁኑ",
+      viewBookings: "የቦታዎችን ይመልከቱ",
+    },
     yourActiveBookings: "የእርስዎ ንቁ ቦታዎች",
     yourActiveBookingsCount: "4 ውሎዎች",
     recentlyViewedTitle: "እንደዚህ የቅርብ ጊዜ የታዩ ንብረቶች",
+    recentlyViewed: {
+      continueBrowsing: "CONTINUE BROWSING",
+      buttons: {
+        construction: "ስራ እና መሣሪያዎች",
+        beauty: "ዋና የውበት እና ጤና",
+      },
+      categories: {
+        construction: "የግንባታ መሣሪያዎች",
+        agriculture: "ግብርና እና እርሻ",
+      },
+    },
+    wishlistTitle: "የደረጃ የተቀመጡ የልመና ንብረቶች",
+    wishlist: {
+      title: "የደረጃ የተቀመጡ የልመና ንብረቶች",
+      itemsLabel: "ንብረቶች",
+      remove: "አስወግድ",
+    },
   },
   alerts: {
     panelTitle: "የማስጠንቀቂያ ፓነል",

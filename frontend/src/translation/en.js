@@ -90,11 +90,36 @@ const en = {
     joinCommunity: "Join Our Community",
     joinCommunitySubtitle: "Start renting or listing your items today",
     getStarted: "Get Started",
-    dashboardShortcutsTitle: "Dashboard Shortcuts",
-    dashboardShortcutsSubtitle: "Access quick links and recent activity.",
+    dashboardShortcutsCaption: "Dashboard Shortcuts",
+    dashboardWelcome: "Welcome back",
+    dashboardWelcomeName: "Marcus!",
+    dashboardShortcutsSubtitle:
+      "Access your active contracts, security escrow holding, and recommended machinery.",
+    dashboardButtons: {
+      browseRentals: "Browse Rentals",
+      becomeVendor: "Become a Vendor",
+      viewBookings: "View Bookings",
+    },
     yourActiveBookings: "Your Active Bookings",
     yourActiveBookingsCount: "4 contracts",
     recentlyViewedTitle: "Recently Viewed Items",
+    recentlyViewed: {
+      continueBrowsing: "CONTINUE BROWSING",
+      buttons: {
+        construction: "Construction & Tools",
+        beauty: "Beauty & Wellness",
+      },
+      categories: {
+        construction: "Construction & Tools",
+        agriculture: "Agriculture & Tractors",
+      },
+    },
+    wishlistTitle: "Your Saved Wishlist Items",
+    wishlist: {
+      title: "Your Saved Wishlist Items",
+      itemsLabel: "ITEMS",
+      remove: "Remove",
+    },
   },
   alerts: {
     panelTitle: "Alerts Panel",
