@@ -1,4 +1,8 @@
-
+import constructionImage from "./excavator.png";
+import beautyImage from "./buety.png";
+import agricultureImage from "./ariculturalDron.png";
+import vehiclesImage from "./car.png";
+import rentalItemsData from "../data/rentalItems";
 
 // dummyAssets.js - Complete Dummy Data with Amharic & English Support
 // for i-Share Rental Marketplace
@@ -13,6 +17,8 @@ export const categories = [
     name: "Construction Equipment",
     nameAm: "የግንባታ መሳሪያዎች",
     icon: "🔧",
+    image: constructionImage,
+    accent: "#22c55e",
     description: "Heavy machinery and tools for construction",
     descriptionAm: "ለግንባታ ከባድ ማሽኖች እና መሳሪያዎች",
     count: 45,
@@ -22,6 +28,8 @@ export const categories = [
     name: "Vehicles & Transportation",
     nameAm: "ተሽከርካሪዎች እና መጓጓዣ",
     icon: "🚗",
+    image: vehiclesImage,
+    accent: "#8b5cf6",
     description: "Cars, trucks, motorcycles and more",
     descriptionAm: "መኪኖች፣ የጭነት መኪኖች፣ ሞተርሳይክሎች እና ሌሎችም",
     count: 38,
@@ -31,6 +39,8 @@ export const categories = [
     name: "Beauty & Personal Care",
     nameAm: "ውበት እና የግል እንክብካቤ",
     icon: "💄",
+    image: beautyImage,
+    accent: "#ec4899",
     description: "Beauty equipment and salon tools",
     descriptionAm: "የውበት መሳሪያዎች እና የሳሎን መሳሪያዎች",
     count: 22,
@@ -40,6 +50,8 @@ export const categories = [
     name: "Agricultural Equipment",
     nameAm: "የግብርና መሳሪያዎች",
     icon: "🚜",
+    image: agricultureImage,
+    accent: "#10b981",
     description: "Farming machinery and tools",
     descriptionAm: "የእርሻ ማሽኖች እና መሳሪያዎች",
     count: 30,
@@ -90,8 +102,8 @@ export const vendors = [
     nameAm: "አዲስ ኮንስትራክሽን ኃላ",
     email: "info@addisconstruction.com",
     phone: "+251-911-234-567",
-    address: "Bole Road, Addis Ababa, Ethiopia",
-    addressAm: "ቦሌ መንገድ፣ አዲስ አበባ፣ ኢትዮጵያ",
+    address: "123 iShare Plaza, Addis Ababa, Ethiopia",
+    addressAm: "123 አይሸር ፕላዛ፣ አዲስ አበባ፣ ኢትዮጵያ",
     rating: 4.8,
     totalReviews: 156,
     joinedDate: "2023-01-15",
@@ -109,8 +121,8 @@ export const vendors = [
     nameAm: "ኤክስፕረስ መኪና ኪራይ",
     email: "info@expresscarrental.com",
     phone: "+251-922-345-678",
-    address: "Mexico Square, Addis Ababa, Ethiopia",
-    addressAm: "ሜክሲኮ አደባባይ፣ አዲስ አበባ፣ ኢትዮጵያ",
+    address: "123 iShare Plaza, Addis Ababa, Ethiopia",
+    addressAm: "123 አይሸር ፕላዛ፣ አዲስ አበባ፣ ኢትዮጵያ",
     rating: 4.6,
     totalReviews: 203,
     joinedDate: "2023-03-20",
@@ -128,8 +140,8 @@ export const vendors = [
     nameAm: "ቢውቲ ፕሮ አቅርቦቶች",
     email: "info@beautypro.com",
     phone: "+251-933-456-789",
-    address: "Bole Medhanealem, Addis Ababa, Ethiopia",
-    addressAm: "ቦሌ መድሀኒያለም፣ አዲስ አበባ፣ ኢትዮጵያ",
+    address: "123 iShare Plaza, Addis Ababa, Ethiopia",
+    addressAm: "123 አይሸር ፕላዛ፣ አዲስ አበባ፣ ኢትዮጵያ",
     rating: 4.9,
     totalReviews: 89,
     joinedDate: "2023-05-10",
@@ -147,8 +159,8 @@ export const vendors = [
     nameAm: "ግሪን ፊልድስ ግብርና",
     email: "info@greenfields.com",
     phone: "+251-944-567-890",
-    address: "Hawassa Industrial Park, Hawassa, Ethiopia",
-    addressAm: "አዋሳ ኢንዱስትሪያል ፓርክ፣ አዋሳ፣ ኢትዮጵያ",
+    address: "123 iShare Plaza, Addis Ababa, Ethiopia",
+    addressAm: "123 አይሸር ፕላዛ፣ አዲስ አበባ፣ ኢትዮጵያ",
     rating: 4.7,
     totalReviews: 112,
     joinedDate: "2023-02-01",
@@ -166,8 +178,8 @@ export const vendors = [
     nameAm: "ኢቨንት ማስተርስ ኢትዮጵያ",
     email: "info@eventmasters.com",
     phone: "+251-955-678-901",
-    address: "Around Bole, Addis Ababa, Ethiopia",
-    addressAm: "በቦሌ አካባቢ፣ አዲስ አበባ፣ ኢትዮጵያ",
+    address: "123 iShare Plaza, Addis Ababa, Ethiopia",
+    addressAm: "123 አይሸር ፕላዛ፣ አዲስ አበባ፣ ኢትዮጵያ",
     rating: 4.5,
     totalReviews: 178,
     joinedDate: "2023-04-15",
@@ -185,8 +197,8 @@ export const vendors = [
     nameAm: "ቴክ ጋጄቶች ሃብ",
     email: "info@techgadgets.com",
     phone: "+251-966-789-012",
-    address: "4 Kilo, Addis Ababa, Ethiopia",
-    addressAm: "አራት ኪሎ፣ አዲስ አበባ፣ ኢትዮጵያ",
+    address: "123 iShare Plaza, Addis Ababa, Ethiopia",
+    addressAm: "123 አይሸር ፕላዛ፣ አዲስ አበባ፣ ኢትዮጵያ",
     rating: 4.4,
     totalReviews: 67,
     joinedDate: "2023-06-20",
@@ -204,8 +216,8 @@ export const vendors = [
     nameAm: "ፊት ዞን ጂም መሳሪያዎች",
     email: "info@fitzone.com",
     phone: "+251-977-890-123",
-    address: "Cazanchise, Addis Ababa, Ethiopia",
-    addressAm: "ካዛንቺስ፣ አዲስ አበባ፣ ኢትዮጵያ",
+    address: "123 iShare Plaza, Addis Ababa, Ethiopia",
+    addressAm: "123 አይሸር ፕላዛ፣ አዲስ አበባ፣ ኢትዮጵያ",
     rating: 4.3,
     totalReviews: 45,
     joinedDate: "2023-07-01",
@@ -223,8 +235,8 @@ export const vendors = [
     nameAm: "ሆም ኮምፎርት ኪራዮች",
     email: "info@homecomfort.com",
     phone: "+251-988-901-234",
-    address: "Gerji, Addis Ababa, Ethiopia",
-    addressAm: "ገርጂ፣ አዲስ አበባ፣ ኢትዮጵያ",
+    address: "123 iShare Plaza, Addis Ababa, Ethiopia",
+    addressAm: "123 አይሸር ፕላዛ፣ አዲስ አበባ፣ ኢትዮጵያ",
     rating: 4.2,
     totalReviews: 34,
     joinedDate: "2023-08-12",
@@ -238,6 +250,12 @@ export const vendors = [
   },
 ];
 
+export const rentalItems = rentalItemsData;
+
+export const wishlistItems = rentalItemsData.filter((item) =>
+  ["rent-2", "rent-4"].includes(item.id),
+);
+
 // ---------- PRODUCTS ----------
 export const products = [
   // CONSTRUCTION EQUIPMENT
@@ -245,8 +263,10 @@ export const products = [
     id: "prod-1",
     name: "Excavator - CAT 320D",
     nameAm: "ኤክስካቫተር - ካት 320ዲ",
-    description: "Heavy-duty excavator for construction and earthmoving projects. Perfect for large-scale construction sites.",
-    descriptionAm: "ለግንባታ እና የመሬት ሥራ ፕሮጀክቶች ከባድ ተግባር መቆፈሪያ። ለትልቅ የግንባታ ጣቢያዎች ፍጹም ነው።",
+    description:
+      "Heavy-duty excavator for construction and earthmoving projects. Perfect for large-scale construction sites.",
+    descriptionAm:
+      "ለግንባታ እና የመሬት ሥራ ፕሮጀክቶች ከባድ ተግባር መቆፈሪያ። ለትልቅ የግንባታ ጣቢያዎች ፍጹም ነው።",
     category: "cat-1",
     vendor: "vend-1",
     images: [
@@ -257,8 +277,16 @@ export const products = [
     pricing: {
       hourly: { amount: 250, label: "ETB 250/hour", labelAm: "250 ብር/ሰዓት" },
       daily: { amount: 1800, label: "ETB 1,800/day", labelAm: "1,800 ብር/ቀን" },
-      weekly: { amount: 10500, label: "ETB 10,500/week", labelAm: "10,500 ብር/ሳምንት" },
-      monthly: { amount: 35000, label: "ETB 35,000/month", labelAm: "35,000 ብር/ወር" },
+      weekly: {
+        amount: 10500,
+        label: "ETB 10,500/week",
+        labelAm: "10,500 ብር/ሳምንት",
+      },
+      monthly: {
+        amount: 35000,
+        label: "ETB 35,000/month",
+        labelAm: "35,000 ብር/ወር",
+      },
     },
     availability: {
       status: "available",
@@ -280,7 +308,11 @@ export const products = [
       bucketCapacityAm: "1.0-2.0 ሜትር³",
     },
     rentalPolicies: {
-      securityDeposit: { amount: 5000, label: "ETB 5,000", labelAm: "5,000 ብር" },
+      securityDeposit: {
+        amount: 5000,
+        label: "ETB 5,000",
+        labelAm: "5,000 ብር",
+      },
       lateFee: { amount: 500, label: "ETB 500/day", labelAm: "500 ብር/ቀን" },
       cancellationPolicy: "24 hours notice required",
       cancellationPolicyAm: "ከ24 ሰዓታት በፊት ማሳወቅ ያስፈልጋል",
@@ -299,8 +331,10 @@ export const products = [
     id: "prod-2",
     name: "Concrete Mixer - 500L",
     nameAm: "ኮንክሪት ሚክስተር - 500ሊ",
-    description: "Portable concrete mixer ideal for medium-sized construction projects. Easy to operate and maintain.",
-    descriptionAm: "ለመካከለኛ መጠን የግንባታ ፕሮጀክቶች ተስማሚ የሆነ ተንቀሳቃሽ ኮንክሪት ቀማሽ። ለመሥራት እና ለመጠገን ቀላል ነው።",
+    description:
+      "Portable concrete mixer ideal for medium-sized construction projects. Easy to operate and maintain.",
+    descriptionAm:
+      "ለመካከለኛ መጠን የግንባታ ፕሮጀክቶች ተስማሚ የሆነ ተንቀሳቃሽ ኮንክሪት ቀማሽ። ለመሥራት እና ለመጠገን ቀላል ነው።",
     category: "cat-1",
     vendor: "vend-1",
     images: [
@@ -310,8 +344,16 @@ export const products = [
     pricing: {
       hourly: { amount: 45, label: "ETB 45/hour", labelAm: "45 ብር/ሰዓት" },
       daily: { amount: 350, label: "ETB 350/day", labelAm: "350 ብር/ቀን" },
-      weekly: { amount: 2000, label: "ETB 2,000/week", labelAm: "2,000 ብር/ሳምንት" },
-      monthly: { amount: 6500, label: "ETB 6,500/month", labelAm: "6,500 ብር/ወር" },
+      weekly: {
+        amount: 2000,
+        label: "ETB 2,000/week",
+        labelAm: "2,000 ብር/ሳምንት",
+      },
+      monthly: {
+        amount: 6500,
+        label: "ETB 6,500/month",
+        labelAm: "6,500 ብር/ወር",
+      },
     },
     availability: {
       status: "available",
@@ -330,7 +372,11 @@ export const products = [
       weightAm: "400 ኪ.ግ",
     },
     rentalPolicies: {
-      securityDeposit: { amount: 1000, label: "ETB 1,000", labelAm: "1,000 ብር" },
+      securityDeposit: {
+        amount: 1000,
+        label: "ETB 1,000",
+        labelAm: "1,000 ብር",
+      },
       lateFee: { amount: 100, label: "ETB 100/day", labelAm: "100 ብር/ቀን" },
       cancellationPolicy: "12 hours notice required",
       cancellationPolicyAm: "ከ12 ሰዓታት በፊት ማሳወቅ ያስፈልጋል",
@@ -347,8 +393,10 @@ export const products = [
     id: "prod-3",
     name: "Forklift - 3 Ton",
     nameAm: "ፎርክሊፍት - 3 ቶን",
-    description: "Industrial forklift for warehouse and construction sites. Reliable and efficient material handling.",
-    descriptionAm: "ለመጋዘን እና ለግንባታ ጣቢያዎች የኢንዱስትሪ ፎርክሊፍት። አስተማማኝ እና ቀልጣፋ የቁሳቁስ አያያዝ።",
+    description:
+      "Industrial forklift for warehouse and construction sites. Reliable and efficient material handling.",
+    descriptionAm:
+      "ለመጋዘን እና ለግንባታ ጣቢያዎች የኢንዱስትሪ ፎርክሊፍት። አስተማማኝ እና ቀልጣፋ የቁሳቁስ አያያዝ።",
     category: "cat-1",
     vendor: "vend-1",
     images: [
@@ -358,8 +406,16 @@ export const products = [
     pricing: {
       hourly: { amount: 80, label: "ETB 80/hour", labelAm: "80 ብር/ሰዓት" },
       daily: { amount: 600, label: "ETB 600/day", labelAm: "600 ብር/ቀን" },
-      weekly: { amount: 3500, label: "ETB 3,500/week", labelAm: "3,500 ብር/ሳምንት" },
-      monthly: { amount: 12000, label: "ETB 12,000/month", labelAm: "12,000 ብር/ወር" },
+      weekly: {
+        amount: 3500,
+        label: "ETB 3,500/week",
+        labelAm: "3,500 ብር/ሳምንት",
+      },
+      monthly: {
+        amount: 12000,
+        label: "ETB 12,000/month",
+        labelAm: "12,000 ብር/ወር",
+      },
     },
     availability: {
       status: "available",
@@ -378,7 +434,11 @@ export const products = [
       fuelTankAm: "60 ሊትር",
     },
     rentalPolicies: {
-      securityDeposit: { amount: 2000, label: "ETB 2,000", labelAm: "2,000 ብር" },
+      securityDeposit: {
+        amount: 2000,
+        label: "ETB 2,000",
+        labelAm: "2,000 ብር",
+      },
       lateFee: { amount: 200, label: "ETB 200/day", labelAm: "200 ብር/ቀን" },
       cancellationPolicy: "24 hours notice required",
       cancellationPolicyAm: "ከ24 ሰዓታት በፊት ማሳወቅ ያስፈልጋል",
@@ -397,8 +457,10 @@ export const products = [
     id: "prod-4",
     name: "Toyota Land Cruiser - 2024",
     nameAm: "ቶዮታ ላንድ ክሩዘር - 2024",
-    description: "Luxury SUV perfect for family trips, business travel, or off-road adventures. Fully loaded with premium features.",
-    descriptionAm: "ለቤተሰብ ጉዞ፣ ለንግድ ጉዞ ወይም ለጉዞ ጉዞዎች ፍጹም የሆነ የቅንጦት ኤስዩቪ። በፕሪሚየም ባህሪያት የተጫነ።",
+    description:
+      "Luxury SUV perfect for family trips, business travel, or off-road adventures. Fully loaded with premium features.",
+    descriptionAm:
+      "ለቤተሰብ ጉዞ፣ ለንግድ ጉዞ ወይም ለጉዞ ጉዞዎች ፍጹም የሆነ የቅንጦት ኤስዩቪ። በፕሪሚየም ባህሪያት የተጫነ።",
     category: "cat-2",
     vendor: "vend-2",
     images: [
@@ -409,8 +471,16 @@ export const products = [
     pricing: {
       hourly: { amount: 120, label: "ETB 120/hour", labelAm: "120 ብር/ሰዓት" },
       daily: { amount: 800, label: "ETB 800/day", labelAm: "800 ብር/ቀን" },
-      weekly: { amount: 5000, label: "ETB 5,000/week", labelAm: "5,000 ብር/ሳምንት" },
-      monthly: { amount: 18000, label: "ETB 18,000/month", labelAm: "18,000 ብር/ወር" },
+      weekly: {
+        amount: 5000,
+        label: "ETB 5,000/week",
+        labelAm: "5,000 ብር/ሳምንት",
+      },
+      monthly: {
+        amount: 18000,
+        label: "ETB 18,000/month",
+        labelAm: "18,000 ብር/ወር",
+      },
     },
     availability: {
       status: "available",
@@ -434,7 +504,11 @@ export const products = [
       seatingAm: "7 መቀመጫ",
     },
     rentalPolicies: {
-      securityDeposit: { amount: 3000, label: "ETB 3,000", labelAm: "3,000 ብር" },
+      securityDeposit: {
+        amount: 3000,
+        label: "ETB 3,000",
+        labelAm: "3,000 ብር",
+      },
       lateFee: { amount: 300, label: "ETB 300/day", labelAm: "300 ብር/ቀን" },
       cancellationPolicy: "48 hours notice required",
       cancellationPolicyAm: "ከ48 ሰዓታት በፊት ማሳወቅ ያስፈልጋል",
@@ -445,7 +519,13 @@ export const products = [
     deliveryAvailableAm: "አዎ",
     rating: 4.9,
     totalReviews: 42,
-    features: ["Leather Seats", "Navigation", "Rear Camera", "Climate Control", "Sunroof"],
+    features: [
+      "Leather Seats",
+      "Navigation",
+      "Rear Camera",
+      "Climate Control",
+      "Sunroof",
+    ],
     featuresAm: ["የቆዳ መቀመጫ", "ናቪጌሽን", "የኋላ ካሜራ", "የአየር ንብረት መቆጣጠሪያ", "ሰንሩፍ"],
     createdAt: "2024-02-15",
   },
@@ -453,8 +533,10 @@ export const products = [
     id: "prod-5",
     name: "Toyota Hiace Minibus - 15 Seater",
     nameAm: "ቶዮታ ሃይስ ሚኒባስ - 15 መቀመጫ",
-    description: "Spacious minibus ideal for group tours, corporate events, and airport transfers. Comfortable seating for 15 passengers.",
-    descriptionAm: "ለቡድን ጉዞዎች፣ ለኮርፖሬት ዝግጅቶች እና ለአየር መንገድ ማስተላለፍ ተስማሚ የሆነ ሰፊ ሚኒባስ። ለ15 መንገደኞች ምቹ መቀመጫ።",
+    description:
+      "Spacious minibus ideal for group tours, corporate events, and airport transfers. Comfortable seating for 15 passengers.",
+    descriptionAm:
+      "ለቡድን ጉዞዎች፣ ለኮርፖሬት ዝግጅቶች እና ለአየር መንገድ ማስተላለፍ ተስማሚ የሆነ ሰፊ ሚኒባስ። ለ15 መንገደኞች ምቹ መቀመጫ።",
     category: "cat-2",
     vendor: "vend-2",
     images: [
@@ -464,8 +546,16 @@ export const products = [
     pricing: {
       hourly: { amount: 150, label: "ETB 150/hour", labelAm: "150 ብር/ሰዓት" },
       daily: { amount: 1000, label: "ETB 1,000/day", labelAm: "1,000 ብር/ቀን" },
-      weekly: { amount: 6000, label: "ETB 6,000/week", labelAm: "6,000 ብር/ሳምንት" },
-      monthly: { amount: 22000, label: "ETB 22,000/month", labelAm: "22,000 ብር/ወር" },
+      weekly: {
+        amount: 6000,
+        label: "ETB 6,000/week",
+        labelAm: "6,000 ብር/ሳምንት",
+      },
+      monthly: {
+        amount: 22000,
+        label: "ETB 22,000/month",
+        labelAm: "22,000 ብር/ወር",
+      },
     },
     availability: {
       status: "available",
@@ -491,7 +581,11 @@ export const products = [
       capacityAm: "15 መንገደኞች",
     },
     rentalPolicies: {
-      securityDeposit: { amount: 4000, label: "ETB 4,000", labelAm: "4,000 ብር" },
+      securityDeposit: {
+        amount: 4000,
+        label: "ETB 4,000",
+        labelAm: "4,000 ብር",
+      },
       lateFee: { amount: 400, label: "ETB 400/day", labelAm: "400 ብር/ቀን" },
       cancellationPolicy: "48 hours notice required",
       cancellationPolicyAm: "ከ48 ሰዓታት በፊት ማሳወቅ ያስፈልጋል",
@@ -508,8 +602,10 @@ export const products = [
     id: "prod-6",
     name: "Bajaj Boxer Motorcycle",
     nameAm: "ባጃጅ ቦክስር ሞተርሳይክል",
-    description: "Reliable motorcycle perfect for city commuting and short trips. Fuel-efficient and easy to ride.",
-    descriptionAm: "ለከተማ መጓጓዣ እና ለአጭር ጉዞዎች ፍጹም የሆነ አስተማማኝ ሞተርሳይክል። ነዳጅ ቆጣቢ እና ለመንዳት ቀላል።",
+    description:
+      "Reliable motorcycle perfect for city commuting and short trips. Fuel-efficient and easy to ride.",
+    descriptionAm:
+      "ለከተማ መጓጓዣ እና ለአጭር ጉዞዎች ፍጹም የሆነ አስተማማኝ ሞተርሳይክል። ነዳጅ ቆጣቢ እና ለመንዳት ቀላል።",
     category: "cat-2",
     vendor: "vend-2",
     images: [
@@ -519,8 +615,16 @@ export const products = [
     pricing: {
       hourly: { amount: 25, label: "ETB 25/hour", labelAm: "25 ብር/ሰዓት" },
       daily: { amount: 200, label: "ETB 200/day", labelAm: "200 ብር/ቀን" },
-      weekly: { amount: 1200, label: "ETB 1,200/week", labelAm: "1,200 ብር/ሳምንት" },
-      monthly: { amount: 4500, label: "ETB 4,500/month", labelAm: "4,500 ብር/ወር" },
+      weekly: {
+        amount: 1200,
+        label: "ETB 1,200/week",
+        labelAm: "1,200 ብር/ሳምንት",
+      },
+      monthly: {
+        amount: 4500,
+        label: "ETB 4,500/month",
+        labelAm: "4,500 ብር/ወር",
+      },
     },
     availability: {
       status: "available",
@@ -544,7 +648,11 @@ export const products = [
       engineAm: "125 ሲሲ",
     },
     rentalPolicies: {
-      securityDeposit: { amount: 1000, label: "ETB 1,000", labelAm: "1,000 ብር" },
+      securityDeposit: {
+        amount: 1000,
+        label: "ETB 1,000",
+        labelAm: "1,000 ብር",
+      },
       lateFee: { amount: 100, label: "ETB 100/day", labelAm: "100 ብር/ቀን" },
       cancellationPolicy: "24 hours notice required",
       cancellationPolicyAm: "ከ24 ሰዓታት በፊት ማሳወቅ ያስፈልጋል",
@@ -565,8 +673,10 @@ export const products = [
     id: "prod-7",
     name: "Professional Hair Dryer - Salon Grade",
     nameAm: "ፕሮፌሽናል የፀጉር ማድረቂያ - ሳሎን ግሬድ",
-    description: "High-quality professional hair dryer with ionic technology. Perfect for salons and home use.",
-    descriptionAm: "በአዮኒክ ቴክኖሎጂ ከፍተኛ ጥራት ያለው ፕሮፌሽናል የፀጉር ማድረቂያ። ለሳሎኖች እና ለቤት አገልግሎት ፍጹም ነው።",
+    description:
+      "High-quality professional hair dryer with ionic technology. Perfect for salons and home use.",
+    descriptionAm:
+      "በአዮኒክ ቴክኖሎጂ ከፍተኛ ጥራት ያለው ፕሮፌሽናል የፀጉር ማድረቂያ። ለሳሎኖች እና ለቤት አገልግሎት ፍጹም ነው።",
     category: "cat-3",
     vendor: "vend-3",
     images: [
@@ -577,7 +687,11 @@ export const products = [
       hourly: { amount: 15, label: "ETB 15/hour", labelAm: "15 ብር/ሰዓት" },
       daily: { amount: 100, label: "ETB 100/day", labelAm: "100 ብር/ቀን" },
       weekly: { amount: 600, label: "ETB 600/week", labelAm: "600 ብር/ሳምንት" },
-      monthly: { amount: 2000, label: "ETB 2,000/month", labelAm: "2,000 ብር/ወር" },
+      monthly: {
+        amount: 2000,
+        label: "ETB 2,000/month",
+        labelAm: "2,000 ብር/ወር",
+      },
     },
     availability: {
       status: "available",
@@ -613,7 +727,8 @@ export const products = [
     id: "prod-8",
     name: "Professional Hair Straightener",
     nameAm: "ፕሮፌሽናል የፀጉር ማስተካከያ",
-    description: "Professional-grade hair straightener with ceramic plates for smooth, shiny results.",
+    description:
+      "Professional-grade hair straightener with ceramic plates for smooth, shiny results.",
     descriptionAm: "ለስላሳ እና አንጸባራቂ ውጤቶች በሴራሚክ ሳህኖች ፕሮፌሽናል-ደረጃ የፀጉር ማስተካከያ።",
     category: "cat-3",
     vendor: "vend-3",
@@ -625,7 +740,11 @@ export const products = [
       hourly: { amount: 10, label: "ETB 10/hour", labelAm: "10 ብር/ሰዓት" },
       daily: { amount: 80, label: "ETB 80/day", labelAm: "80 ብር/ቀን" },
       weekly: { amount: 500, label: "ETB 500/week", labelAm: "500 ብር/ሳምንት" },
-      monthly: { amount: 1800, label: "ETB 1,800/month", labelAm: "1,800 ብር/ወር" },
+      monthly: {
+        amount: 1800,
+        label: "ETB 1,800/month",
+        labelAm: "1,800 ብር/ወር",
+      },
     },
     availability: {
       status: "available",
@@ -663,7 +782,8 @@ export const products = [
     id: "prod-9",
     name: "Tractor - Massey Ferguson 375",
     nameAm: "ትራክተር - ማሲ ፈርጉሰን 375",
-    description: "Powerful tractor for agricultural work. Perfect for plowing, harvesting, and transportation.",
+    description:
+      "Powerful tractor for agricultural work. Perfect for plowing, harvesting, and transportation.",
     descriptionAm: "ለግብርና ሥራ ኃይለኛ ትራክተር። ለማረስ፣ ለመከር እና ለመጓጓዣ ፍጹም ነው።",
     category: "cat-4",
     vendor: "vend-4",
@@ -674,8 +794,16 @@ export const products = [
     pricing: {
       hourly: { amount: 180, label: "ETB 180/hour", labelAm: "180 ብር/ሰዓት" },
       daily: { amount: 1400, label: "ETB 1,400/day", labelAm: "1,400 ብር/ቀን" },
-      weekly: { amount: 8500, label: "ETB 8,500/week", labelAm: "8,500 ብር/ሳምንት" },
-      monthly: { amount: 30000, label: "ETB 30,000/month", labelAm: "30,000 ብር/ወር" },
+      weekly: {
+        amount: 8500,
+        label: "ETB 8,500/week",
+        labelAm: "8,500 ብር/ሳምንት",
+      },
+      monthly: {
+        amount: 30000,
+        label: "ETB 30,000/month",
+        labelAm: "30,000 ብር/ወር",
+      },
     },
     availability: {
       status: "available",
@@ -697,7 +825,11 @@ export const products = [
       weightAm: "3,500 ኪ.ግ",
     },
     rentalPolicies: {
-      securityDeposit: { amount: 5000, label: "ETB 5,000", labelAm: "5,000 ብር" },
+      securityDeposit: {
+        amount: 5000,
+        label: "ETB 5,000",
+        labelAm: "5,000 ብር",
+      },
       lateFee: { amount: 500, label: "ETB 500/day", labelAm: "500 ብር/ቀን" },
       cancellationPolicy: "48 hours notice required",
       cancellationPolicyAm: "ከ48 ሰዓታት በፊት ማሳወቅ ያስፈልጋል",
@@ -716,8 +848,10 @@ export const products = [
     id: "prod-10",
     name: "Combine Harvester",
     nameAm: "ኮምባይን አጫጅ",
-    description: "Modern combine harvester for efficient grain harvesting. Increases productivity and reduces labor costs.",
-    descriptionAm: "ቀልጣፋ የእህል መከር ዘመናዊ ኮምባይን አጫጅ። ምርታማነትን ይጨምራል እና የሰው ኃይል ወጪዎችን ይቀንሳል።",
+    description:
+      "Modern combine harvester for efficient grain harvesting. Increases productivity and reduces labor costs.",
+    descriptionAm:
+      "ቀልጣፋ የእህል መከር ዘመናዊ ኮምባይን አጫጅ። ምርታማነትን ይጨምራል እና የሰው ኃይል ወጪዎችን ይቀንሳል።",
     category: "cat-4",
     vendor: "vend-4",
     images: [
@@ -726,8 +860,16 @@ export const products = [
     ],
     pricing: {
       daily: { amount: 2500, label: "ETB 2,500/day", labelAm: "2,500 ብር/ቀን" },
-      weekly: { amount: 15000, label: "ETB 15,000/week", labelAm: "15,000 ብር/ሳምንት" },
-      monthly: { amount: 55000, label: "ETB 55,000/month", labelAm: "55,000 ብር/ወር" },
+      weekly: {
+        amount: 15000,
+        label: "ETB 15,000/week",
+        labelAm: "15,000 ብር/ሳምንት",
+      },
+      monthly: {
+        amount: 55000,
+        label: "ETB 55,000/month",
+        labelAm: "55,000 ብር/ወር",
+      },
     },
     availability: {
       status: "available",
@@ -747,7 +889,11 @@ export const products = [
       horsepowerAm: "360 የፈረስ ጉልበት",
     },
     rentalPolicies: {
-      securityDeposit: { amount: 10000, label: "ETB 10,000", labelAm: "10,000 ብር" },
+      securityDeposit: {
+        amount: 10000,
+        label: "ETB 10,000",
+        labelAm: "10,000 ብር",
+      },
       lateFee: { amount: 1000, label: "ETB 1,000/day", labelAm: "1,000 ብር/ቀን" },
       cancellationPolicy: "7 days notice required",
       cancellationPolicyAm: "ከ7 ቀናት በፊት ማሳወቅ ያስፈልጋል",
@@ -768,8 +914,10 @@ export const products = [
     id: "prod-11",
     name: "Party Tent - 10x10m",
     nameAm: "የፓርቲ ድንኳን - 10x10ሜ",
-    description: "Large party tent for weddings, events, and outdoor gatherings. Holds up to 200 guests comfortably.",
-    descriptionAm: "ለሠርግ፣ ለዝግጅቶች እና ለውጭ ስብሰባዎች ትልቅ የፓርቲ ድንኳን። እስከ 200 እንግዶችን በምቾት ይይዛል።",
+    description:
+      "Large party tent for weddings, events, and outdoor gatherings. Holds up to 200 guests comfortably.",
+    descriptionAm:
+      "ለሠርግ፣ ለዝግጅቶች እና ለውጭ ስብሰባዎች ትልቅ የፓርቲ ድንኳን። እስከ 200 እንግዶችን በምቾት ይይዛል።",
     category: "cat-5",
     vendor: "vend-5",
     images: [
@@ -778,8 +926,16 @@ export const products = [
     ],
     pricing: {
       daily: { amount: 600, label: "ETB 600/day", labelAm: "600 ብር/ቀን" },
-      weekly: { amount: 3500, label: "ETB 3,500/week", labelAm: "3,500 ብር/ሳምንት" },
-      monthly: { amount: 12000, label: "ETB 12,000/month", labelAm: "12,000 ብር/ወር" },
+      weekly: {
+        amount: 3500,
+        label: "ETB 3,500/week",
+        labelAm: "3,500 ብር/ሳምንት",
+      },
+      monthly: {
+        amount: 12000,
+        label: "ETB 12,000/month",
+        labelAm: "12,000 ብር/ወር",
+      },
     },
     availability: {
       status: "available",
@@ -798,7 +954,11 @@ export const products = [
       materialAm: "ውሃ የማይገባ ፒቪሲ",
     },
     rentalPolicies: {
-      securityDeposit: { amount: 2000, label: "ETB 2,000", labelAm: "2,000 ብር" },
+      securityDeposit: {
+        amount: 2000,
+        label: "ETB 2,000",
+        labelAm: "2,000 ብር",
+      },
       lateFee: { amount: 200, label: "ETB 200/day", labelAm: "200 ብር/ቀን" },
       cancellationPolicy: "48 hours notice required",
       cancellationPolicyAm: "ከ48 ሰዓታት በፊት ማሳወቅ ያስፈልጋል",
@@ -817,8 +977,10 @@ export const products = [
     id: "prod-12",
     name: "Wedding Chairs - Set of 100",
     nameAm: "የሠርግ ወንበሮች - 100 ስብስብ",
-    description: "Elegant wedding chairs with cushioned seats. Perfect for ceremonies, receptions, and formal events.",
-    descriptionAm: "የተጠለፉ መቀመጫዎች ያላቸው ውብ የሠርግ ወንበሮች። ለሥነ-ሥርዓት፣ ለእንግዳ መቀበያ እና ለመደበኛ ዝግጅቶች ፍጹም ናቸው።",
+    description:
+      "Elegant wedding chairs with cushioned seats. Perfect for ceremonies, receptions, and formal events.",
+    descriptionAm:
+      "የተጠለፉ መቀመጫዎች ያላቸው ውብ የሠርግ ወንበሮች። ለሥነ-ሥርዓት፣ ለእንግዳ መቀበያ እና ለመደበኛ ዝግጅቶች ፍጹም ናቸው።",
     category: "cat-5",
     vendor: "vend-5",
     images: [
@@ -828,7 +990,11 @@ export const products = [
     pricing: {
       daily: { amount: 150, label: "ETB 150/day", labelAm: "150 ብር/ቀን" },
       weekly: { amount: 900, label: "ETB 900/week", labelAm: "900 ብር/ሳምንት" },
-      monthly: { amount: 3000, label: "ETB 3,000/month", labelAm: "3,000 ብር/ወር" },
+      monthly: {
+        amount: 3000,
+        label: "ETB 3,000/month",
+        labelAm: "3,000 ብር/ወር",
+      },
     },
     availability: {
       status: "available",
@@ -849,7 +1015,11 @@ export const products = [
       includesCushionAm: "የተጠለፈ ነው",
     },
     rentalPolicies: {
-      securityDeposit: { amount: 1000, label: "ETB 1,000", labelAm: "1,000 ብር" },
+      securityDeposit: {
+        amount: 1000,
+        label: "ETB 1,000",
+        labelAm: "1,000 ብር",
+      },
       lateFee: { amount: 100, label: "ETB 100/day", labelAm: "100 ብር/ቀን" },
       cancellationPolicy: "24 hours notice required",
       cancellationPolicyAm: "ከ24 ሰዓታት በፊት ማሳወቅ ያስፈልጋል",
@@ -868,8 +1038,10 @@ export const products = [
     id: "prod-13",
     name: "4K Projector - Epson EB-2000",
     nameAm: "4K ፕሮጀክተር - ኤፕሰን EB-2000",
-    description: "High-end 4K projector for presentations, movie nights, and events. Crystal clear image quality.",
-    descriptionAm: "ለአቀራረቦች፣ ለፊልም ምሽቶች እና ለዝግጅቶች ከፍተኛ ደረጃ 4K ፕሮጀክተር። ክሪስታል ግልጽ የምስል ጥራት።",
+    description:
+      "High-end 4K projector for presentations, movie nights, and events. Crystal clear image quality.",
+    descriptionAm:
+      "ለአቀራረቦች፣ ለፊልም ምሽቶች እና ለዝግጅቶች ከፍተኛ ደረጃ 4K ፕሮጀክተር። ክሪስታል ግልጽ የምስል ጥራት።",
     category: "cat-6",
     vendor: "vend-6",
     images: [
@@ -878,8 +1050,16 @@ export const products = [
     ],
     pricing: {
       daily: { amount: 250, label: "ETB 250/day", labelAm: "250 ብር/ቀን" },
-      weekly: { amount: 1500, label: "ETB 1,500/week", labelAm: "1,500 ብር/ሳምንት" },
-      monthly: { amount: 5000, label: "ETB 5,000/month", labelAm: "5,000 ብር/ወር" },
+      weekly: {
+        amount: 1500,
+        label: "ETB 1,500/week",
+        labelAm: "1,500 ብር/ሳምንት",
+      },
+      monthly: {
+        amount: 5000,
+        label: "ETB 5,000/month",
+        labelAm: "5,000 ብር/ወር",
+      },
     },
     availability: {
       status: "available",
@@ -900,7 +1080,11 @@ export const products = [
       lampLifeAm: "5000 ሰዓታት",
     },
     rentalPolicies: {
-      securityDeposit: { amount: 2000, label: "ETB 2,000", labelAm: "2,000 ብር" },
+      securityDeposit: {
+        amount: 2000,
+        label: "ETB 2,000",
+        labelAm: "2,000 ብር",
+      },
       lateFee: { amount: 200, label: "ETB 200/day", labelAm: "200 ብር/ቀን" },
       cancellationPolicy: "24 hours notice required",
       cancellationPolicyAm: "ከ24 ሰዓታት በፊት ማሳወቅ ያስፈልጋል",
@@ -919,8 +1103,10 @@ export const products = [
     id: "prod-14",
     name: "Canon 5D Mark IV Camera",
     nameAm: "ካኖን 5D ማርክ IV ካሜራ",
-    description: "Professional DSLR camera perfect for photographers and videographers. Full-frame sensor with 4K video.",
-    descriptionAm: "ለፎቶግራፍ ባለሙያዎች እና ቪዲዮ ባለሙያዎች ፍጹም የሆነ ፕሮፌሽናል ዲኤስኤልአር ካሜራ። ሙሉ-ፍሬም ዳሳሽ ከ4K ቪዲዮ ጋር።",
+    description:
+      "Professional DSLR camera perfect for photographers and videographers. Full-frame sensor with 4K video.",
+    descriptionAm:
+      "ለፎቶግራፍ ባለሙያዎች እና ቪዲዮ ባለሙያዎች ፍጹም የሆነ ፕሮፌሽናል ዲኤስኤልአር ካሜራ። ሙሉ-ፍሬም ዳሳሽ ከ4K ቪዲዮ ጋር።",
     category: "cat-6",
     vendor: "vend-6",
     images: [
@@ -930,8 +1116,16 @@ export const products = [
     pricing: {
       hourly: { amount: 40, label: "ETB 40/hour", labelAm: "40 ብር/ሰዓት" },
       daily: { amount: 300, label: "ETB 300/day", labelAm: "300 ብር/ቀን" },
-      weekly: { amount: 1800, label: "ETB 1,800/week", labelAm: "1,800 ብር/ሳምንት" },
-      monthly: { amount: 6000, label: "ETB 6,000/month", labelAm: "6,000 ብር/ወር" },
+      weekly: {
+        amount: 1800,
+        label: "ETB 1,800/week",
+        labelAm: "1,800 ብር/ሳምንት",
+      },
+      monthly: {
+        amount: 6000,
+        label: "ETB 6,000/month",
+        labelAm: "6,000 ብር/ወር",
+      },
     },
     availability: {
       status: "available",
@@ -952,7 +1146,11 @@ export const products = [
       lensAm: "24-105ሚሜ",
     },
     rentalPolicies: {
-      securityDeposit: { amount: 2500, label: "ETB 2,500", labelAm: "2,500 ብር" },
+      securityDeposit: {
+        amount: 2500,
+        label: "ETB 2,500",
+        labelAm: "2,500 ብር",
+      },
       lateFee: { amount: 250, label: "ETB 250/day", labelAm: "250 ብር/ቀን" },
       cancellationPolicy: "24 hours notice required",
       cancellationPolicyAm: "ከ24 ሰዓታት በፊት ማሳወቅ ያስፈልጋል",
@@ -973,8 +1171,10 @@ export const products = [
     id: "prod-15",
     name: "Treadmill - ProForm 5000",
     nameAm: "ትሬድሚል - ፕሮፎርም 5000",
-    description: "Commercial-grade treadmill with incline and speed controls. Perfect for home gyms and fitness centers.",
-    descriptionAm: "የንግድ-ደረጃ ትሬድሚል ከማዘንበል እና የፍጥነት መቆጣጠሪያዎች ጋር። ለቤት ጂሞች እና ለአካል ብቃት ማእከላት ፍጹም ነው።",
+    description:
+      "Commercial-grade treadmill with incline and speed controls. Perfect for home gyms and fitness centers.",
+    descriptionAm:
+      "የንግድ-ደረጃ ትሬድሚል ከማዘንበል እና የፍጥነት መቆጣጠሪያዎች ጋር። ለቤት ጂሞች እና ለአካል ብቃት ማእከላት ፍጹም ነው።",
     category: "cat-7",
     vendor: "vend-7",
     images: [
@@ -984,7 +1184,11 @@ export const products = [
     pricing: {
       daily: { amount: 150, label: "ETB 150/day", labelAm: "150 ብር/ቀን" },
       weekly: { amount: 900, label: "ETB 900/week", labelAm: "900 ብር/ሳምንት" },
-      monthly: { amount: 3000, label: "ETB 3,000/month", labelAm: "3,000 ብር/ወር" },
+      monthly: {
+        amount: 3000,
+        label: "ETB 3,000/month",
+        labelAm: "3,000 ብር/ወር",
+      },
     },
     availability: {
       status: "available",
@@ -1007,7 +1211,11 @@ export const products = [
       weightAm: "150 ኪ.ግ",
     },
     rentalPolicies: {
-      securityDeposit: { amount: 1500, label: "ETB 1,500", labelAm: "1,500 ብር" },
+      securityDeposit: {
+        amount: 1500,
+        label: "ETB 1,500",
+        labelAm: "1,500 ብር",
+      },
       lateFee: { amount: 150, label: "ETB 150/day", labelAm: "150 ብር/ቀን" },
       cancellationPolicy: "24 hours notice required",
       cancellationPolicyAm: "ከ24 ሰዓታት በፊት ማሳወቅ ያስፈልጋል",
@@ -1024,8 +1232,10 @@ export const products = [
     id: "prod-16",
     name: "Mountain Bike - Trek X-Caliber 9",
     nameAm: "የተራራ ብስክሌት - ትሬክ X-ካሊበር 9",
-    description: "High-performance mountain bike for off-road adventures. Lightweight frame with premium components.",
-    descriptionAm: "ለመንገድ ውጭ ጉዞዎች ከፍተኛ አፈጻጸም ያለው የተራራ ብስክሌት። ቀላል ክብደት ያለው ፍሬም ከፕሪሚየም ክፍሎች ጋር።",
+    description:
+      "High-performance mountain bike for off-road adventures. Lightweight frame with premium components.",
+    descriptionAm:
+      "ለመንገድ ውጭ ጉዞዎች ከፍተኛ አፈጻጸም ያለው የተራራ ብስክሌት። ቀላል ክብደት ያለው ፍሬም ከፕሪሚየም ክፍሎች ጋር።",
     category: "cat-7",
     vendor: "vend-7",
     images: [
@@ -1036,7 +1246,11 @@ export const products = [
       hourly: { amount: 20, label: "ETB 20/hour", labelAm: "20 ብር/ሰዓት" },
       daily: { amount: 150, label: "ETB 150/day", labelAm: "150 ብር/ቀን" },
       weekly: { amount: 900, label: "ETB 900/week", labelAm: "900 ብር/ሳምንት" },
-      monthly: { amount: 3000, label: "ETB 3,000/month", labelAm: "3,000 ብር/ወር" },
+      monthly: {
+        amount: 3000,
+        label: "ETB 3,000/month",
+        labelAm: "3,000 ብር/ወር",
+      },
     },
     availability: {
       status: "available",
@@ -1080,8 +1294,10 @@ export const products = [
     id: "prod-17",
     name: "Pressure Washer - Karcher K5",
     nameAm: "ፕሬሸር ዋሸር - ካርቸር K5",
-    description: "Professional pressure washer for cleaning driveways, patios, and vehicles. Powerful and efficient.",
-    descriptionAm: "የመኪና መንገዶችን፣ ቴራሶችን እና ተሽከርካሪዎችን ለማጽዳት ፕሮፌሽናል ግፊት ማጠቢያ። ኃይለኛ እና ቀልጣፋ።",
+    description:
+      "Professional pressure washer for cleaning driveways, patios, and vehicles. Powerful and efficient.",
+    descriptionAm:
+      "የመኪና መንገዶችን፣ ቴራሶችን እና ተሽከርካሪዎችን ለማጽዳት ፕሮፌሽናል ግፊት ማጠቢያ። ኃይለኛ እና ቀልጣፋ።",
     category: "cat-8",
     vendor: "vend-8",
     images: [
@@ -1092,7 +1308,11 @@ export const products = [
       hourly: { amount: 20, label: "ETB 20/hour", labelAm: "20 ብር/ሰዓት" },
       daily: { amount: 150, label: "ETB 150/day", labelAm: "150 ብር/ቀን" },
       weekly: { amount: 900, label: "ETB 900/week", labelAm: "900 ብር/ሳምንት" },
-      monthly: { amount: 3000, label: "ETB 3,000/month", labelAm: "3,000 ብር/ወር" },
+      monthly: {
+        amount: 3000,
+        label: "ETB 3,000/month",
+        labelAm: "3,000 ብር/ወር",
+      },
     },
     availability: {
       status: "available",
@@ -1132,8 +1352,10 @@ export const products = [
     id: "prod-18",
     name: "Lawn Mower - Honda HRX217",
     nameAm: "ሞውነር - ሆንዳ HRX217",
-    description: "Self-propelled lawn mower for large gardens. Reliable Honda engine with easy start technology.",
-    descriptionAm: "ለትልቅ የአትክልት ቦታዎች ራስ-ገዝ የሣር መቁረጫ። አስተማማኝ የሆንዳ ሞተር ከቀላል መነሻ ቴክኖሎጂ ጋር።",
+    description:
+      "Self-propelled lawn mower for large gardens. Reliable Honda engine with easy start technology.",
+    descriptionAm:
+      "ለትልቅ የአትክልት ቦታዎች ራስ-ገዝ የሣር መቁረጫ። አስተማማኝ የሆንዳ ሞተር ከቀላል መነሻ ቴክኖሎጂ ጋር።",
     category: "cat-8",
     vendor: "vend-8",
     images: [
@@ -1143,8 +1365,16 @@ export const products = [
     pricing: {
       hourly: { amount: 25, label: "ETB 25/hour", labelAm: "25 ብር/ሰዓት" },
       daily: { amount: 180, label: "ETB 180/day", labelAm: "180 ብር/ቀን" },
-      weekly: { amount: 1000, label: "ETB 1,000/week", labelAm: "1,000 ብር/ሳምንት" },
-      monthly: { amount: 3500, label: "ETB 3,500/month", labelAm: "3,500 ብር/ወር" },
+      weekly: {
+        amount: 1000,
+        label: "ETB 1,000/week",
+        labelAm: "1,000 ብር/ሳምንት",
+      },
+      monthly: {
+        amount: 3500,
+        label: "ETB 3,500/month",
+        labelAm: "3,500 ብር/ወር",
+      },
     },
     availability: {
       status: "available",
@@ -1184,7 +1414,7 @@ export const products = [
 export const bookings = [
   {
     id: "book-1",
-    productId: "prod-4",
+    productId: "rent-4",
     customerId: "user-1",
     vendorId: "vend-2",
     startDate: "2026-01-15",
@@ -1195,13 +1425,13 @@ export const bookings = [
     paymentStatus: "paid",
     paymentStatusAm: "ተከፍሏል",
     items: 1,
-    deliveryAddress: "Bole Road, Addis Ababa",
-    deliveryAddressAm: "ቦሌ መንገድ፣ አዲስ አበባ",
+    deliveryAddress: "123 iShare Plaza, Addis Ababa",
+    deliveryAddressAm: "123 አይሸር ፕላዛ፣ አዲስ አበባ",
     createdAt: "2026-01-10",
   },
   {
     id: "book-2",
-    productId: "prod-1",
+    productId: "rent-1",
     customerId: "user-2",
     vendorId: "vend-1",
     startDate: "2026-02-01",
@@ -1212,13 +1442,13 @@ export const bookings = [
     paymentStatus: "unpaid",
     paymentStatusAm: "አልተከፈለም",
     items: 1,
-    deliveryAddress: "4 Kilo, Addis Ababa",
-    deliveryAddressAm: "አራት ኪሎ፣ አዲስ አበባ",
+    deliveryAddress: "123 iShare Plaza, Addis Ababa",
+    deliveryAddressAm: "123 አይሸር ፕላዛ፣ አዲስ አበባ",
     createdAt: "2026-01-28",
   },
   {
     id: "book-3",
-    productId: "prod-7",
+    productId: "rent-3",
     customerId: "user-3",
     vendorId: "vend-3",
     startDate: "2026-01-20",
@@ -1229,13 +1459,13 @@ export const bookings = [
     paymentStatus: "paid",
     paymentStatusAm: "ተከፍሏል",
     items: 2,
-    deliveryAddress: "Bole Medhanealem, Addis Ababa",
-    deliveryAddressAm: "ቦሌ መድሀኒያለም፣ አዲስ አበባ",
+    deliveryAddress: "123 iShare Plaza, Addis Ababa",
+    deliveryAddressAm: "123 አይሸር ፕላዛ፣ አዲስ አበባ",
     createdAt: "2026-01-18",
   },
   {
     id: "book-4",
-    productId: "prod-9",
+    productId: "rent-4",
     customerId: "user-1",
     vendorId: "vend-4",
     startDate: "2026-02-10",
@@ -1246,13 +1476,13 @@ export const bookings = [
     paymentStatus: "paid",
     paymentStatusAm: "ተከፍሏል",
     items: 1,
-    deliveryAddress: "Hawassa Industrial Park",
-    deliveryAddressAm: "አዋሳ ኢንዱስትሪያል ፓርክ",
+    deliveryAddress: "123 iShare Plaza, Addis Ababa",
+    deliveryAddressAm: "123 አይሸር ፕላዛ፣ አዲስ አበባ",
     createdAt: "2026-02-05",
   },
   {
     id: "book-5",
-    productId: "prod-11",
+    productId: "rent-1",
     customerId: "user-4",
     vendorId: "vend-5",
     startDate: "2026-03-15",
@@ -1263,8 +1493,8 @@ export const bookings = [
     paymentStatus: "unpaid",
     paymentStatusAm: "አልተከፈለም",
     items: 3,
-    deliveryAddress: "Around Bole, Addis Ababa",
-    deliveryAddressAm: "በቦሌ አካባቢ፣ አዲስ አበባ",
+    deliveryAddress: "123 iShare Plaza, Addis Ababa",
+    deliveryAddressAm: "123 አይሸር ፕላዛ፣ አዲስ አበባ",
     createdAt: "2026-03-10",
   },
 ];
@@ -1278,8 +1508,10 @@ export const reviews = [
     customerName: "Abebe Kebede",
     customerNameAm: "አበበ ከበደ",
     rating: 5,
-    comment: "Excellent car! Very clean and well-maintained. The pickup and drop-off process was seamless.",
-    commentAm: "በጣም ጥሩ መኪና! በጣም ንጹህ እና በደንብ የተጠበቀ። የመውሰድ እና የመልቀቅ ሂደቱ እንከን የለሽ ነበር።",
+    comment:
+      "Excellent car! Very clean and well-maintained. The pickup and drop-off process was seamless.",
+    commentAm:
+      "በጣም ጥሩ መኪና! በጣም ንጹህ እና በደንብ የተጠበቀ። የመውሰድ እና የመልቀቅ ሂደቱ እንከን የለሽ ነበር።",
     createdAt: "2026-01-20",
   },
   {
@@ -1289,7 +1521,8 @@ export const reviews = [
     customerName: "Tigist Hailu",
     customerNameAm: "ጥግስት ኃይሉ",
     rating: 4,
-    comment: "The excavator worked perfectly for our project. Only minor issue with delivery timing.",
+    comment:
+      "The excavator worked perfectly for our project. Only minor issue with delivery timing.",
     commentAm: "መቆፈሪያው ለፕሮጀክታችን በትክክል ሠራ። በአቅርቦት ጊዜ ላይ ትንሽ ችግር ብቻ።",
     createdAt: "2026-02-08",
   },
@@ -1300,7 +1533,8 @@ export const reviews = [
     customerName: "Dawit Eshetu",
     customerNameAm: "ዳዊት እሸቱ",
     rating: 5,
-    comment: "Amazing hair dryer! My salon clients love it. Will definitely rent again.",
+    comment:
+      "Amazing hair dryer! My salon clients love it. Will definitely rent again.",
     commentAm: "አስደናቂ የፀጉር ማድረቂያ! የሳሎን ደንበኞቼ ይወዱታል። በእርግጠኝነት እንደገና እከራያለሁ።",
     createdAt: "2026-01-22",
   },
@@ -1311,7 +1545,8 @@ export const reviews = [
     customerName: "Abebe Kebede",
     customerNameAm: "አበበ ከበደ",
     rating: 5,
-    comment: "The tractor was in excellent condition. Helped us complete our farm work efficiently.",
+    comment:
+      "The tractor was in excellent condition. Helped us complete our farm work efficiently.",
     commentAm: "ትራክተሩ በጣም ጥሩ ሁኔታ ላይ ነበር። የእርሻ ሥራችንን በብቃት እንድንጨርስ ረድቶናል።",
     createdAt: "2026-02-15",
   },
@@ -1322,7 +1557,8 @@ export const reviews = [
     customerName: "Selam Tesfaye",
     customerNameAm: "ሰላም ተስፋዬ",
     rating: 4,
-    comment: "Great tent for our wedding. It was spacious and looked beautiful. Delivery was on time.",
+    comment:
+      "Great tent for our wedding. It was spacious and looked beautiful. Delivery was on time.",
     commentAm: "ለሠርጋችን ጥሩ ድንኳን። ሰፊ እና ውብ ነበር። አቅርቦቱ በጊዜው ነበር።",
     createdAt: "2026-03-18",
   },
@@ -1422,7 +1658,8 @@ export const users = [
     role: "customer",
     roleAm: "ደንበኛ",
     phone: "+251-900-111-222",
-    avatar: "https://ui-avatars.com/api/?name=Abebe+Kebede&size=100&background=F97316&color=fff",
+    avatar:
+      "https://ui-avatars.com/api/?name=Abebe+Kebede&size=100&background=F97316&color=fff",
     joinDate: "2025-12-01",
   },
   {
@@ -1433,7 +1670,8 @@ export const users = [
     role: "customer",
     roleAm: "ደንበኛ",
     phone: "+251-900-333-444",
-    avatar: "https://ui-avatars.com/api/?name=Tigist+Hailu&size=100&background=F97316&color=fff",
+    avatar:
+      "https://ui-avatars.com/api/?name=Tigist+Hailu&size=100&background=F97316&color=fff",
     joinDate: "2025-12-15",
   },
   {
@@ -1444,7 +1682,8 @@ export const users = [
     role: "customer",
     roleAm: "ደንበኛ",
     phone: "+251-900-555-666",
-    avatar: "https://ui-avatars.com/api/?name=Dawit+Eshetu&size=100&background=F97316&color=fff",
+    avatar:
+      "https://ui-avatars.com/api/?name=Dawit+Eshetu&size=100&background=F97316&color=fff",
     joinDate: "2026-01-10",
   },
   {
@@ -1455,30 +1694,31 @@ export const users = [
     role: "customer",
     roleAm: "ደንበኛ",
     phone: "+251-900-777-888",
-    avatar: "https://ui-avatars.com/api/?name=Selam+Tesfaye&size=100&background=F97316&color=fff",
+    avatar:
+      "https://ui-avatars.com/api/?name=Selam+Tesfaye&size=100&background=F97316&color=fff",
     joinDate: "2026-02-05",
   },
 ];
 
 // ---------- TRANSLATION HELPER ----------
 // Helper function to get translated text based on language
-export const getTranslation = (data, lang = 'en') => {
-  if (lang === 'am' && data && typeof data === 'object') {
+export const getTranslation = (data, lang = "en") => {
+  if (lang === "am" && data && typeof data === "object") {
     // Check if there's an Amharic version available
-    const amKey = Object.keys(data).find(key => key.endsWith('Am'));
+    const amKey = Object.keys(data).find((key) => key.endsWith("Am"));
     if (amKey && data[amKey]) {
       return data[amKey];
     }
     // Try to find any property ending with 'Am'
     for (const key in data) {
-      if (key.endsWith('Am') && data[key]) {
+      if (key.endsWith("Am") && data[key]) {
         return data[key];
       }
     }
   }
   // Return the original data or try to find the English version
-  if (typeof data === 'object' && data !== null) {
-    const enKey = Object.keys(data).find(key => !key.endsWith('Am'));
+  if (typeof data === "object" && data !== null) {
+    const enKey = Object.keys(data).find((key) => !key.endsWith("Am"));
     if (enKey && data[enKey]) {
       return data[enKey];
     }
@@ -1536,20 +1776,24 @@ export const getFeaturedProducts = () =>
 
 // Get recent products
 export const getRecentProducts = () =>
-  [...products].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 8);
+  [...products]
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(0, 8);
 
 // Get top rated vendors
 export const getTopVendors = () =>
   [...vendors].sort((a, b) => b.rating - a.rating).slice(0, 5);
 
 // Search products by name/description (supports both languages)
-export const searchProducts = (query, lang = 'en') => {
+export const searchProducts = (query, lang = "en") => {
   const searchTerm = query.toLowerCase();
   return products.filter((p) => {
-    const name = lang === 'am' ? p.nameAm : p.name;
-    const desc = lang === 'am' ? p.descriptionAm : p.description;
-    return name.toLowerCase().includes(searchTerm) || 
-           desc.toLowerCase().includes(searchTerm);
+    const name = lang === "am" ? p.nameAm : p.name;
+    const desc = lang === "am" ? p.descriptionAm : p.description;
+    return (
+      name.toLowerCase().includes(searchTerm) ||
+      desc.toLowerCase().includes(searchTerm)
+    );
   });
 };
 

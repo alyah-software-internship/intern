@@ -376,9 +376,9 @@ const Login = () => {
                   style={{
                     height: 56,
                     borderRadius: 18,
-                    background: "#fff",
-                    color: "#0f172a",
-                    borderColor: "#d1d5db",
+                    background: isDark ? "#1f2937" : "#fff",
+                    color: isDark ? "#f8fafc" : "#0f172a",
+                    borderColor: isDark ? "#374151" : "#d1d5db",
                     fontWeight: 700,
                   }}
                 >

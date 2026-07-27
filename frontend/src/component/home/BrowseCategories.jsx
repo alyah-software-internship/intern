@@ -2,46 +2,12 @@ import React from "react";
 import { Card, Row, Col, Typography, Button } from "antd";
 import { useTranslation } from "../LanguageProvider.jsx";
 import { useTheme } from "../../context/ThemeProvider.jsx";
-import constructionImage from "../../assets/excavator.png";
-import beautyImage from "../../assets/buety.png";
-import agricultureImage from "../../assets/ariculturalDron.png";
-import vehiclesImage from "../../assets/car.png";
+import { categories } from "../../assets/dummyAssets";
 
 const { Text } = Typography;
 
-const categories = [
-  {
-    id: 1,
-    title: "Construction & Tools",
-    subtitle: "1,240 active assets",
-    image: constructionImage,
-    accent: "#22c55e",
-  },
-  {
-    id: 2,
-    title: "Beauty & Wellness",
-    subtitle: "856 active assets",
-    image: beautyImage,
-    accent: "#ec4899",
-  },
-  {
-    id: 3,
-    title: "Agriculture Equipment",
-    subtitle: "512 active assets",
-    image: agricultureImage,
-    accent: "#10b981",
-  },
-  {
-    id: 4,
-    title: "Commercial Vehicles",
-    subtitle: "423 active assets",
-    image: vehiclesImage,
-    accent: "#8b5cf6",
-  },
-];
-
 const BrowseCategories = () => {
-  const { translation: t } = useTranslation();
+  const { translation: t, lang } = useTranslation();
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
@@ -121,75 +87,84 @@ const BrowseCategories = () => {
       </div>
 
       <Row gutter={[16, 16]}>
-        {categories.map((category) => (
-          <Col key={category.id} xs={24} sm={12} md={12} lg={6} xl={6}>
-            <div
-              style={{
-                borderRadius: 18,
-                minHeight: 160,
-                padding: 18,
-                background: isDark ? "rgba(255,255,255,0.03)" : "#f8fafc",
-                border: isDark
-                  ? "1px solid rgba(255,255,255,0.04)"
-                  : "1px solid rgba(15,23,42,0.08)",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-                gap: 16,
-              }}
-            >
+        {categories.map((category) => {
+          const title =
+            lang === "am" ? category.nameAm || category.name : category.name;
+          const subtitle =
+            lang === "am"
+              ? category.descriptionAm || category.description
+              : category.description;
+
+          return (
+            <Col key={category.id} xs={24} sm={12} md={12} lg={6} xl={6}>
               <div
                 style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: 14,
-                  background: category.accent + "1A",
+                  borderRadius: 18,
+                  minHeight: 160,
+                  padding: 18,
+                  background: isDark ? "rgba(255,255,255,0.03)" : "#f8fafc",
+                  border: isDark
+                    ? "1px solid rgba(255,255,255,0.04)"
+                    : "1px solid rgba(15,23,42,0.08)",
                   display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                  gap: 16,
                 }}
               >
-                <img
-                  src={category.image}
-                  alt={category.title}
-                  style={{ width: 28, height: 28, objectFit: "contain" }}
-                />
-              </div>
+                <div
+                  style={{
+                    width: 44,
+                    height: 44,
+                    borderRadius: 14,
+                    background: category.accent + "1A",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <img
+                    src={category.image}
+                    alt={title}
+                    style={{ width: 28, height: 28, objectFit: "contain" }}
+                  />
+                </div>
 
-              <div>
+                <div>
+                  <Text
+                    strong
+                    style={{
+                      display: "block",
+                      color: isDark ? "#f8fafc" : "#0f172a",
+                      fontSize: 14,
+                      marginBottom: 8,
+                    }}
+                  >
+                    {title}
+                  </Text>
+                  <Text
+                    style={{
+                      color: isDark ? "#94a3b8" : "#6b7280",
+                      fontSize: 12,
+                    }}
+                  >
+                    {subtitle}
+                  </Text>
+                </div>
+
                 <Text
                   strong
                   style={{
-                    display: "block",
-                    color: isDark ? "#f8fafc" : "#0f172a",
-                    fontSize: 14,
-                    marginBottom: 8,
-                  }}
-                >
-                  {category.title}
-                </Text>
-                <Text
-                  style={{
-                    color: isDark ? "#94a3b8" : "#6b7280",
+                    color: isDark ? "#10b981" : "#059669",
                     fontSize: 12,
                   }}
                 >
-                  {category.subtitle}
+                  {t.common?.rent || "Rent Now"} →
                 </Text>
               </div>
-
-              <Text
-                strong
-                style={{
-                  color: isDark ? "#10b981" : "#059669",
-                  fontSize: 12,
-                }}
-              >
-                {t.common?.rent || "Rent Now"} →
-              </Text>
-            </div>
-          </Col>
-        ))}
+            </Col>
+          );
+        })}
       </Row>
     </Card>
   );

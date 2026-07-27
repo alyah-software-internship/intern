@@ -63,8 +63,8 @@ const Subscribe = () => {
             style={{
               borderRadius: 10,
               padding: "8px 20px",
-              background: "#fff",
-              color: "#0b1724",
+              background: isDark ? "#111827" : "#fff",
+              color: isDark ? "#f8fafc" : "#0b1724",
               fontWeight: 700,
               border: "none",
             }}

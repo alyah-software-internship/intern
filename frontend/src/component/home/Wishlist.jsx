@@ -1,26 +1,21 @@
-import React from "react";
-import { Card, Avatar, Typography, Button } from "antd";
+import React, { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Card, Avatar, Typography, Button, Empty } from "antd";
 import { useTranslation } from "../LanguageProvider.jsx";
 import { useTheme } from "../../context/ThemeProvider.jsx";
-import wishlistImage from "../../assets/buety.png";
+import { wishlistItems } from "../../assets/dummyAssets";
 
 const { Text } = Typography;
-
-const sample = [
-  {
-    id: 1,
-    title: "HydraFacial MD Elite Professional System",
-    categoryKey: "beauty",
-    price: "$120/day",
-    image: wishlistImage,
-  },
-];
 
 const Wishlist = () => {
   const { translation: t } = useTranslation();
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const navigate = useNavigate();
   const [isMobile, setIsMobile] = React.useState(false);
+  const [items, setItems] = useState(wishlistItems);
+
+  const itemCount = items.length;
 
   React.useEffect(() => {
     const updateMobile = () => setIsMobile(window.innerWidth < 768);
@@ -28,6 +23,137 @@ const Wishlist = () => {
     window.addEventListener("resize", updateMobile);
     return () => window.removeEventListener("resize", updateMobile);
   }, []);
+
+  const handleRemove = (id) => {
+    setItems((prev) => prev.filter((item) => item.id !== id));
+  };
+
+  const handleRent = (id) => {
+    navigate(`/rentals/${id}`);
+  };
+
+  const content = useMemo(() => {
+    if (itemCount === 0) {
+      return (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            padding: 32,
+          }}
+        >
+          <Empty
+            description={
+              t.home?.wishlist?.emptyMessage || "Your wishlist is empty."
+            }
+          />
+        </div>
+      );
+    }
+
+    return items.map((item) => (
+      <div
+        key={item.id}
+        onClick={() => navigate(`/rentals/${item.id}`)}
+        style={{
+          borderRadius: 20,
+          padding: isMobile ? 14 : 16,
+          background: isDark ? "rgba(255,255,255,0.04)" : "#f8fafc",
+          border: isDark
+            ? "1px solid rgba(255,255,255,0.06)"
+            : "1px solid rgba(15,23,42,0.1)",
+          display: "flex",
+          flexDirection: isMobile ? "column" : "row",
+          alignItems: "center",
+          gap: isMobile ? 12 : 16,
+          marginBottom: isMobile ? 10 : 12,
+          cursor: "pointer",
+        }}
+      >
+        <Avatar
+          shape="square"
+          size={isMobile ? 60 : 72}
+          src={item.image}
+          style={{
+            background: isDark ? "rgba(255,255,255,0.08)" : "#e2e8f0",
+          }}
+        />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <Text
+            strong
+            style={{
+              display: "block",
+              color: isDark ? "#f8fafc" : "#0f172a",
+              fontSize: 14,
+              marginBottom: 6,
+            }}
+          >
+            {item.title}
+          </Text>
+          <Text
+            style={{
+              display: "block",
+              color: isDark ? "#94a3b8" : "#6b7280",
+              fontSize: 11,
+              textTransform: "uppercase",
+              letterSpacing: "0.12em",
+              marginBottom: 6,
+            }}
+          >
+            {item.category}
+          </Text>
+          <Text
+            style={{
+              display: "block",
+              color: isDark ? "#94a3b8" : "#6b7280",
+              fontSize: 12,
+            }}
+          >
+            ETB {item.price.toLocaleString()} / day
+          </Text>
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            flexDirection: isMobile ? "row" : "column",
+            width: isMobile ? "100%" : "auto",
+            justifyContent: isMobile ? "space-between" : "flex-end",
+            gap: 8,
+          }}
+        >
+          <Button
+            type="text"
+            danger
+            onClick={(e) => {
+              e.stopPropagation();
+              handleRemove(item.id);
+            }}
+            style={{
+              width: isMobile ? "48%" : "100%",
+              padding: isMobile ? "8px 0" : "8px 16px",
+            }}
+          >
+            {t.home?.wishlist?.remove || t.common?.delete || "Remove"}
+          </Button>
+          <Button
+            type="primary"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleRent(item.id);
+            }}
+            style={{
+              borderRadius: 999,
+              width: isMobile ? "48%" : "100%",
+              padding: isMobile ? "8px 0" : "8px 16px",
+            }}
+          >
+            {t.common?.rent || "Rent"}
+          </Button>
+        </div>
+      </div>
+    ));
+  }, [itemCount, items, isDark, isMobile, t.common, t.home, navigate]);
 
   return (
     <Card
@@ -103,7 +229,7 @@ const Wishlist = () => {
             textAlign: "center",
           }}
         >
-          {sample.length} {t.home?.wishlist?.itemsLabel || "ITEMS"}
+          {itemCount} {t.home?.wishlist?.itemsLabel || "ITEMS"}
         </div>
       </div>
 
@@ -115,100 +241,7 @@ const Wishlist = () => {
         }}
       />
 
-      {sample.map((it) => (
-        <div
-          key={it.id}
-          style={{
-            borderRadius: 20,
-            padding: isMobile ? 14 : 16,
-            background: isDark ? "rgba(255,255,255,0.04)" : "#f8fafc",
-            border: isDark
-              ? "1px solid rgba(255,255,255,0.06)"
-              : "1px solid rgba(15,23,42,0.1)",
-            display: "flex",
-            flexDirection: isMobile ? "column" : "row",
-            alignItems: "center",
-            gap: isMobile ? 12 : 16,
-            marginBottom: isMobile ? 10 : 12,
-          }}
-        >
-          <Avatar
-            shape="square"
-            size={isMobile ? 60 : 72}
-            src={it.image}
-            style={{
-              background: isDark ? "rgba(255,255,255,0.08)" : "#e2e8f0",
-            }}
-          />
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <Text
-              strong
-              style={{
-                display: "block",
-                color: isDark ? "#f8fafc" : "#0f172a",
-                fontSize: 14,
-                marginBottom: 6,
-              }}
-            >
-              {it.title}
-            </Text>
-            <Text
-              style={{
-                display: "block",
-                color: isDark ? "#94a3b8" : "#6b7280",
-                fontSize: 11,
-                textTransform: "uppercase",
-                letterSpacing: "0.12em",
-                marginBottom: 6,
-              }}
-            >
-              {t.home?.recentlyViewed?.categories?.[it.categoryKey] ||
-                t.home?.search?.categories?.[it.categoryKey] ||
-                ""}
-            </Text>
-            <Text
-              style={{
-                display: "block",
-                color: isDark ? "#94a3b8" : "#6b7280",
-                fontSize: 12,
-              }}
-            >
-              {it.price}
-            </Text>
-          </div>
-
-          <div
-            style={{
-              display: "flex",
-              flexDirection: isMobile ? "row" : "column",
-              width: isMobile ? "100%" : "auto",
-              justifyContent: isMobile ? "space-between" : "flex-end",
-              gap: 8,
-            }}
-          >
-            <Button
-              type="text"
-              danger
-              style={{
-                width: isMobile ? "48%" : "100%",
-                padding: isMobile ? "8px 0" : "8px 16px",
-              }}
-            >
-              {t.home?.wishlist?.remove || t.common?.delete || "Remove"}
-            </Button>
-            <Button
-              type="primary"
-              style={{
-                borderRadius: 999,
-                width: isMobile ? "48%" : "100%",
-                padding: isMobile ? "8px 0" : "8px 16px",
-              }}
-            >
-              {t.common?.rent || "Rent"}
-            </Button>
-          </div>
-        </div>
-      ))}
+      {content}
     </Card>
   );
 };

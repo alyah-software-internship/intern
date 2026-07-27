@@ -1,7 +1,7 @@
 import React from "react";
 import { useParams } from "react-router-dom";
 import DetailInfo from "../../component/Detail/DetailInfo.jsx";
-import rentalItems from "../../data/rentalItems";
+import { rentalItems } from "../../assets/dummyAssets";
 
 const DetailPage = () => {
   const { id } = useParams();

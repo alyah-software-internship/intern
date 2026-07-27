@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { Row, Col, Typography } from "antd";
 import ItemCard from "../../component/home/ItemCard.jsx";
-import rentalItems from "../../data/rentalItems";
+import { rentalItems } from "../../assets/dummyAssets";
 import { useTranslation } from "../../component/LanguageProvider.jsx";
 
 const { Title, Text } = Typography;

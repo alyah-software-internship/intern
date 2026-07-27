@@ -11,13 +11,14 @@ import {
   Button,
 } from "antd";
 import ItemCard from "../../component/home/ItemCard.jsx";
+import Bookings from "../home/Bookings.jsx";
 import { useTranslation } from "../../component/LanguageProvider.jsx";
 import { useTheme } from "../../context/ThemeProvider.jsx";
-import excavatorImage from "../../assets/excavator.png";
-import beautyImage from "../../assets/buety.png";
-import carImage from "../../assets/car.png";
-import weddingImage from "../../assets/wedding.png";
-import rentalItems from "../../data/rentalItems";
+import {
+  rentalItems,
+  categories as dummyCategories,
+  vendors as dummyVendors,
+} from "../../assets/dummyAssets";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 const { Title, Text } = Typography;
@@ -401,6 +402,10 @@ const Rental = () => {
             </Row>
           </Col>
         </Row>
+      </div>
+
+      <div style={{ maxWidth: 1440, margin: "0 auto", padding: "24px 0" }}>
+        <Bookings />
       </div>
     </div>
   );

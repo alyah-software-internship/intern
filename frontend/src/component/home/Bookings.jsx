@@ -2,27 +2,29 @@ import React from "react";
 import { Card, Row, Col, Typography, Button as AntdButton } from "antd";
 import { useTranslation } from "../LanguageProvider.jsx";
 import { useTheme } from "../../context/ThemeProvider.jsx";
+import { bookings, rentalItems, vendors } from "../../assets/dummyAssets";
 
 const { Text } = Typography;
 
-const sampleBookings = [
-  {
-    id: 1,
-    title: "John Deere 1025R Sub-Compact Tractor",
-    vendor: "GreenField Agri Services",
-    period: "2026-07-20 to 2026-07-25",
-    days: "+5 days",
-    status: "active",
-  },
-  {
-    id: 2,
-    title: "HydraFacial MD Elite Professional System",
-    vendor: "GlowTech Aesthetic Suppliers",
-    period: "2026-07-22 to 2026-07-24",
-    days: "+2 days",
-    status: "pending",
-  },
-];
+const sampleBookings = bookings.slice(0, 2).map((booking) => {
+  const product = rentalItems.find((item) => item.id === booking.productId);
+  const vendor = vendors.find((item) => item.id === booking.vendorId);
+  const days = Math.max(
+    1,
+    Math.ceil(
+      (new Date(booking.endDate) - new Date(booking.startDate)) /
+        (1000 * 60 * 60 * 24),
+    ),
+  );
+
+  return {
+    ...booking,
+    title: product?.title || booking.productId,
+    vendor: vendor?.name || product?.vendor || booking.vendorId,
+    period: `${booking.startDate} to ${booking.endDate}`,
+    days: `+${days} days`,
+  };
+});
 
 const Bookings = () => {
   const { translation: t } = useTranslation();
