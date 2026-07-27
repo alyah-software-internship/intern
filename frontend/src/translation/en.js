@@ -161,6 +161,59 @@ const en = {
     panelTitle: "Alerts Panel",
   },
 
+  rentals: {
+    categories: {
+      construction: "Construction & Tools",
+      beauty: "Beauty & Wellness",
+      agriculture: "Agriculture & Tractors",
+      event: "Event Management",
+    },
+    vendors: {
+      titan: "Titan Heavy Rentals",
+      glowtech: "GlowTech Aesthetic Suites",
+      greenfield: "GreenField Agri Services",
+      soundvibe: "SoundVibe Event Gear",
+    },
+    items: {
+      excavator: {
+        title: "Caterpillar 301.8 Mini Excavator",
+        category: "Construction & Tools",
+        vendor: "Titan Heavy Rentals",
+        badge: "Popular",
+        description:
+          "High performance in a compact size the Caterpillar 301.8 Mini Excavator delivers reliable power.",
+        location: "Chicago",
+      },
+      beauty: {
+        title: "HydraFacial MD Elite Professional Kit",
+        category: "Beauty & Wellness",
+        vendor: "GlowTech Aesthetic Suites",
+        badge: "Premium",
+        description:
+          "The premier aesthetic skincare system preferred by medical spas worldwide.",
+        location: "New York",
+      },
+      tractor: {
+        title: "John Deere 1025R Sub-Compact Tractor",
+        category: "Agriculture & Tractors",
+        vendor: "GreenField Agri Services",
+        badge: "Verified",
+        description:
+          "The ultimate utility tractor for landowners, small farms, and landscape projects.",
+        location: "Dallas",
+      },
+      wedding: {
+        title: "Premium Wedding Sound System",
+        category: "Event Management",
+        vendor: "SoundVibe Event Gear",
+        badge: "Fast Escrow",
+        description:
+          "Elegant sound and lighting equipment for unforgettable weddings and special events.",
+        location: "Los Angeles",
+      },
+    },
+  },
+
   // Products Page
   products: {
     title: "All Products",
@@ -179,6 +232,11 @@ const en = {
     filterByVendor: "Vendor",
     filterByRating: "Rating",
     filterByAvailability: "Availability",
+    keyword: "Keyword",
+    searchPlaceholder: "Type keyword...",
+    allCategories: "All Categories",
+    allVendors: "All Vendors",
+    allAvailability: "All",
     available: "Available",
     unavailable: "Unavailable",
     noProducts: "No products found",
@@ -490,6 +548,44 @@ const en = {
     notificationSent: "Notification sent",
     noNotifications: "No notifications",
   },
+  notifications: {
+    title: "Notifications",
+    subtitle:
+      "Review your recent alerts and stay up to date with rental activity.",
+    clearAll: "Clear All",
+    markAllRead: "Mark All Read",
+    empty: "You have no notifications.",
+    newOffer: "New rental offer available",
+    newOfferDesc: "Check out a new discount from one of your favorite vendors.",
+    bookingConfirmed: "Booking confirmed",
+    bookingConfirmedDesc:
+      "Your booking has been confirmed and is ready for pickup.",
+    paymentSuccess: "Payment successful",
+    paymentSuccessDesc: "Your payment was processed successfully.",
+  },
+
+  // Profile
+  profile: {
+    title: "Verified Profile",
+    subtitle:
+      "Manage credentials, company validation, and rental identity details.",
+    memberStatus: "Premium Member",
+    bio: "General construction project coordinator and asset manager in East Africa.",
+    verifiedTitle: "Identity Confirmed",
+    verifiedSubtitle: "Insurance pre-bond active until 2027.",
+    fullName: "Verified Full Name",
+    company: "Company Entity Name",
+    email: "Secure Registered Email",
+    phone: "Verified Contact Phone",
+    headquarters: "Main Delivery Location / Headquarters",
+    bioLabel: "Professional Bio",
+    imageLabel: "Profile Image URL",
+    imagePlaceholder: "https://example.com/avatar.png",
+    saveButton: "Save Profile Changes",
+    editButton: "Edit Profile",
+    cancelButton: "Cancel",
+    hint: "Toggle Edit Profile to make changes to your details.",
+  },
 
   // Footer
   footer: {
@@ -527,6 +623,32 @@ const en = {
     copyright: "© 2026 i-Share. All rights reserved.",
     madeWith: "Made with ❤️ in Ethiopia",
     social: "Follow Us",
+  },
+  aboutPage: {
+    title: "Building Ethiopia’s trusted rental marketplace",
+    subtitle:
+      "i-Share connects renters and vendors across construction, beauty, agriculture, and events with secure rental solutions.",
+    missionTitle: "Our Mission",
+    missionDesc:
+      "Make renting easy and trustworthy for everyone in Ethiopia by empowering local vendors and customers with the right tools.",
+    visionTitle: "Our Vision",
+    visionDesc:
+      "A marketplace where renting assets is fast, fair, and secure for every Ethiopian community.",
+    valuesTitle: "Our Values",
+    valuesDesc:
+      "Trust, transparency, and convenience at every step of the rental journey.",
+    whyTitle: "Why i-Share?",
+    whyDesc:
+      "Secure bookings, local support, and a wide selection of rental items across Ethiopia.",
+    ctaButton: "Browse Rentals",
+    stats: {
+      vendors: "Verified Vendors",
+      vendorsCount: "1,200+",
+      rentals: "Active Rentals",
+      rentalsCount: "4,500+",
+      categories: "Service Categories",
+      categoriesCount: "35+",
+    },
   },
 
   // Errors

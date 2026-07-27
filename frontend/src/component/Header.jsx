@@ -35,61 +35,44 @@ const navLinkStyle = ({ isActive }) => ({
   fontWeight: isActive ? 600 : undefined,
 });
 
-const createProfileItems = (handleLogout, t) => [
+const createProfileItems = (navigate, handleLogout, t) => [
   {
     key: "dashboard",
-    label: (
-      <NavLink to="/dashboard" style={navLinkStyle}>
-        {t.nav.dashboard}
-      </NavLink>
-    ),
+    label: t.nav.dashboard,
+    onClick: () => navigate("/dashboard"),
   },
   {
     key: "profile",
-    label: (
-      <NavLink to="/profile" style={navLinkStyle}>
-        {t.nav.profile}
-      </NavLink>
-    ),
+    label: t.nav.profile,
+    onClick: () => navigate("/profile"),
   },
   {
     key: "settings",
-    label: (
-      <NavLink to="/settings" style={navLinkStyle}>
-        {t.nav.settings}
-      </NavLink>
-    ),
+    label: t.nav.settings,
+    onClick: () => navigate("/settings"),
   },
   {
     key: "booking",
-    label: (
-      <NavLink to="/bookings" style={navLinkStyle}>
-        {t.nav.myBookings}
-      </NavLink>
-    ),
+    label: t.nav.myBookings,
+    onClick: () => navigate("/bookings"),
   },
   {
     key: "wishlist",
-    label: (
-      <NavLink to="/wishlist" style={navLinkStyle}>
-        {t.nav.wishlist}
-      </NavLink>
-    ),
+    label: t.nav.wishlist,
+    onClick: () => navigate("/wishlist"),
   },
   {
     key: "messages",
-    label: (
-      <NavLink to="/messages" style={navLinkStyle}>
-        {t.nav.messages}
-      </NavLink>
-    ),
+    label: t.nav.messages,
+    onClick: () => navigate("/messages"),
   },
   {
     type: "divider",
   },
   {
     key: "vendor",
-    label: <Link to="/vendor">{t.nav.becomeVendor}</Link>,
+    label: t.nav.becomeVendor,
+    onClick: () => navigate("/vendor"),
   },
   {
     key: "logout",
@@ -173,7 +156,7 @@ const Header = () => {
     },
   ];
 
-  const profileItems = createProfileItems(handleLogout, t);
+  const profileItems = createProfileItems(navigate, handleLogout, t);
   const guestItems = [
     {
       key: "signin",
