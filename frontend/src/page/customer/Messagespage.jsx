@@ -127,13 +127,13 @@ const Messagespage = () => {
                     level={4}
                     style={{ margin: 0, color: isDark ? "#f8fafc" : "#0f172a" }}
                   >
-                    {t.messages?.vendorMessages || "Vendor Messages"}
+                    {t.messagesPage?.vendorMessages || "Vendor Messages"}
                   </Title>
                   <Text
                     type={isDark ? undefined : "secondary"}
                     style={{ fontSize: 14 }}
                   >
-                    {t.messages?.messagesSubtitle ||
+                    {t.messagesPage?.messagesSubtitle ||
                       "Real-time negotiations & agreements"}
                   </Text>
                 </div>
@@ -255,7 +255,8 @@ const Messagespage = () => {
                       {selectedConversation.vendor}
                     </Title>
                     <Text style={{ color: isDark ? "#94a3b8" : "#6b7280" }}>
-                      Subject: {selectedConversation.subject}
+                      {t.messagesPage?.subjectLabel || "Subject"}:{" "}
+                      {selectedConversation.subject}
                     </Text>
                   </div>
                   <Badge
@@ -354,7 +355,7 @@ const Messagespage = () => {
                     value={draft}
                     onChange={(e) => setDraft(e.target.value)}
                     placeholder={
-                      t.messages?.messagePlaceholder ||
+                      t.messagesPage?.replyPlaceholder ||
                       "Reply to Titan Heavy Rentals about delivery, inspection, fuel..."
                     }
                     autoSize={{ minRows: 2, maxRows: 4 }}
@@ -373,7 +374,7 @@ const Messagespage = () => {
                     onClick={handleSend}
                     style={{ borderRadius: 16, minWidth: 140 }}
                   >
-                    {t.messages?.sendMessage || "Send"}
+                    {t.messagesPage?.send || "Send"}
                   </Button>
                 </div>
               </div>

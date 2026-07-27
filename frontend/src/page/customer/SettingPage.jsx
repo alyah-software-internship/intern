@@ -52,14 +52,14 @@ const SettingPage = () => {
               level={3}
               style={{ margin: 0, color: isDark ? "#f8fafc" : "#0f172a" }}
             >
-              {t.settings || "Platform Configuration"}
+              {t.settingsPage?.title || "Platform Configuration"}
             </Title>
             <Text
               type={isDark ? undefined : "secondary"}
               style={{ marginTop: 8, display: "block" }}
             >
-              Configure preferences, currency metrics, localized view styles,
-              and multi-factor authentication
+              {t.settingsPage?.subtitle ||
+                "Configure preferences, currency metrics, localized view styles, and multi-factor authentication"}
             </Text>
           </div>
 
@@ -84,10 +84,12 @@ const SettingPage = () => {
                       marginBottom: 8,
                     }}
                   >
-                    Localization & Displays
+                    {t.settingsPage?.localizationTitle ||
+                      "Localization & Displays"}
                   </Text>
                   <Text type="secondary">
-                    Enable modern low-light contrast scheme
+                    {t.settingsPage?.localizationSubtitle ||
+                      "Enable modern low-light contrast scheme"}
                   </Text>
                 </div>
 
@@ -108,10 +110,11 @@ const SettingPage = () => {
                         marginBottom: 4,
                       }}
                     >
-                      Visual Dark Mode
+                      {t.settingsPage?.visualDarkMode || "Visual Dark Mode"}
                     </Text>
                     <Text type="secondary">
-                      Enable modern low-light contrast scheme
+                      {t.settingsPage?.visualDarkModeDesc ||
+                        "Enable modern low-light contrast scheme"}
                     </Text>
                   </div>
                   <Switch checked={isDark} onChange={toggleTheme} />
@@ -133,10 +136,12 @@ const SettingPage = () => {
                         marginBottom: 4,
                       }}
                     >
-                      Local Currency Valuation
+                      {t.settingsPage?.currencyTitle ||
+                        "Local Currency Valuation"}
                     </Text>
                     <Text type="secondary">
-                      Primary pricing calculation metric
+                      {t.settingsPage?.currencyDesc ||
+                        "Primary pricing calculation metric"}
                     </Text>
                   </div>
                   <Select
@@ -171,10 +176,12 @@ const SettingPage = () => {
                     marginBottom: 12,
                   }}
                 >
-                  Notification Channels
+                  {t.settingsPage?.notificationsTitle ||
+                    "Notification Channels"}
                 </Text>
                 <Text type="secondary">
-                  Escrow alerts and dispatch invoices
+                  {t.settingsPage?.notificationsDesc ||
+                    "Escrow alerts and dispatch invoices"}
                 </Text>
 
                 <Divider style={{ margin: "20px 0" }} />
@@ -196,10 +203,12 @@ const SettingPage = () => {
                         display: "block",
                       }}
                     >
-                      Email Notifications
+                      {t.settingsPage?.emailNotifications ||
+                        "Email Notifications"}
                     </Text>
                     <Text type="secondary">
-                      Escrow alerts and dispatch invoices
+                      {t.settingsPage?.emailNotificationsDesc ||
+                        "Escrow alerts and dispatch invoices"}
                     </Text>
                   </div>
                   <Switch
@@ -225,10 +234,11 @@ const SettingPage = () => {
                         display: "block",
                       }}
                     >
-                      SMS Direct Alerts
+                      {t.settingsPage?.smsAlerts || "SMS Direct Alerts"}
                     </Text>
                     <Text type="secondary">
-                      Instant driver arrival checkouts
+                      {t.settingsPage?.smsAlertsDesc ||
+                        "Instant driver arrival checkouts"}
                     </Text>
                   </div>
                   <Switch checked={smsAlerts} onChange={setSmsAlerts} />
@@ -250,9 +260,12 @@ const SettingPage = () => {
                         display: "block",
                       }}
                     >
-                      In-App Banner Prompts
+                      {t.settingsPage?.bannerPrompts || "In-App Banner Prompts"}
                     </Text>
-                    <Text type="secondary">Real-time chat threads bubbles</Text>
+                    <Text type="secondary">
+                      {t.settingsPage?.bannerPromptsDesc ||
+                        "Real-time chat threads bubbles"}
+                    </Text>
                   </div>
                   <Switch checked={bannerPrompts} onChange={setBannerPrompts} />
                 </div>
@@ -280,10 +293,11 @@ const SettingPage = () => {
                       marginBottom: 8,
                     }}
                   >
-                    Security & Cryptography
+                    {t.settingsPage?.securityTitle || "Security & Cryptography"}
                   </Text>
                   <Text type="secondary">
-                    Secure transaction escrow approval pin
+                    {t.settingsPage?.securitySubtitle ||
+                      "Secure transaction escrow approval pin"}
                   </Text>
                 </div>
 
@@ -305,10 +319,12 @@ const SettingPage = () => {
                         marginBottom: 4,
                       }}
                     >
-                      Two-Factor Authentication (2FA)
+                      {t.settingsPage?.twoFactorTitle ||
+                        "Two-Factor Authentication (2FA)"}
                     </Text>
                     <Text type="secondary">
-                      Secure transaction escrow approval pin
+                      {t.settingsPage?.twoFactorDesc ||
+                        "Secure transaction escrow approval pin"}
                     </Text>
                   </div>
                   <Switch checked={twoFactorAuth} onChange={setTwoFactorAuth} />
@@ -324,10 +340,13 @@ const SettingPage = () => {
                     marginBottom: 14,
                   }}
                 >
-                  Quick Password Change
+                  {t.settingsPage?.quickPasswordChange ||
+                    "Quick Password Change"}
                 </Text>
                 <Input.Password
-                  placeholder="Current Password"
+                  placeholder={
+                    t.settingsPage?.currentPassword || "Current Password"
+                  }
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
                   style={{
@@ -338,7 +357,9 @@ const SettingPage = () => {
                   }}
                 />
                 <Input.Password
-                  placeholder="New Safe Password"
+                  placeholder={
+                    t.settingsPage?.newPassword || "New Safe Password"
+                  }
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   style={{
@@ -357,7 +378,8 @@ const SettingPage = () => {
                     borderColor: "#111827",
                   }}
                 >
-                  Update Security Password
+                  {t.settingsPage?.updateSecurityPassword ||
+                    "Update Security Password"}
                 </Button>
               </Card>
 
@@ -374,7 +396,8 @@ const SettingPage = () => {
                   fontWeight: 700,
                 }}
               >
-                Save Platform Settings
+                {t.settingsPage?.savePlatformSettings ||
+                  "Save Platform Settings"}
               </Button>
             </Col>
           </Row>

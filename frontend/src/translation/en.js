@@ -67,6 +67,44 @@ const en = {
     readMore: "Read More",
   },
 
+  settingsPage: {
+    title: "Platform Configuration",
+    subtitle:
+      "Configure preferences, currency metrics, localized view styles, and multi-factor authentication",
+    localizationTitle: "Localization & Displays",
+    localizationSubtitle: "Enable modern low-light contrast scheme",
+    visualDarkMode: "Visual Dark Mode",
+    visualDarkModeDesc: "Enable modern low-light contrast scheme",
+    currencyTitle: "Local Currency Valuation",
+    currencyDesc: "Primary pricing calculation metric",
+    notificationsTitle: "Notification Channels",
+    notificationsDesc: "Escrow alerts and dispatch invoices",
+    emailNotifications: "Email Notifications",
+    emailNotificationsDesc: "Escrow alerts and dispatch invoices",
+    smsAlerts: "SMS Direct Alerts",
+    smsAlertsDesc: "Instant driver arrival checkouts",
+    bannerPrompts: "In-App Banner Prompts",
+    bannerPromptsDesc: "Real-time chat threads bubbles",
+    securityTitle: "Security & Cryptography",
+    securitySubtitle: "Secure transaction escrow approval pin",
+    twoFactorTitle: "Two-Factor Authentication (2FA)",
+    twoFactorDesc: "Secure transaction escrow approval pin",
+    quickPasswordChange: "Quick Password Change",
+    currentPassword: "Current Password",
+    newPassword: "New Safe Password",
+    updateSecurityPassword: "Update Security Password",
+    savePlatformSettings: "Save Platform Settings",
+  },
+
+  messagesPage: {
+    vendorMessages: "Vendor Messages",
+    messagesSubtitle: "Real-time negotiations & agreements",
+    subjectLabel: "Subject",
+    replyPlaceholder:
+      "Reply to Titan Heavy Rentals about delivery, inspection, fuel...",
+    send: "Send",
+  },
+
   // Home Page
   home: {
     heroTitle: "Rent What You Need, When You Need It",
