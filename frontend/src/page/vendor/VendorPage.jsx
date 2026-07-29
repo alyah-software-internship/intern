@@ -9,36 +9,42 @@ import {
   WarningOutlined,
 } from "@ant-design/icons";
 import { useTheme } from "../../context/ThemeProvider.jsx";
+import { useTranslation } from "../../component/LanguageProvider.jsx";
 
 const { Title, Text } = Typography;
 
-
-
-const alerts = [
+const createAlerts = (t) => [
   {
-    title: "New Booking Request",
+    title: t.vendor?.alertNewBookingRequest || "New Booking Request",
     description:
+      t.vendor?.alertNewBookingDesc ||
       "Elena Rostova has requested to rent HydraFacial MD Elite from Jul 22 to Jul 24.",
-    time: "05:30 PM",
+    time: t.vendor?.alertTime1 || "05:30 PM",
     icon: <ClockCircleOutlined style={{ color: "#16a34a" }} />,
   },
   {
-    title: "Vendor Request Pending Review",
+    title:
+      t.vendor?.alertVendorRequestPendingReview ||
+      "Vendor Request Pending Review",
     description:
+      t.vendor?.alertVendorRequestDesc ||
       "Apex Tool Hire & Scaffolding submitted verification documentation.",
-    time: "02:20 PM",
+    time: t.vendor?.alertTime2 || "02:20 PM",
     icon: <WarningOutlined style={{ color: "#2563eb" }} />,
   },
   {
-    title: "Weekly Payout Completed",
-    description: "Your vendor payout of $1,250.00 has been initiated.",
-    time: "12:15 PM",
+    title: t.vendor?.alertWeeklyPayoutCompleted || "Weekly Payout Completed",
+    description:
+      t.vendor?.alertWeeklyPayoutDesc ||
+      "Your vendor payout of $1,250.00 has been initiated.",
+    time: t.vendor?.alertTime3 || "12:15 PM",
     icon: <CheckCircleOutlined style={{ color: "#059669" }} />,
   },
 ];
 
 const VendorPage = () => {
   const { theme } = useTheme();
+  const { translation: t } = useTranslation();
   const isDark = theme === "dark";
 
   return (
@@ -49,8 +55,6 @@ const VendorPage = () => {
         background: isDark ? "#060b17" : "#f3f7fb",
       }}
     >
-     
-
       <div
         style={{
           flex: 1,
@@ -67,7 +71,7 @@ const VendorPage = () => {
               <Space align="center" style={{ marginBottom: 16 }}>
                 <DollarOutlined style={{ fontSize: 24, color: "#16a34a" }} />
                 <Text strong style={{ color: isDark ? "#f8fafc" : "#0f172a" }}>
-                  Completed Revenue
+                  {t.vendor?.completedRevenue || "Completed Revenue"}
                 </Text>
               </Space>
               <Title
@@ -76,7 +80,15 @@ const VendorPage = () => {
               >
                 $500
               </Title>
-              <Tag color="#dcfce7" style={{ marginTop: 16, borderRadius: 999 }}>
+              <Tag
+                style={{
+                  marginTop: 16,
+                  borderRadius: 999,
+                  background: isDark ? "#164e63" : "#dcfce7",
+                  color: isDark ? "#cffafe" : "#166534",
+                  fontWeight: 700,
+                }}
+              >
                 +12.4% vs last month
               </Tag>
             </Card>
@@ -90,7 +102,7 @@ const VendorPage = () => {
               <Space align="center" style={{ marginBottom: 16 }}>
                 <AppstoreOutlined style={{ fontSize: 24, color: "#2563eb" }} />
                 <Text strong style={{ color: isDark ? "#f8fafc" : "#0f172a" }}>
-                  Active Field Leases
+                  {t.vendor?.activeFieldLeases || "Active Field Leases"}
                 </Text>
               </Space>
               <Title
@@ -115,7 +127,7 @@ const VendorPage = () => {
                   style={{ fontSize: 24, color: "#f97316" }}
                 />
                 <Text strong style={{ color: isDark ? "#f8fafc" : "#0f172a" }}>
-                  Asset Utilization
+                  {t.vendor?.assetUtilization || "Asset Utilization"}
                 </Text>
               </Space>
               <Title
@@ -138,7 +150,7 @@ const VendorPage = () => {
               <Space align="center" style={{ marginBottom: 16 }}>
                 <StarFilled style={{ fontSize: 24, color: "#facc15" }} />
                 <Text strong style={{ color: isDark ? "#f8fafc" : "#0f172a" }}>
-                  Feedback Rating
+                  {t.vendor?.feedbackRating || "Feedback Rating"}
                 </Text>
               </Space>
               <Title
@@ -173,20 +185,26 @@ const VendorPage = () => {
                     strong
                     style={{ color: isDark ? "#94a3b8" : "#64748b" }}
                   >
-                    Revenue Generation Performance
+                    {t.vendor?.revenuePerformanceTitle ||
+                      "Revenue Generation Performance"}
                   </Text>
                   <Title
                     level={4}
                     style={{ margin: 0, color: isDark ? "#f8fafc" : "#0f172a" }}
                   >
-                    Monthly breakdown of gross rental value vs commissions
+                    {t.vendor?.revenuePerformanceSubtitle ||
+                      "Monthly breakdown of gross rental value vs commissions"}
                   </Title>
                 </div>
                 <Tag
-                  color="#d1fae5"
-                  style={{ fontWeight: 700, borderRadius: 999 }}
+                  style={{
+                    fontWeight: 700,
+                    borderRadius: 999,
+                    background: isDark ? "#064e3b" : "#dcfce7",
+                    color: isDark ? "#d1fae5" : "#166534",
+                  }}
                 >
-                  Payout schedule: weekly
+                  {t.vendor?.payoutScheduleWeekly || "Payout schedule: weekly"}
                 </Tag>
               </div>
               <div
@@ -197,7 +215,7 @@ const VendorPage = () => {
                   background: isDark ? "#071323" : "#f0f6ff",
                   display: "grid",
                   placeItems: "center",
-                  color: isDark ? "#94a3b8" : "#94a3b8",
+                  color: isDark ? "#f8fafc" : "#0f172a",
                   fontSize: 16,
                   fontWeight: 600,
                 }}
@@ -224,11 +242,11 @@ const VendorPage = () => {
                   level={4}
                   style={{ margin: 0, color: isDark ? "#f8fafc" : "#0f172a" }}
                 >
-                  Recent Alerts & Requests
+                  {t.vendor?.recentAlertsTitle || "Recent Alerts & Requests"}
                 </Title>
               </div>
               <List
-                dataSource={alerts}
+                dataSource={createAlerts(t)}
                 renderItem={(item) => (
                   <List.Item style={{ padding: 0, border: "none" }}>
                     <Card

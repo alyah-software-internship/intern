@@ -97,6 +97,11 @@ const en = {
     newPassword: "New Safe Password",
     updateSecurityPassword: "Update Security Password",
     savePlatformSettings: "Save Platform Settings",
+    settingsSaved: "Settings saved.",
+    quickPasswordChangeDesc: "Secure transaction escrow approval pin",
+    currencyUSD: "USD",
+    currencyETB: "ETB",
+    currencyEUR: "EUR",
   },
 
   messagesPage: {
@@ -371,6 +376,26 @@ const en = {
     earnings: "Earnings",
     productsUtilization: "Product Utilization",
     customerReviews: "Customer Reviews",
+    portalTitle: "Vendor Portal",
+    alertsButton: "Alerts",
+    completedRevenue: "Completed Revenue",
+    activeFieldLeases: "Active Field Leases",
+    assetUtilization: "Asset Utilization",
+    feedbackRating: "Feedback Rating",
+    revenuePerformanceTitle: "Revenue Generation Performance",
+    revenuePerformanceSubtitle:
+      "Monthly breakdown of gross rental value vs commissions",
+    payoutScheduleWeekly: "Payout schedule: weekly",
+    recentAlertsTitle: "Recent Alerts & Requests",
+    alertNewBookingRequest: "New Booking Request",
+    alertNewBookingDesc:
+      "Elena Rostova has requested to rent HydraFacial MD Elite from Jul 22 to Jul 24.",
+    alertVendorRequestPendingReview: "Vendor Request Pending Review",
+    alertVendorRequestDesc:
+      "Apex Tool Hire & Scaffolding submitted verification documentation.",
+    alertWeeklyPayoutCompleted: "Weekly Payout Completed",
+    alertWeeklyPayoutDesc:
+      "Your vendor payout of $1,250.00 has been initiated.",
   },
 
   // Admin Dashboard

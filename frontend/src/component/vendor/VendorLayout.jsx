@@ -3,6 +3,7 @@ import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { Button, Space, Typography } from "antd";
 import { BellOutlined, PlusOutlined } from "@ant-design/icons";
 import { useTheme } from "../../context/ThemeProvider.jsx";
+import { useTranslation } from "../../component/LanguageProvider.jsx";
 
 const { Title, Text } = Typography;
 
@@ -21,22 +22,23 @@ const navItems = [
 ];
 
 const routeTitles = {
-  "/vendor": "Dashboard",
-  "/vendor/dashboard": "Dashboard",
-  "/vendor/verify": "Verify Credentials",
-  "/vendor/products": "Products",
-  "/vendor/bookings": "Bookings",
-  "/vendor/customers": "Customers",
-  "/vendor/employees": "Employees",
-  "/vendor/analytics": "Analytics",
-  "/vendor/reports": "Reports",
-  "/vendor/profile": "Profile",
-  "/vendor/subscription": "Subscription",
-  "/vendor/settings": "Settings",
+  "/vendor": "dashboard",
+  "/vendor/dashboard": "dashboard",
+  "/vendor/verify": "verify",
+  "/vendor/products": "products",
+  "/vendor/bookings": "bookings",
+  "/vendor/customers": "customers",
+  "/vendor/employees": "employees",
+  "/vendor/analytics": "analytics",
+  "/vendor/reports": "reports",
+  "/vendor/profile": "profile",
+  "/vendor/subscription": "subscription",
+  "/vendor/settings": "settings",
 };
 
 const VendorLayout = () => {
   const { theme } = useTheme();
+  const { translation: t } = useTranslation();
   const isDark = theme === "dark";
   const location = useLocation();
 
@@ -47,7 +49,12 @@ const VendorLayout = () => {
     return location.pathname === path;
   };
 
-  const pageTitle = routeTitles[location.pathname] || "Vendor Dashboard";
+  const pageTitleKey = routeTitles[location.pathname] || "dashboard";
+  const pageTitle =
+    t.vendor?.[pageTitleKey] ||
+    navItems.find((item) => item.path === location.pathname)?.label ||
+    "Vendor Dashboard";
+
   const pageDate = new Date().toLocaleDateString("en-US", {
     weekday: "long",
     month: "long",
@@ -100,7 +107,7 @@ const VendorLayout = () => {
             style={{ color: isDark ? "#94a3b8" : "#64748b" }}
             type="secondary"
           >
-            Vendor Portal
+            {t.vendor?.portalTitle || "Vendor Portal"}
           </Text>
         </div>
 
@@ -125,7 +132,7 @@ const VendorLayout = () => {
                       : "#111827",
                 }}
               >
-                {item.label}
+                {t.vendor?.[item.key] || item.label}
               </Button>
             </NavLink>
           ))}
@@ -175,14 +182,14 @@ const VendorLayout = () => {
               type="default"
               style={{ borderRadius: 16 }}
             >
-              Alerts
+              {t.vendor?.alertsButton || "Alerts"}
             </Button>
             <Button
               icon={<PlusOutlined />}
               type="primary"
               style={{ borderRadius: 16 }}
             >
-              Add Product
+              {t.vendor?.addProduct || "Add Product"}
             </Button>
           </Space>
         </div>
