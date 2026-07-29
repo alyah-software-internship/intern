@@ -1,53 +1,282 @@
-import React, { useMemo } from "react";
-import { useLocation } from "react-router-dom";
-import { Row, Col, Typography } from "antd";
-import ItemCard from "../../component/home/ItemCard.jsx";
-import { rentalItems } from "../../assets/dummyAssets";
-import { useTranslation } from "../../component/LanguageProvider.jsx";
+import React from "react";
+import { Row, Col, Card, Typography, Space, Tag, List } from "antd";
+import {
+  DollarOutlined,
+  AppstoreOutlined,
+  ClockCircleOutlined,
+  StarFilled,
+  CheckCircleOutlined,
+  WarningOutlined,
+} from "@ant-design/icons";
+import { useTheme } from "../../context/ThemeProvider.jsx";
 
 const { Title, Text } = Typography;
 
-const VendorPage = () => {
-  const { translation: t } = useTranslation();
-  const location = useLocation();
-  const params = useMemo(
-    () => new URLSearchParams(location.search),
-    [location.search],
-  );
-  const vendorQuery = params.get("vendor") || "";
 
-  const filtered = useMemo(() => {
-    const name = decodeURIComponent(vendorQuery || "");
-    if (!name) return rentalItems;
-    return rentalItems.filter(
-      (it) =>
-        (it.vendor && it.vendor.toLowerCase() === name.toLowerCase()) ||
-        (it.vendorInfo &&
-          it.vendorInfo.name &&
-          it.vendorInfo.name.toLowerCase() === name.toLowerCase()),
-    );
-  }, [vendorQuery]);
+
+const alerts = [
+  {
+    title: "New Booking Request",
+    description:
+      "Elena Rostova has requested to rent HydraFacial MD Elite from Jul 22 to Jul 24.",
+    time: "05:30 PM",
+    icon: <ClockCircleOutlined style={{ color: "#16a34a" }} />,
+  },
+  {
+    title: "Vendor Request Pending Review",
+    description:
+      "Apex Tool Hire & Scaffolding submitted verification documentation.",
+    time: "02:20 PM",
+    icon: <WarningOutlined style={{ color: "#2563eb" }} />,
+  },
+  {
+    title: "Weekly Payout Completed",
+    description: "Your vendor payout of $1,250.00 has been initiated.",
+    time: "12:15 PM",
+    icon: <CheckCircleOutlined style={{ color: "#059669" }} />,
+  },
+];
+
+const VendorPage = () => {
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
 
   return (
-    <div style={{ padding: 24, maxWidth: 1200, margin: "0 auto" }}>
-      <div style={{ marginBottom: 18 }}>
-        <Title level={2}>
-          {vendorQuery
-            ? `${vendorQuery} ${t.common?.listings || "Listings"}`
-            : t.nav?.rentals || "Vendor Listings"}
-        </Title>
-        <Text type="secondary">
-          {filtered.length} {t.common?.items || "items"}
-        </Text>
-      </div>
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        background: isDark ? "#060b17" : "#f3f7fb",
+      }}
+    >
+     
 
-      <Row gutter={[24, 24]}>
-        {filtered.map((item) => (
-          <Col key={item.id} xs={24} sm={12} lg={8}>
-            <ItemCard item={item} />
+      <div
+        style={{
+          flex: 1,
+          padding: 32,
+          overflow: "auto",
+        }}
+      >
+        <Row gutter={[24, 24]}>
+          <Col xs={24} sm={12} xl={6}>
+            <Card
+              style={{ borderRadius: 24, minHeight: 170 }}
+              bodyStyle={{ padding: 24 }}
+            >
+              <Space align="center" style={{ marginBottom: 16 }}>
+                <DollarOutlined style={{ fontSize: 24, color: "#16a34a" }} />
+                <Text strong style={{ color: isDark ? "#f8fafc" : "#0f172a" }}>
+                  Completed Revenue
+                </Text>
+              </Space>
+              <Title
+                level={2}
+                style={{ margin: 0, color: isDark ? "#f8fafc" : "#0f172a" }}
+              >
+                $500
+              </Title>
+              <Tag color="#dcfce7" style={{ marginTop: 16, borderRadius: 999 }}>
+                +12.4% vs last month
+              </Tag>
+            </Card>
           </Col>
-        ))}
-      </Row>
+
+          <Col xs={24} sm={12} xl={6}>
+            <Card
+              style={{ borderRadius: 24, minHeight: 170 }}
+              bodyStyle={{ padding: 24 }}
+            >
+              <Space align="center" style={{ marginBottom: 16 }}>
+                <AppstoreOutlined style={{ fontSize: 24, color: "#2563eb" }} />
+                <Text strong style={{ color: isDark ? "#f8fafc" : "#0f172a" }}>
+                  Active Field Leases
+                </Text>
+              </Space>
+              <Title
+                level={2}
+                style={{ margin: 0, color: isDark ? "#f8fafc" : "#0f172a" }}
+              >
+                1
+              </Title>
+              <Text style={{ color: isDark ? "#94a3b8" : "#475569" }}>
+                Machinery working outdoors
+              </Text>
+            </Card>
+          </Col>
+
+          <Col xs={24} sm={12} xl={6}>
+            <Card
+              style={{ borderRadius: 24, minHeight: 170 }}
+              bodyStyle={{ padding: 24 }}
+            >
+              <Space align="center" style={{ marginBottom: 16 }}>
+                <ClockCircleOutlined
+                  style={{ fontSize: 24, color: "#f97316" }}
+                />
+                <Text strong style={{ color: isDark ? "#f8fafc" : "#0f172a" }}>
+                  Asset Utilization
+                </Text>
+              </Space>
+              <Title
+                level={2}
+                style={{ margin: 0, color: isDark ? "#f8fafc" : "#0f172a" }}
+              >
+                50%
+              </Title>
+              <Text style={{ color: isDark ? "#94a3b8" : "#475569" }}>
+                Rent days vs idle catalog slots
+              </Text>
+            </Card>
+          </Col>
+
+          <Col xs={24} sm={12} xl={6}>
+            <Card
+              style={{ borderRadius: 24, minHeight: 170 }}
+              bodyStyle={{ padding: 24 }}
+            >
+              <Space align="center" style={{ marginBottom: 16 }}>
+                <StarFilled style={{ fontSize: 24, color: "#facc15" }} />
+                <Text strong style={{ color: isDark ? "#f8fafc" : "#0f172a" }}>
+                  Feedback Rating
+                </Text>
+              </Space>
+              <Title
+                level={2}
+                style={{ margin: 0, color: isDark ? "#f8fafc" : "#0f172a" }}
+              >
+                4.8 / 5
+              </Title>
+              <Text style={{ color: isDark ? "#94a3b8" : "#475569" }}>
+                Based on 38 verification checks
+              </Text>
+            </Card>
+          </Col>
+        </Row>
+
+        <Row gutter={[24, 24]} style={{ marginTop: 24 }}>
+          <Col xs={24} xl={16}>
+            <Card
+              style={{ borderRadius: 24, minHeight: 420 }}
+              bodyStyle={{ padding: 24 }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: 24,
+                }}
+              >
+                <div>
+                  <Text
+                    strong
+                    style={{ color: isDark ? "#94a3b8" : "#64748b" }}
+                  >
+                    Revenue Generation Performance
+                  </Text>
+                  <Title
+                    level={4}
+                    style={{ margin: 0, color: isDark ? "#f8fafc" : "#0f172a" }}
+                  >
+                    Monthly breakdown of gross rental value vs commissions
+                  </Title>
+                </div>
+                <Tag
+                  color="#d1fae5"
+                  style={{ fontWeight: 700, borderRadius: 999 }}
+                >
+                  Payout schedule: weekly
+                </Tag>
+              </div>
+              <div
+                style={{
+                  width: "100%",
+                  height: 280,
+                  borderRadius: 20,
+                  background: isDark ? "#071323" : "#f0f6ff",
+                  display: "grid",
+                  placeItems: "center",
+                  color: isDark ? "#94a3b8" : "#94a3b8",
+                  fontSize: 16,
+                  fontWeight: 600,
+                }}
+              >
+                Chart placeholder
+              </div>
+            </Card>
+          </Col>
+
+          <Col xs={24} xl={8}>
+            <Card
+              style={{ borderRadius: 24, minHeight: 420 }}
+              bodyStyle={{ padding: 24 }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: 24,
+                }}
+              >
+                <Title
+                  level={4}
+                  style={{ margin: 0, color: isDark ? "#f8fafc" : "#0f172a" }}
+                >
+                  Recent Alerts & Requests
+                </Title>
+              </div>
+              <List
+                dataSource={alerts}
+                renderItem={(item) => (
+                  <List.Item style={{ padding: 0, border: "none" }}>
+                    <Card
+                      type="inner"
+                      style={{
+                        width: "100%",
+                        borderRadius: 18,
+                        border: isDark
+                          ? "1px solid rgba(255,255,255,0.08)"
+                          : "1px solid rgba(15,23,42,0.08)",
+                        background: isDark ? "#081122" : "#f8fbff",
+                        marginBottom: 16,
+                      }}
+                    >
+                      <Space align="start" size={16}>
+                        <div style={{ fontSize: 20 }}>{item.icon}</div>
+                        <div style={{ flex: 1 }}>
+                          <Text
+                            strong
+                            style={{ color: isDark ? "#f8fafc" : "#0f172a" }}
+                          >
+                            {item.title}
+                          </Text>
+                          <Text
+                            style={{
+                              display: "block",
+                              color: isDark ? "#94a3b8" : "#475569",
+                              marginTop: 8,
+                            }}
+                          >
+                            {item.description}
+                          </Text>
+                          <Text
+                            type="secondary"
+                            style={{ color: isDark ? "#64748b" : "#94a3b8" }}
+                          >
+                            {item.time}
+                          </Text>
+                        </div>
+                      </Space>
+                    </Card>
+                  </List.Item>
+                )}
+              />
+            </Card>
+          </Col>
+        </Row>
+      </div>
     </div>
   );
 };
