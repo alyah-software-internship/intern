@@ -32,6 +32,8 @@ import Reports from "./page/vendor/Reports";
 import VendorProfile from "./page/vendor/Profile";
 import Subscription from "./page/vendor/Subscription";
 import VendorSettings from "./page/vendor/Settings";
+import AddItem from "./page/vendor/addItem";
+import VendorAlerts from "./page/vendor/Alerts";
 import DetailPage from "./page/public/DetailPage";
 import Footer from "./component/Footer.jsx";
 
@@ -76,6 +78,8 @@ const App = () => {
             <Route path="profile" element={<VendorProfile />} />
             <Route path="subscription" element={<Subscription />} />
             <Route path="settings" element={<VendorSettings />} />
+            <Route path="alerts" element={<VendorAlerts />} />
+            <Route path="add-product" element={<AddItem />} />
           </Route>
         </Routes>
       </AnimatePresence>

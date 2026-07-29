@@ -1,5 +1,5 @@
 import React from "react";
-import { NavLink, Outlet, useLocation } from "react-router-dom";
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { Button, Space, Typography } from "antd";
 import { BellOutlined, PlusOutlined } from "@ant-design/icons";
 import { useTheme } from "../../context/ThemeProvider.jsx";
@@ -34,6 +34,8 @@ const routeTitles = {
   "/vendor/profile": "profile",
   "/vendor/subscription": "subscription",
   "/vendor/settings": "settings",
+  "/vendor/alerts": "alerts",
+  "/vendor/add-product": "addProduct",
 };
 
 const VendorLayout = () => {
@@ -54,6 +56,8 @@ const VendorLayout = () => {
     t.vendor?.[pageTitleKey] ||
     navItems.find((item) => item.path === location.pathname)?.label ||
     "Vendor Dashboard";
+
+  const navigate = useNavigate();
 
   const pageDate = new Date().toLocaleDateString("en-US", {
     weekday: "long",
@@ -181,6 +185,7 @@ const VendorLayout = () => {
               icon={<BellOutlined />}
               type="default"
               style={{ borderRadius: 16 }}
+              onClick={() => navigate("/vendor/alerts")}
             >
               {t.vendor?.alertsButton || "Alerts"}
             </Button>
@@ -188,6 +193,7 @@ const VendorLayout = () => {
               icon={<PlusOutlined />}
               type="primary"
               style={{ borderRadius: 16 }}
+              onClick={() => navigate("/vendor/add-product")}
             >
               {t.vendor?.addProduct || "Add Product"}
             </Button>

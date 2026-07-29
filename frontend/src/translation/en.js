@@ -386,6 +386,7 @@ const en = {
     revenuePerformanceSubtitle:
       "Monthly breakdown of gross rental value vs commissions",
     payoutScheduleWeekly: "Payout schedule: weekly",
+    alertsPageTitle: "Alerts",
     recentAlertsTitle: "Recent Alerts & Requests",
     alertNewBookingRequest: "New Booking Request",
     alertNewBookingDesc:
@@ -396,6 +397,33 @@ const en = {
     alertWeeklyPayoutCompleted: "Weekly Payout Completed",
     alertWeeklyPayoutDesc:
       "Your vendor payout of $1,250.00 has been initiated.",
+    alertsPageTitle: "Alerts",
+    addProductTitle: "Add Product",
+    addProductFormDescription:
+      "List a new product so customers can discover and rent it.",
+    inventoryCatalogTitle: "Inventory Catalog Manager",
+    inventoryCatalogSubtitle:
+      "List heavy machinery, verify insurance files, and block unavailable calendar dates",
+    listNewEquipment: "List New Equipment",
+    equipmentDetails: "Equipment Details",
+    industryCategory: "Industry Category",
+    dailyPricing: "Daily Pricing",
+    refundableDeposit: "Refundable Deposit",
+    calendarState: "Calendar State",
+    inventoryActions: "Inventory Actions",
+    productNameEnglish: "Product Name (English)",
+    productNameAmharic: "Product Name (Amharic)",
+    productCategory: "Product Category",
+    productDescriptionEnglish: "Product Description (English)",
+    productDescriptionAmharic: "Product Description (Amharic)",
+    priceAmount: "Price",
+    priceUnit: "Unit",
+    addPriceOption: "Add Price Option",
+    productPrice: "Price per Day",
+    productQuantity: "Quantity Available",
+    productImages: "Product Images",
+    saveProduct: "Save Product",
+    productSaved: "Product saved successfully!",
   },
 
   // Admin Dashboard
