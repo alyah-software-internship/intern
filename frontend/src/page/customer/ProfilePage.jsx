@@ -163,7 +163,7 @@ const ProfilePage = () => {
                   : "0 24px 60px rgba(15,23,42,0.08)",
               }}
             >
-              <Space direction="vertical" size={26} style={{ width: "100%" }}>
+              <Space orientation="vertical" size={26} style={{ width: "100%" }}>
                 <div style={{ textAlign: "center" }}>
                   <input
                     type="file"
@@ -263,7 +263,7 @@ const ProfilePage = () => {
                   : "0 24px 60px rgba(15,23,42,0.08)",
               }}
             >
-              <Space direction="vertical" size={28} style={{ width: "100%" }}>
+              <Space orientation="vertical" size={28} style={{ width: "100%" }}>
                 <div
                   style={{
                     display: "grid",

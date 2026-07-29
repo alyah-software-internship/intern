@@ -188,7 +188,7 @@ const DashboardPage = () => {
                   : "1px solid rgba(15,23,42,0.08)",
               }}
             >
-              <Space direction="vertical" size={18} style={{ width: "100%" }}>
+              <Space orientation="vertical" size={18} style={{ width: "100%" }}>
                 <Text
                   strong
                   style={{
@@ -274,7 +274,7 @@ const DashboardPage = () => {
                   : "1px solid rgba(15,23,42,0.08)",
               }}
             >
-              <Space direction="vertical" size={20} style={{ width: "100%" }}>
+              <Space orientation="vertical" size={20} style={{ width: "100%" }}>
                 <Title
                   level={4}
                   style={{

@@ -41,6 +41,8 @@ const en = {
     subscribeCTA: "Join Now",
   },
   language: "Language",
+  languageEnglish: "English",
+  languageAmharic: "Amharic",
 
   // Common
   common: {
@@ -59,6 +61,7 @@ const en = {
     loading: "Loading...",
     noResults: "No results found",
     all: "All",
+    items: "items",
     price: "Price",
     rating: "Rating",
     reviews: "Reviews",
@@ -270,12 +273,11 @@ const en = {
     filterByVendor: "Vendor",
     filterByRating: "Rating",
     filterByAvailability: "Availability",
-    keyword: "Keyword",
-    searchPlaceholder: "Type keyword...",
+    keyword: "Search by name or location",
+    searchPlaceholder: "Type a name or location...",
     allCategories: "All Categories",
     allVendors: "All Vendors",
     allAvailability: "All",
-    available: "Available",
     unavailable: "Unavailable",
     noProducts: "No products found",
     resetFilters: "Reset Filters",

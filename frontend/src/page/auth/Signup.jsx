@@ -28,7 +28,7 @@ const { Title, Paragraph, Text } = Typography;
 
 const Signup = () => {
   const [loading, setLoading] = useState(false);
-  const [role, setRole] = useState("Renter / Customer");
+  const [role, setRole] = useState("renter");
   const { lang, setLanguage, translation: t } = useTranslation();
 
   const onFinish = (values) => {
@@ -63,7 +63,7 @@ const Signup = () => {
                     <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-sky-500 text-lg font-bold text-white">
                       i
                     </span>
-                    i-Share
+                    {t.brand}
                   </div>
 
                   <div className="inline-flex items-center gap-2 rounded-full border border-sky-400/30 bg-sky-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-sky-300 shadow-sm shadow-sky-500/10">
@@ -114,8 +114,8 @@ const Signup = () => {
                   </Text>
                   <Segmented
                     options={[
-                      { label: "EN", value: "en" },
-                      { label: "አማ", value: "am" },
+                      { label: t.languageEnglish, value: "en" },
+                      { label: t.languageAmharic, value: "am" },
                     ]}
                     value={lang}
                     onChange={setLanguage}
@@ -200,11 +200,11 @@ const Signup = () => {
                       options={[
                         {
                           label: t.roleRenter,
-                          value: "Renter / Customer",
+                          value: "renter",
                         },
                         {
                           label: t.roleVendor,
-                          value: "Verified Vendor",
+                          value: "vendor",
                         },
                       ]}
                       value={role}
@@ -212,9 +212,7 @@ const Signup = () => {
                       className="w-full rounded-[18px] border border-slate-200"
                     />
                     <Text className="mt-2 block text-sm text-slate-400">
-                      {role === "Renter / Customer"
-                        ? t.renterText
-                        : t.vendorText}
+                      {role === "renter" ? t.renterText : t.vendorText}
                     </Text>
                   </div>
 

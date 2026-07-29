@@ -38,12 +38,64 @@ html.dark .ant-layout-footer,
 
 html.dark .bg-white,
 .app-root--dark .bg-white {
-  background-color: #1a1a2e !important;
+  background-color: #111827 !important;
 }
 
 html.dark [class*="bg-white"],
 .app-root--dark [class*="bg-white"] {
-  background-color: #1a1a2e !important;
+  background-color: #111827 !important;
+}
+
+html.dark .ant-card,
+html.dark .ant-input,
+html.dark .ant-input-affix-wrapper,
+html.dark .ant-select-selector,
+html.dark .ant-picker,
+html.dark .ant-btn,
+html.dark .ant-btn-default,
+html.dark .ant-list-item,
+html.dark .ant-divider,
+html.dark textarea,
+html.dark input,
+html.dark select,
+.app-root--dark .ant-card,
+.app-root--dark .ant-input,
+.app-root--dark .ant-input-affix-wrapper,
+.app-root--dark .ant-select-selector,
+.app-root--dark .ant-picker,
+.app-root--dark .ant-btn,
+.app-root--dark .ant-btn-default,
+.app-root--dark .ant-list-item,
+.app-root--dark .ant-divider,
+.app-root--dark textarea,
+.app-root--dark input,
+.app-root--dark select {
+  background-color: #111827 !important;
+  color: #f8fafc !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+html.dark .ant-btn-default,
+html.dark .ant-btn,
+.app-root--dark .ant-btn-default,
+.app-root--dark .ant-btn {
+  background-image: none !important;
+}
+
+html.dark [style*="background: #fff"],
+html.dark [style*="background: #ffffff"],
+html.dark [style*="background-color: #fff"],
+html.dark [style*="background-color: #ffffff"],
+.app-root--dark [style*="background: #fff"],
+.app-root--dark [style*="background: #ffffff"],
+.app-root--dark [style*="background-color: #fff"],
+.app-root--dark [style*="background-color: #ffffff"] {
+  background: #111827 !important;
+}
+
+html.dark a,
+.app-root--dark a {
+  color: #7dd3fc;
 }
 
 html.dark .text-red-700,

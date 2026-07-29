@@ -12,13 +12,18 @@ const AboutPage = () => {
   const navigate = useNavigate();
   const isDark = theme === "dark";
   const about = t.aboutPage || {};
+  const pageSurface = isDark ? "#111827" : "#ffffff";
+  const pageSurfaceAlt = isDark ? "#0f172a" : "#f8fbff";
+  const cardBorder = isDark
+    ? "1px solid rgba(255,255,255,0.08)"
+    : "1px solid rgba(15,23,42,0.08)";
 
   return (
     <div
       style={{
         minHeight: "100vh",
         padding: "40px 24px",
-        background: isDark ? "#040b1a" : "#f8fbff",
+        background: isDark ? "#040b1a" : pageSurfaceAlt,
       }}
     >
       <div style={{ maxWidth: 1200, margin: "0 auto" }}>
@@ -44,7 +49,7 @@ const AboutPage = () => {
                 fontWeight: 700,
               }}
             >
-              {t.nav?.about || "About Us"}
+              {t.nav?.about}
             </Text>
             <Title
               style={{
@@ -53,7 +58,7 @@ const AboutPage = () => {
                 lineHeight: 1.1,
               }}
             >
-              {about.title || "Building Ethiopia’s trusted rental marketplace"}
+              {about.title}
             </Title>
             <Paragraph
               style={{
@@ -63,8 +68,7 @@ const AboutPage = () => {
                 lineHeight: 1.8,
               }}
             >
-              {about.subtitle ||
-                "i-Share connects renters and vendors across construction, beauty, agriculture, and events with secure rental solutions."}
+              {about.subtitle}
             </Paragraph>
           </div>
 
@@ -74,7 +78,7 @@ const AboutPage = () => {
             onClick={() => navigate("/rentals")}
             style={{ minWidth: 180, height: 46 }}
           >
-            {about.ctaButton || "Browse Rentals"}
+            {about.ctaButton}
           </Button>
         </div>
 
@@ -94,7 +98,7 @@ const AboutPage = () => {
                 level={3}
                 style={{ color: isDark ? "#f8fafc" : "#0f172a" }}
               >
-                {about.missionTitle || "Our Mission"}
+                {about.missionTitle}
               </Title>
               <Paragraph
                 style={{
@@ -102,8 +106,7 @@ const AboutPage = () => {
                   lineHeight: 1.8,
                 }}
               >
-                {about.missionDesc ||
-                  "Make renting easy and trustworthy for everyone in Ethiopia by empowering local vendors and customers with the right tools."}
+                {about.missionDesc}
               </Paragraph>
             </div>
           </Col>
@@ -113,17 +116,15 @@ const AboutPage = () => {
               style={{
                 borderRadius: 24,
                 padding: 28,
-                background: isDark ? "#0f172a" : "#fff",
-                border: isDark
-                  ? "1px solid rgba(255,255,255,0.08)"
-                  : "1px solid rgba(15,23,42,0.08)",
+                background: pageSurface,
+                border: cardBorder,
               }}
             >
               <Title
                 level={3}
                 style={{ color: isDark ? "#f8fafc" : "#0f172a" }}
               >
-                {about.visionTitle || "Our Vision"}
+                {about.visionTitle}
               </Title>
               <Paragraph
                 style={{
@@ -131,8 +132,7 @@ const AboutPage = () => {
                   lineHeight: 1.8,
                 }}
               >
-                {about.visionDesc ||
-                  "A marketplace where renting assets is fast, fair, and secure for every Ethiopian community."}
+                {about.visionDesc}
               </Paragraph>
             </div>
           </Col>
@@ -142,17 +142,15 @@ const AboutPage = () => {
               style={{
                 borderRadius: 24,
                 padding: 28,
-                background: isDark ? "#0f172a" : "#fff",
-                border: isDark
-                  ? "1px solid rgba(255,255,255,0.08)"
-                  : "1px solid rgba(15,23,42,0.08)",
+                background: pageSurface,
+                border: cardBorder,
               }}
             >
               <Title
                 level={3}
                 style={{ color: isDark ? "#f8fafc" : "#0f172a" }}
               >
-                {about.valuesTitle || "Our Values"}
+                {about.valuesTitle}
               </Title>
               <Paragraph
                 style={{
@@ -160,8 +158,7 @@ const AboutPage = () => {
                   lineHeight: 1.8,
                 }}
               >
-                {about.valuesDesc ||
-                  "Trust, transparency, and convenience at every step of the rental journey."}
+                {about.valuesDesc}
               </Paragraph>
             </div>
           </Col>
@@ -171,17 +168,15 @@ const AboutPage = () => {
               style={{
                 borderRadius: 24,
                 padding: 28,
-                background: isDark ? "#0f172a" : "#fff",
-                border: isDark
-                  ? "1px solid rgba(255,255,255,0.08)"
-                  : "1px solid rgba(15,23,42,0.08)",
+                background: pageSurface,
+                border: cardBorder,
               }}
             >
               <Title
                 level={3}
                 style={{ color: isDark ? "#f8fafc" : "#0f172a" }}
               >
-                {about.whyTitle || "Why i-Share?"}
+                {about.whyTitle}
               </Title>
               <Paragraph
                 style={{
@@ -189,8 +184,7 @@ const AboutPage = () => {
                   lineHeight: 1.8,
                 }}
               >
-                {about.whyDesc ||
-                  "Secure bookings, local support, and a wide selection of rental items across Ethiopia."}
+                {about.whyDesc}
               </Paragraph>
             </div>
           </Col>
@@ -206,16 +200,16 @@ const AboutPage = () => {
         >
           {[
             {
-              label: about.stats?.vendors || "Verified Vendors",
-              value: about.stats?.vendorsCount || "1,200+",
+              label: about.stats?.vendors,
+              value: about.stats?.vendorsCount,
             },
             {
-              label: about.stats?.rentals || "Active Rentals",
-              value: about.stats?.rentalsCount || "4,500+",
+              label: about.stats?.rentals,
+              value: about.stats?.rentalsCount,
             },
             {
-              label: about.stats?.categories || "Service Categories",
-              value: about.stats?.categoriesCount || "35+",
+              label: about.stats?.categories,
+              value: about.stats?.categoriesCount,
             },
           ].map((item) => (
             <div
@@ -223,10 +217,8 @@ const AboutPage = () => {
               style={{
                 borderRadius: 24,
                 padding: 28,
-                background: isDark ? "#0f172a" : "#fff",
-                border: isDark
-                  ? "1px solid rgba(255,255,255,0.08)"
-                  : "1px solid rgba(15,23,42,0.08)",
+                background: pageSurface,
+                border: cardBorder,
               }}
             >
               <Text

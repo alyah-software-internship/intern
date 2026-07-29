@@ -1,4 +1,5 @@
 import { Col, Row, Typography, Space } from "antd";
+import { useNavigate } from "react-router-dom";
 import Button from "../Button.jsx";
 import { useTranslation } from "../LanguageProvider.jsx";
 import { useTheme } from "../../context/ThemeProvider.jsx";
@@ -9,8 +10,11 @@ const { Title, Paragraph } = Typography;
 const Hero = () => {
   const { translation: t } = useTranslation();
   const { theme } = useTheme();
+  const navigate = useNavigate();
   const isDark = theme === "dark";
 
+  const handleBrowseCategories = () => navigate("/categories");
+  const handleViewCatalog = () => navigate("/rentals");
 
   return (
     <div
@@ -63,6 +67,7 @@ const Hero = () => {
             <Space size={16} wrap style={{ justifyContent: "center" }}>
               <Button
                 type="default"
+                onClick={handleBrowseCategories}
                 style={{
                   minWidth: 180,
                   borderRadius: 999,
@@ -74,6 +79,7 @@ const Hero = () => {
               </Button>
               <Button
                 type="default"
+                onClick={handleViewCatalog}
                 style={{
                   minWidth: 180,
                   borderRadius: 999,

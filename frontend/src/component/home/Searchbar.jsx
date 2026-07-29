@@ -1,5 +1,7 @@
 import { Button, Card, Col, DatePicker, Row, Select, Typography } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "../LanguageProvider.jsx";
 import { useTheme } from "../../context/ThemeProvider.jsx";
 
@@ -9,7 +11,10 @@ const { Text } = Typography;
 const Searchbar = () => {
   const { translation: t } = useTranslation();
   const { theme } = useTheme();
+  const navigate = useNavigate();
   const isDark = theme === "dark";
+  const [selectedCategory, setSelectedCategory] = useState(undefined);
+  const [selectedLocation, setSelectedLocation] = useState(undefined);
 
   const categories = [
     { label: t.home.search.categories.construction, value: "construction" },
@@ -24,7 +29,17 @@ const Searchbar = () => {
   ];
 
   const handleSearch = () => {
-    console.log("Search clicked");
+    const params = new URLSearchParams();
+
+    if (selectedCategory) {
+      params.set("category", selectedCategory);
+    }
+
+    if (selectedLocation) {
+      params.set("location", selectedLocation);
+    }
+
+    navigate(`/rentals${params.toString() ? `?${params.toString()}` : ""}`);
   };
 
   return (
@@ -56,6 +71,8 @@ const Searchbar = () => {
               {t.home.search.assetCategory}
             </Text>
             <Select
+              value={selectedCategory}
+              onChange={setSelectedCategory}
               options={categories}
               placeholder={t.home.search.categoryPlaceholder}
               style={{ width: "100%", borderRadius: 24 }}
@@ -76,6 +93,8 @@ const Searchbar = () => {
               {t.home.search.location}
             </Text>
             <Select
+              value={selectedLocation}
+              onChange={setSelectedLocation}
               options={locations}
               placeholder={t.home.search.locationPlaceholder}
               style={{ width: "100%", borderRadius: 24 }}

@@ -16,13 +16,18 @@ const ContactPage = () => {
   const { translation: t } = useTranslation();
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const pageSurface = isDark ? "#111827" : "#ffffff";
+  const pageSurfaceAlt = isDark ? "#0f172a" : "#f8fbff";
+  const cardBorder = isDark
+    ? "1px solid rgba(255,255,255,0.08)"
+    : "1px solid rgba(15,23,42,0.08)";
 
   return (
     <div
       style={{
         minHeight: "100vh",
         padding: "40px 24px",
-        background: isDark ? "#040b1a" : "#f8fbff",
+        background: isDark ? "#040b1a" : pageSurfaceAlt,
       }}
     >
       <div style={{ maxWidth: 1200, margin: "0 auto" }}>
@@ -47,7 +52,7 @@ const ContactPage = () => {
                 fontWeight: 700,
               }}
             >
-              {t.nav?.contact || "Contact"}
+              {t.nav?.contact}
             </Text>
             <Title
               style={{
@@ -56,7 +61,7 @@ const ContactPage = () => {
                 lineHeight: 1.1,
               }}
             >
-              {t.contact?.title || "Contact Us"}
+              {t.contact?.title}
             </Title>
             <Paragraph
               style={{
@@ -66,30 +71,32 @@ const ContactPage = () => {
                 lineHeight: 1.8,
               }}
             >
-              {t.contact?.subtitle || "We'd love to hear from you"}
+              {t.contact?.subtitle}
             </Paragraph>
           </div>
           <div style={{ display: "flex", alignItems: "center" }}>
             <Button type="primary" size="large">
-              {t.contact?.liveChat || "Live Chat"}
+              {t.contact?.liveChat}
             </Button>
           </div>
         </div>
 
         <Row gutter={[24, 24]}>
           <Col xs={24} lg={10}>
-            <Space direction="vertical" size="large" style={{ width: "100%" }}>
+            <Space
+              orientation="vertical"
+              size="large"
+              style={{ width: "100%" }}
+            >
               <Card
                 style={{
                   borderRadius: 24,
-                  background: isDark ? "#0f172a" : "#fff",
-                  border: isDark
-                    ? "1px solid rgba(255,255,255,0.08)"
-                    : "1px solid rgba(15,23,42,0.08)",
+                  background: pageSurface,
+                  border: cardBorder,
                 }}
               >
                 <Space
-                  direction="vertical"
+                  orientation="vertical"
                   size="middle"
                   style={{ width: "100%" }}
                 >
@@ -98,7 +105,7 @@ const ContactPage = () => {
                       strong
                       style={{ color: isDark ? "#f8fafc" : "#0f172a" }}
                     >
-                      {t.contact?.getInTouch || "Get in Touch"}
+                      {t.contact?.getInTouch}
                     </Text>
                     <Paragraph
                       style={{
@@ -106,8 +113,7 @@ const ContactPage = () => {
                         margin: 0,
                       }}
                     >
-                      {t.contact?.liveChatDesc ||
-                        "Chat with our support team in real-time"}
+                      {t.contact?.liveChatDesc}
                     </Paragraph>
                   </div>
 
@@ -127,7 +133,7 @@ const ContactPage = () => {
                           strong
                           style={{ color: isDark ? "#f8fafc" : "#0f172a" }}
                         >
-                          {t.contact?.phone || "Phone"}
+                          {t.contact?.phone}
                         </Text>
                         <Paragraph
                           style={{
@@ -154,7 +160,7 @@ const ContactPage = () => {
                           strong
                           style={{ color: isDark ? "#f8fafc" : "#0f172a" }}
                         >
-                          {t.contact?.email || "Email"}
+                          {t.contact?.email}
                         </Text>
                         <Paragraph
                           style={{
@@ -181,7 +187,7 @@ const ContactPage = () => {
                           strong
                           style={{ color: isDark ? "#f8fafc" : "#0f172a" }}
                         >
-                          {t.contact?.address || "Address"}
+                          {t.contact?.address}
                         </Text>
                         <Paragraph
                           style={{
@@ -208,7 +214,7 @@ const ContactPage = () => {
                           strong
                           style={{ color: isDark ? "#f8fafc" : "#0f172a" }}
                         >
-                          {t.contact?.businessHours || "Business Hours"}
+                          {t.contact?.businessHours}
                         </Text>
                         <Paragraph
                           style={{
@@ -230,10 +236,8 @@ const ContactPage = () => {
             <Card
               style={{
                 borderRadius: 24,
-                background: isDark ? "#0f172a" : "#fff",
-                border: isDark
-                  ? "1px solid rgba(255,255,255,0.08)"
-                  : "1px solid rgba(15,23,42,0.08)",
+                background: pageSurface,
+                border: cardBorder,
               }}
             >
               <div style={{ maxWidth: 640 }}>
@@ -241,46 +245,36 @@ const ContactPage = () => {
                   level={3}
                   style={{ color: isDark ? "#f8fafc" : "#0f172a" }}
                 >
-                  {t.contact?.getInTouch || "Get in Touch"}
+                  {t.contact?.getInTouch}
                 </Title>
                 <Paragraph style={{ color: isDark ? "#cbd5e1" : "#475569" }}>
-                  {t.contact?.liveChatDesc ||
-                    "Chat with our support team in real-time"}
+                  {t.contact?.liveChatDesc}
                 </Paragraph>
 
                 <Row gutter={[16, 16]}>
                   <Col xs={24} sm={12}>
-                    <Input
-                      size="large"
-                      placeholder={t.placeholderName || "Enter your full name"}
-                    />
+                    <Input size="large" placeholder={t.placeholderName} />
                   </Col>
                   <Col xs={24} sm={12}>
-                    <Input
-                      size="large"
-                      placeholder={t.placeholderEmail || "example@email.com"}
-                    />
+                    <Input size="large" placeholder={t.placeholderEmail} />
                   </Col>
                   <Col xs={24}>
                     <TextArea
                       rows={6}
-                      placeholder={
-                        t.contact?.messagePlaceholder ||
-                        "Type your message here..."
-                      }
+                      placeholder={t.contact?.messagePlaceholder}
                       style={{ resize: "none" }}
                     />
                   </Col>
                   <Col xs={24}>
                     <Button type="primary" size="large">
-                      {t.contact?.sendMessage || "Send Message"}
+                      {t.contact?.sendMessage}
                     </Button>
                   </Col>
                 </Row>
 
                 <div style={{ marginTop: 24 }}>
                   <Text style={{ color: isDark ? "#cbd5e1" : "#64748b" }}>
-                    {t.contact?.supportTeam || "Support Team"}
+                    {t.contact?.supportTeam}
                   </Text>
                 </div>
               </div>

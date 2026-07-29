@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "../../component/LanguageProvider.jsx";
+import { useTheme } from "../../context/ThemeProvider.jsx";
 import { GoogleOutlined, LockOutlined, MailOutlined } from "@ant-design/icons";
 import {
   Button,
@@ -21,6 +22,8 @@ const { Title, Paragraph, Text } = Typography;
 const Login = () => {
   const [loading, setLoading] = useState(false);
   const { lang, setLanguage, translation: t } = useTranslation();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
 
   const onFinish = (values) => {
     setLoading(true);
@@ -34,15 +37,23 @@ const Login = () => {
     <Row
       justify="center"
       align="middle"
-      style={{ minHeight: "100vh", background: "#eef4fb", padding: 24 }}
+      style={{
+        minHeight: "100vh",
+        background: isDark ? "#020617" : "#eef4fb",
+        padding: 24,
+      }}
     >
       <Col xs={24} lg={20} xl={16}>
         <Card
           variant="borderless"
           style={{
             borderRadius: 32,
-            boxShadow: "0 30px 90px rgba(15,23,42,0.14)",
+            boxShadow: isDark
+              ? "0 30px 90px rgba(2, 6, 23, 0.5)"
+              : "0 30px 90px rgba(15,23,42,0.14)",
             overflow: "hidden",
+            background: isDark ? "#0f172a" : "#ffffff",
+            border: isDark ? "1px solid rgba(148, 163, 184, 0.2)" : "none",
           }}
         >
           <Row gutter={[24, 24]} style={{ minHeight: "calc(100vh - 80px)" }}>
@@ -116,7 +127,7 @@ const Login = () => {
                       >
                         i
                       </span>
-                      i-Share
+                      {t.brand}
                     </div>
                     <div
                       style={{
@@ -262,8 +273,8 @@ const Login = () => {
                   </Text>
                   <Segmented
                     options={[
-                      { label: "EN", value: "en" },
-                      { label: "አማ", value: "am" },
+                      { label: t.languageEnglish, value: "en" },
+                      { label: t.languageAmharic, value: "am" },
                     ]}
                     value={lang}
                     onChange={setLanguage}
@@ -271,10 +282,21 @@ const Login = () => {
                   />
                 </div>
 
-                <Title level={2} style={{ marginBottom: 8, color: "#0f172a" }}>
+                <Title
+                  level={2}
+                  style={{
+                    marginBottom: 8,
+                    color: isDark ? "#f8fafc" : "#0f172a",
+                  }}
+                >
                   {t.loginTitle}
                 </Title>
-                <Paragraph style={{ marginBottom: 32, color: "#64748b" }}>
+                <Paragraph
+                  style={{
+                    marginBottom: 32,
+                    color: isDark ? "#cbd5e1" : "#64748b",
+                  }}
+                >
                   {t.loginSubtitle}
                 </Paragraph>
 
@@ -366,7 +388,12 @@ const Login = () => {
                   </Form.Item>
                 </Form>
 
-                <Divider style={{ color: "#cbd5e1", margin: "32px 0" }}>
+                <Divider
+                  style={{
+                    color: isDark ? "#94a3b8" : "#cbd5e1",
+                    margin: "32px 0",
+                  }}
+                >
                   {t.orContinue}
                 </Divider>
 
@@ -389,7 +416,7 @@ const Login = () => {
                   style={{
                     marginTop: 32,
                     textAlign: "center",
-                    color: "#64748b",
+                    color: isDark ? "#cbd5e1" : "#64748b",
                   }}
                 >
                   {t.noAccount}{" "}

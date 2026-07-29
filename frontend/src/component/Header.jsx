@@ -328,7 +328,7 @@ const Header = () => {
               <Button
                 type="default"
                 shape="round"
-                onClick={() => navigate("/signin")}
+                onClick={() => navigate("/login")}
               >
                 {t.nav.login}
               </Button>

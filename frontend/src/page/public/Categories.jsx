@@ -12,13 +12,18 @@ const Categories = () => {
   const { theme } = useTheme();
   const navigate = useNavigate();
   const isDark = theme === "dark";
+  const pageSurface = isDark ? "#111827" : "#ffffff";
+  const pageSurfaceAlt = isDark ? "#0f172a" : "#f8fbff";
+  const cardBorder = isDark
+    ? "1px solid rgba(255,255,255,0.08)"
+    : "1px solid rgba(15,23,42,0.08)";
 
   return (
     <div
       style={{
         minHeight: "100vh",
         padding: "40px 24px",
-        background: isDark ? "#040b1a" : "#f8fbff",
+        background: isDark ? "#040b1a" : pageSurfaceAlt,
       }}
     >
       <div style={{ maxWidth: 1200, margin: "0 auto" }}>
@@ -44,7 +49,7 @@ const Categories = () => {
                 fontWeight: 700,
               }}
             >
-              {t.home?.categoriesTitle || "Browse Categories"}
+              {t.home?.categoriesTitle}
             </Text>
             <Title
               style={{
@@ -53,7 +58,7 @@ const Categories = () => {
                 lineHeight: 1.1,
               }}
             >
-              {t.nav?.categories || "Categories"}
+              {t.nav?.categories}
             </Title>
             <Text
               style={{
@@ -64,8 +69,7 @@ const Categories = () => {
                 lineHeight: 1.8,
               }}
             >
-              {t.home?.categoriesSubtitle ||
-                "Find the perfect rental in any category."}
+              {t.home?.categoriesSubtitle}
             </Text>
           </div>
 
@@ -75,7 +79,7 @@ const Categories = () => {
             onClick={() => navigate("/rentals")}
             style={{ minWidth: 180, height: 46 }}
           >
-            {t.home?.browseCategories || "Explore All Categories"}
+            {t.home?.browseCategories}
           </Button>
         </div>
 
@@ -92,10 +96,8 @@ const Categories = () => {
                   bodyStyle={{ padding: 24 }}
                   style={{
                     borderRadius: 24,
-                    background: isDark ? "#0f172a" : "#fff",
-                    border: isDark
-                      ? "1px solid rgba(255,255,255,0.08)"
-                      : "1px solid rgba(15,23,42,0.08)",
+                    background: pageSurface,
+                    border: cardBorder,
                   }}
                 >
                   <div
@@ -149,10 +151,10 @@ const Categories = () => {
                       strong
                       style={{ color: isDark ? "#d1fae5" : "#16a34a" }}
                     >
-                      {category.count} {t.common?.items || "items"}
+                      {category.count} {t.common?.items}
                     </Text>
                     <Button type="default" onClick={() => navigate("/rentals")}>
-                      {t.common?.viewAll || "View All"}
+                      {t.common?.viewAll}
                     </Button>
                   </div>
                 </Card>

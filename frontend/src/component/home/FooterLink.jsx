@@ -96,7 +96,7 @@ const FooterLink = () => {
       <div style={{ maxWidth: 1200, margin: "0 auto" }}>
         <Row gutter={[32, 32]}>
           <Col xs={24} lg={8}>
-            <Space direction="vertical" size={12} style={{ width: "100%" }}>
+            <Space orientation="vertical" size={12} style={{ width: "100%" }}>
               <Title
                 level={3}
                 style={{
@@ -181,7 +181,7 @@ const FooterLink = () => {
 
           {footerSections.map((section, index) => (
             <Col xs={24} sm={8} lg={4} key={index}>
-              <Space direction="vertical" size={8} style={{ width: "100%" }}>
+              <Space orientation="vertical" size={8} style={{ width: "100%" }}>
                 <Text
                   strong
                   style={{

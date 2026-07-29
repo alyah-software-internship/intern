@@ -20,6 +20,7 @@ import {
   vendors as dummyVendors,
 } from "../../assets/dummyAssets";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import Searchbar from "../home/Searchbar.jsx";
 
 const { Title, Text } = Typography;
 
@@ -30,9 +31,16 @@ const Rental = () => {
   const productStrings = t.products || t.home?.products || {};
   const rentalStrings = t.rentals || t.home?.rentals || {};
 
-  const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("all");
   const [searchParams] = useSearchParams();
+  const [search, setSearch] = useState(() => {
+    const queryValue =
+      searchParams.get("search") || searchParams.get("query") || "";
+    return queryValue;
+  });
+  const [category, setCategory] = useState(() => {
+    const categoryValue = searchParams.get("category") || "all";
+    return categoryValue;
+  });
   const [vendor, setVendor] = useState(
     () => searchParams.get("vendor") || "all",
   );
@@ -150,6 +158,7 @@ const Rental = () => {
       const matchesSearch =
         search.length === 0 ||
         item.title.toLowerCase().includes(search.toLowerCase()) ||
+        item.location.toLowerCase().includes(search.toLowerCase()) ||
         item.category.toLowerCase().includes(search.toLowerCase()) ||
         item.vendor.toLowerCase().includes(search.toLowerCase());
 
@@ -188,7 +197,13 @@ const Rental = () => {
 
   useEffect(() => {
     const vendorFromQuery = searchParams.get("vendor");
+    const searchFromQuery =
+      searchParams.get("search") || searchParams.get("query") || "";
+    const categoryFromQuery = searchParams.get("category") || "all";
+
     setVendor(vendorFromQuery || "all");
+    setSearch(searchFromQuery);
+    setCategory(categoryFromQuery);
   }, [searchParams]);
 
   const handleRentNow = (item) => {
@@ -213,8 +228,12 @@ const Rental = () => {
           align="middle"
           justify="space-between"
           style={{ marginBottom: 24, gap: 16 }}
+          className="flex justify-between items-center "
         >
-          <Col xs={24} md={16}>
+          <Col
+            flex="1"
+            style={{ display: "flex", flexDirection: "column", gap: 16 }}
+          >
             <Text
               style={{
                 display: "block",
@@ -222,49 +241,48 @@ const Rental = () => {
                 fontSize: 12,
                 letterSpacing: "0.24em",
                 textTransform: "uppercase",
-                marginBottom: 8,
               }}
             >
               {productStrings.filter || "Filter Products"}
             </Text>
-            <Title
-              level={2}
-              style={{
-                margin: 0,
-                color: isDark ? "#f8fafc" : "#0f172a",
-                lineHeight: 1.1,
-              }}
-            >
-              {productStrings.title ||
-                t.nav?.rentals ||
-                "Marketplace Search Catalog"}
-            </Title>
-            <Text type="secondary">
-              {filteredItems.length}{" "}
-              {productStrings.productsFound || "products found"}
-            </Text>
+            <div>
+              <Title
+                level={2}
+                style={{
+                  margin: 0,
+                  color: isDark ? "#f8fafc" : "#0f172a",
+                  lineHeight: 1.1,
+                }}
+              >
+                {productStrings.title ||
+                  t.nav?.rentals ||
+                  "Marketplace Search Catalog"}
+              </Title>
+              <Text type="secondary">
+                {filteredItems.length}{" "}
+                {productStrings.productsFound || "products found"}
+              </Text>
+            </div>
           </Col>
 
           <Col
-            xs={24}
-            md={8}
+            flex="none"
             style={{
               display: "flex",
               justifyContent: "flex-end",
-              marginLeft: "auto",
+              width: "100%",
             }}
           >
-            <Space
-              size={12}
+            <div
               style={{
-                width: "100%",
-                justifyContent: "flex-end",
-                flexWrap: "wrap",
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                whiteSpace: "nowrap",
               }}
             >
               <Text
                 style={{
-                  whiteSpace: "nowrap",
                   color: isDark ? "#cbd5e1" : "#334155",
                 }}
               >
@@ -279,7 +297,7 @@ const Rental = () => {
                 }))}
                 style={{ minWidth: 220, width: 220 }}
               />
-            </Space>
+            </div>
           </Col>
         </Row>
 
@@ -290,7 +308,7 @@ const Rental = () => {
               style={{ borderRadius: 24 }}
               bodyStyle={{ padding: 24 }}
             >
-              <Space direction="vertical" size={24} style={{ width: "100%" }}>
+              <Space orientation="vertical" size={24} style={{ width: "100%" }}>
                 <div>
                   <Text strong>{productStrings.keyword || "Keyword"}</Text>
                   <Input
@@ -365,7 +383,7 @@ const Rental = () => {
                   />
                 </div>
 
-                <Space direction="vertical" style={{ width: "100%" }}>
+                <Space orientation="vertical" style={{ width: "100%" }}>
                   <Button
                     type="default"
                     block

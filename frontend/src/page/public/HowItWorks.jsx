@@ -12,24 +12,27 @@ const HowItWorks = () => {
   const { theme } = useTheme();
   const navigate = useNavigate();
   const isDark = theme === "dark";
+  const pageSurface = isDark ? "#111827" : "#ffffff";
+  const pageSurfaceAlt = isDark ? "#0f172a" : "#f8fbff";
+  const cardBorder = isDark
+    ? "1px solid rgba(255,255,255,0.08)"
+    : "1px solid rgba(15,23,42,0.08)";
 
   const steps = [
     {
       id: 1,
-      title: t.home?.step1Title || "Search & Find",
-      description:
-        t.home?.step1Desc || "Browse through thousands of rental items",
+      title: t.home?.step1Title,
+      description: t.home?.step1Desc,
     },
     {
       id: 2,
-      title: t.home?.step2Title || "Book & Pay",
-      description: t.home?.step2Desc || "Select dates and confirm your booking",
+      title: t.home?.step2Title,
+      description: t.home?.step2Desc,
     },
     {
       id: 3,
-      title: t.home?.step3Title || "Rent & Return",
-      description:
-        t.home?.step3Desc || "Pick up, use, and return the item when done",
+      title: t.home?.step3Title,
+      description: t.home?.step3Desc,
     },
   ];
 
@@ -38,7 +41,7 @@ const HowItWorks = () => {
       style={{
         minHeight: "100vh",
         padding: "40px 24px",
-        background: isDark ? "#040b1a" : "#f8fbff",
+        background: isDark ? "#040b1a" : pageSurfaceAlt,
       }}
     >
       <div style={{ maxWidth: 1200, margin: "0 auto" }}>
@@ -64,7 +67,7 @@ const HowItWorks = () => {
                 marginBottom: 10,
               }}
             >
-              {t.home?.howItWorks || "How It Works"}
+              {t.home?.howItWorks}
             </Text>
             <Title
               style={{
@@ -73,7 +76,7 @@ const HowItWorks = () => {
                 lineHeight: 1.1,
               }}
             >
-              {t.home?.howItWorks || "How It Works"}
+              {t.home?.howItWorks}
             </Title>
             <Text
               style={{
@@ -84,8 +87,7 @@ const HowItWorks = () => {
                 lineHeight: 1.8,
               }}
             >
-              {t.home?.howItWorksSubtitle ||
-                "Simple steps to start renting, from search to return."}
+              {t.home?.howItWorksSubtitle}
             </Text>
           </div>
 
@@ -95,7 +97,7 @@ const HowItWorks = () => {
             onClick={() => navigate("/rentals")}
             style={{ minWidth: 180, height: 46 }}
           >
-            {t.home?.getStarted || "Get Started"}
+            {t.home?.getStarted}
           </Button>
         </div>
 
@@ -107,10 +109,8 @@ const HowItWorks = () => {
                 bodyStyle={{ padding: 24 }}
                 style={{
                   borderRadius: 24,
-                  background: isDark ? "#0f172a" : "#fff",
-                  border: isDark
-                    ? "1px solid rgba(255,255,255,0.08)"
-                    : "1px solid rgba(15,23,42,0.08)",
+                  background: pageSurface,
+                  border: cardBorder,
                 }}
               >
                 <div
