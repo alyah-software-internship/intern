@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import translations, {
   TranslationContext,
   getTranslation,
+  getTranslationsForLanguage,
   languages,
 } from "../translation";
 
@@ -19,6 +20,16 @@ export const LanguageProvider = ({ children }) => {
   };
 
   const [lang, setLang] = useState(getInitialLang);
+  const [translationVersion, setTranslationVersion] = useState(0);
+
+  useEffect(() => {
+    const syncTranslations = () => setTranslationVersion((prev) => prev + 1);
+    window.addEventListener("translations:updated", syncTranslations);
+
+    return () => {
+      window.removeEventListener("translations:updated", syncTranslations);
+    };
+  }, []);
 
   // Update document direction for RTL languages
   useEffect(() => {
@@ -51,10 +62,14 @@ export const LanguageProvider = ({ children }) => {
     setLang(lang === "en" ? "am" : "en");
   }, [lang]);
 
+  const translation = useMemo(() => {
+    return getTranslationsForLanguage(lang);
+  }, [lang, translationVersion]);
+
   const value = {
     lang,
     t,
-    translation: translations[lang],
+    translation,
     setLanguage,
     toggleLanguage,
     languages,

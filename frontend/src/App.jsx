@@ -34,6 +34,7 @@ import Subscription from "./page/vendor/Subscription";
 import VendorSettings from "./page/vendor/Settings";
 import AddItem from "./page/vendor/addItem";
 import VendorAlerts from "./page/vendor/Alerts";
+import TranslationReviewPage from "./page/admin/TranslationReview.jsx";
 import DetailPage from "./page/public/DetailPage";
 import Footer from "./component/Footer.jsx";
 
@@ -65,6 +66,10 @@ const App = () => {
           <Route path="/messages" element={<Messagespage />} />
           <Route path="/wishlist" element={<WishlistPage />} />
           <Route path="/notifications" element={<NotificationPage />} />
+          <Route
+            path="/admin/translations"
+            element={<TranslationReviewPage />}
+          />
           <Route path="/vendor" element={<VendorLayout />}>
             <Route index element={<VendorPage />} />
             <Route path="dashboard" element={<VendorPage />} />

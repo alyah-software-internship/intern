@@ -345,6 +345,44 @@ const en = {
     damageReport: "Report Damage",
   },
 
+  subscriptionPage: {
+    title: "Compare SaaS Subscription Packages",
+    subtitle:
+      "Scale your fleet count and unlock custom API integrations and CRM logs",
+    activePackage: "Active Package",
+    pricingAgreement: "Pricing Agreement",
+    autoRenewText:
+      "Renewing automatically on 2026-08-15 · Billing card ··· 9812",
+    currentActivePlan: "CURRENT ACTIVE PLAN",
+    basicLabel: "STARTER SHOP",
+    basicPlan: "Basic Fleet Plan",
+    basicPrice: "$29",
+    premiumLabel: "STANDARD GROWTH",
+    premiumPlan: "Pro Premium Builder",
+    premiumPrice: "$99",
+    enterpriseLabel: "CORPORATE DEALERSHIPS",
+    enterprisePlan: "Enterprise Network",
+    enterprisePrice: "$249",
+    monthSuffix: "/month",
+    basicFeatures: [
+      "Up to 3 product listings",
+      "5% standard platform fee",
+      "Secure Escrow pre-auth",
+    ],
+    premiumFeatures: [
+      "Up to 25 product listings",
+      "3% reduced platform fee",
+      "Priority support & damage dispute assistance",
+    ],
+    enterpriseFeatures: [
+      "Unlimited product listings",
+      "1.5% minimum platform fee",
+      "Custom API webhooks & GPS logs",
+    ],
+    switchToBasic: "Switch to Basic",
+    upgradeToEnterprise: "Upgrade to Enterprise",
+  },
+
   // Vendor Dashboard
   vendor: {
     dashboard: "Vendor Dashboard",
