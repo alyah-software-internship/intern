@@ -1,5 +1,5 @@
 import React from "react";
-import { Row, Col, Card, Typography, Space, Tag, List } from "antd";
+import { Row, Col, Card, Typography, Space, Tag } from "antd";
 import {
   DollarOutlined,
   AppstoreOutlined,
@@ -66,7 +66,7 @@ const VendorPage = () => {
           <Col xs={24} sm={12} xl={6}>
             <Card
               style={{ borderRadius: 24, minHeight: 170 }}
-              bodyStyle={{ padding: 24 }}
+              styles={{ body: { padding: 24 } }}
             >
               <Space align="center" style={{ marginBottom: 16 }}>
                 <DollarOutlined style={{ fontSize: 24, color: "#16a34a" }} />
@@ -97,7 +97,7 @@ const VendorPage = () => {
           <Col xs={24} sm={12} xl={6}>
             <Card
               style={{ borderRadius: 24, minHeight: 170 }}
-              bodyStyle={{ padding: 24 }}
+              styles={{ body: { padding: 24 } }}
             >
               <Space align="center" style={{ marginBottom: 16 }}>
                 <AppstoreOutlined style={{ fontSize: 24, color: "#2563eb" }} />
@@ -120,7 +120,7 @@ const VendorPage = () => {
           <Col xs={24} sm={12} xl={6}>
             <Card
               style={{ borderRadius: 24, minHeight: 170 }}
-              bodyStyle={{ padding: 24 }}
+              styles={{ body: { padding: 24 } }}
             >
               <Space align="center" style={{ marginBottom: 16 }}>
                 <ClockCircleOutlined
@@ -145,7 +145,7 @@ const VendorPage = () => {
           <Col xs={24} sm={12} xl={6}>
             <Card
               style={{ borderRadius: 24, minHeight: 170 }}
-              bodyStyle={{ padding: 24 }}
+              styles={{ body: { padding: 24 } }}
             >
               <Space align="center" style={{ marginBottom: 16 }}>
                 <StarFilled style={{ fontSize: 24, color: "#facc15" }} />
@@ -170,7 +170,7 @@ const VendorPage = () => {
           <Col xs={24} xl={16}>
             <Card
               style={{ borderRadius: 24, minHeight: 420 }}
-              bodyStyle={{ padding: 24 }}
+              styles={{ body: { padding: 24 } }}
             >
               <div
                 style={{
@@ -228,7 +228,7 @@ const VendorPage = () => {
           <Col xs={24} xl={8}>
             <Card
               style={{ borderRadius: 24, minHeight: 420 }}
-              bodyStyle={{ padding: 24 }}
+              styles={{ body: { padding: 24 } }}
             >
               <div
                 style={{
@@ -245,10 +245,9 @@ const VendorPage = () => {
                   {t.vendor?.recentAlertsTitle || "Recent Alerts & Requests"}
                 </Title>
               </div>
-              <List
-                dataSource={createAlerts(t)}
-                renderItem={(item) => (
-                  <List.Item style={{ padding: 0, border: "none" }}>
+              <div>
+                {createAlerts(t).map((item) => (
+                  <div key={`${item.title}-${item.time}`}>
                     <Card
                       type="inner"
                       style={{
@@ -269,6 +268,7 @@ const VendorPage = () => {
                             style={{ color: isDark ? "#f8fafc" : "#0f172a" }}
                           >
                             {item.title}
+                          
                           </Text>
                           <Text
                             style={{
@@ -288,9 +288,9 @@ const VendorPage = () => {
                         </div>
                       </Space>
                     </Card>
-                  </List.Item>
-                )}
-              />
+                  </div>
+                ))}
+              </div>
             </Card>
           </Col>
         </Row>

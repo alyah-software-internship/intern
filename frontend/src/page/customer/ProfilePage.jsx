@@ -27,12 +27,19 @@ const ProfilePage = () => {
 
   const initialProfile = {
     fullName: "Marcus Sterling",
-    company: "Sterling Constructions Ltd",
+    businessName: "Sterling Constructions Ltd",
     email: "marcus.sterling@i-share.et",
     phone: "0911554433",
-    headquarters: "Addis Ababa, Ethiopia",
+    address: "123 iShare Plaza, Addis Ababa, Ethiopia",
+    city: "Addis Ababa",
+    country: "Ethiopia",
     bio: "General construction project coordinator and asset manager in East Africa. Specialized in heavy machinery logistics and high-value fleet rentals.",
     image: "",
+    verificationStatus: "approved",
+    identityVerified: true,
+    paymentMethodsVerified: true,
+    rating: 4.9,
+    totalBookings: 28,
   };
 
   const uploadRef = useRef(null);
@@ -202,7 +209,9 @@ const ProfilePage = () => {
                     {profile.fullName}
                   </Title>
                   <Text type="secondary">
-                    {t.profile?.memberStatus || "Premium Member"}
+                    {profile.businessName ||
+                      t.profile?.memberStatus ||
+                      "Premium Member"}
                   </Text>
                 </div>
 
@@ -238,11 +247,31 @@ const ProfilePage = () => {
                       </Text>
                       <br />
                       <Text type="secondary">
-                        {t.profile?.verifiedSubtitle ||
-                          "Insurance pre-bond active until 2027."}
+                        {profile.verificationStatus
+                          ? `Verification status: ${profile.verificationStatus}`
+                          : t.profile?.verifiedSubtitle ||
+                            "Insurance pre-bond active until 2027."}
                       </Text>
                     </div>
                   </Space>
+                </div>
+
+                <div
+                  style={{
+                    display: "grid",
+                    gap: 12,
+                    color: isDark ? "#cbd5e1" : "#475569",
+                  }}
+                >
+                  <Text>Rating: {profile.rating} / 5</Text>
+                  <Text>Bookings: {profile.totalBookings}</Text>
+                  <Text>
+                    Identity verified: {profile.identityVerified ? "Yes" : "No"}
+                  </Text>
+                  <Text>
+                    Payment methods verified:{" "}
+                    {profile.paymentMethodsVerified ? "Yes" : "No"}
+                  </Text>
                 </div>
               </Space>
             </Card>
@@ -293,14 +322,12 @@ const ProfilePage = () => {
                   </div>
 
                   <div>
-                    <Text strong>
-                      {t.profile?.company || "Company Entity Name"}
-                    </Text>
+                    <Text strong>{t.profile?.company || "Business Name"}</Text>
                     <Input
-                      value={profile.company}
-                      onChange={handleFieldChange("company")}
+                      value={profile.businessName}
+                      onChange={handleFieldChange("businessName")}
                       disabled={!isEditing}
-                      placeholder={t.profile?.company || "Company Entity Name"}
+                      placeholder={t.profile?.company || "Business Name"}
                       style={{
                         marginTop: 8,
                         borderRadius: 16,
@@ -382,19 +409,63 @@ const ProfilePage = () => {
                   </div>
                 </div>
 
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                    gap: 24,
+                  }}
+                >
+                  <div>
+                    <Text strong>
+                      {t.profile?.headquarters || "Business Address"}
+                    </Text>
+                    <Input
+                      value={profile.address}
+                      onChange={handleFieldChange("address")}
+                      disabled={!isEditing}
+                      placeholder={
+                        t.profile?.headquarters || "Business Address"
+                      }
+                      style={{
+                        marginTop: 8,
+                        borderRadius: 16,
+                        background: isEditing
+                          ? undefined
+                          : isDark
+                            ? "#0f172a"
+                            : "#f5f7ff",
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <Text strong>{t.profile?.city || "City"}</Text>
+                    <Input
+                      value={profile.city}
+                      onChange={handleFieldChange("city")}
+                      disabled={!isEditing}
+                      placeholder={t.profile?.city || "City"}
+                      style={{
+                        marginTop: 8,
+                        borderRadius: 16,
+                        background: isEditing
+                          ? undefined
+                          : isDark
+                            ? "#0f172a"
+                            : "#f5f7ff",
+                      }}
+                    />
+                  </div>
+                </div>
+
                 <div>
-                  <Text strong>
-                    {t.profile?.headquarters ||
-                      "Main Delivery Location / Headquarters"}
-                  </Text>
+                  <Text strong>{t.profile?.country || "Country"}</Text>
                   <Input
-                    value={profile.headquarters}
-                    onChange={handleFieldChange("headquarters")}
+                    value={profile.country}
+                    onChange={handleFieldChange("country")}
                     disabled={!isEditing}
-                    placeholder={
-                      t.profile?.headquarters ||
-                      "Main Delivery Location / Headquarters"
-                    }
+                    placeholder={t.profile?.country || "Country"}
                     style={{
                       marginTop: 8,
                       borderRadius: 16,

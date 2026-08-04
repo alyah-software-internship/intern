@@ -1,7 +1,13 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { Button, Space, Typography } from "antd";
-import { BellOutlined, PlusOutlined } from "@ant-design/icons";
+import { Button, Card, Space, Tag, Typography } from "antd";
+import {
+  BellOutlined,
+  CheckCircleOutlined,
+  CloseOutlined,
+  MenuOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
 import { useTheme } from "../../context/ThemeProvider.jsx";
 import { useTranslation } from "../../component/LanguageProvider.jsx";
 
@@ -43,6 +49,30 @@ const VendorLayout = () => {
   const { translation: t } = useTranslation();
   const isDark = theme === "dark";
   const location = useLocation();
+  const [isMobile, setIsMobile] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  useEffect(() => {
+    const updateViewport = () => {
+      const mobile = window.innerWidth < 900;
+      setIsMobile(mobile);
+      setSidebarOpen(!mobile);
+    };
+
+    updateViewport();
+    window.addEventListener("resize", updateViewport);
+
+    return () => window.removeEventListener("resize", updateViewport);
+  }, []);
+
+  const toggleSidebar = () => {
+    if (isMobile) {
+      setSidebarOpen((value) => !value);
+      return;
+    }
+
+    setSidebarOpen((value) => !value);
+  };
 
   const isActive = (path) => {
     if (path === "/vendor/dashboard") {
@@ -76,8 +106,8 @@ const VendorLayout = () => {
     >
       <div
         style={{
-          width: 280,
-          padding: "32px 24px",
+          width: isMobile ? 280 : 280,
+          padding: isMobile ? "24px 20px" : "32px 24px",
           background: isDark ? "#0b1120" : "#fff",
           borderRight: isDark
             ? "1px solid rgba(255,255,255,0.08)"
@@ -85,34 +115,135 @@ const VendorLayout = () => {
           boxShadow: isDark
             ? "2px 0 24px rgba(0,0,0,0.25)"
             : "2px 0 24px rgba(15,23,42,0.04)",
+          position: isMobile ? "fixed" : "relative",
+          top: 0,
+          left: 0,
+          bottom: 0,
+          zIndex: 20,
+          transform: isMobile
+            ? sidebarOpen
+              ? "translateX(0)"
+              : "translateX(-100%)"
+            : sidebarOpen
+              ? "translateX(0)"
+              : "translateX(-100%)",
+          transition: "transform 0.25s ease, width 0.25s ease",
+          overflow: "auto",
         }}
       >
-        <div style={{ marginBottom: 32 }}>
-          <div
+        <div
+          style={{
+            marginBottom: 32,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 12,
+          }}
+        >
+          <img
+            src="/logo.png"
+            alt="Logo"
+            style={{ width: 120, marginBottom: 0, cursor: "pointer" }}
+            onClick={() => navigate("/")}
+            className="cursor-pointer"
+          />
+
+          <Button
+            type="text"
+            icon={<MenuOutlined />}
+            onClick={toggleSidebar}
+            aria-label="Toggle sidebar menu"
             style={{
-              width: 52,
-              height: 52,
-              borderRadius: 16,
-              background: "#16a34a",
-              display: "grid",
-              placeItems: "center",
-              marginBottom: 16,
+              color: isDark ? "#e2e8f0" : "#0f172a",
+              fontSize: 18,
+            }}
+          />
+        </div>
+
+        <div>
+          <Card
+            style={{
+              borderRadius: 20,
+              background: isDark ? "#0f172a" : "#ffffff",
+              border: isDark
+                ? "1px solid rgba(255,255,255,0.08)"
+                : "1px solid rgba(15,23,42,0.08)",
+              boxShadow: isDark
+                ? "0 10px 30px rgba(2, 6, 23, 0.45)"
+                : "0 10px 30px rgba(15, 23, 42, 0.08)",
+              marginBottom: 24,
             }}
           >
-            <Text style={{ color: "#fff", fontWeight: 700 }}>i</Text>
-          </div>
-          <Title
-            level={4}
-            style={{ margin: 0, color: isDark ? "#f8fafc" : "#0f172a" }}
-          >
-            i-Share
-          </Title>
-          <Text
-            style={{ color: isDark ? "#94a3b8" : "#64748b" }}
-            type="secondary"
-          >
-            {t.vendor?.portalTitle || "Vendor Portal"}
-          </Text>
+            <Space align="center" size={14}>
+              <div
+                style={{
+                  width: 56,
+                  height: 56,
+                  borderRadius: 14,
+                  background: "#16a34a",
+                  display: "grid",
+                  placeItems: "center",
+                  color: "#ffffff",
+                  fontSize: 22,
+                  fontWeight: 800,
+                }}
+              >
+                GA
+              </div>
+              <div>
+                <Title
+                  level={5}
+                  style={{
+                    margin: 0,
+                    fontSize: 14,
+                    fontWeight: 700,
+                    lineHeight: 1.35,
+                    color: isDark ? "#f8fafc" : "#0f172a",
+                  }}
+                >
+                  GreenField Agri Services
+                </Title>
+                <Text
+                  style={{
+                    color: isDark ? "#94a3b8" : "#475569",
+                    fontSize: 12,
+                  }}
+                >
+                  Since Jan 2024
+                </Text>
+              </div>
+            </Space>
+
+            <Space wrap size={8} style={{ marginTop: 18 }}>
+              <Tag
+                icon={<CheckCircleOutlined />}
+                style={{
+                  borderRadius: 999,
+                  background: "#dcfce7",
+                  borderColor: "#86efac",
+                  color: "#166534",
+                  fontWeight: 700,
+                  paddingInline: 10,
+                  fontSize: 11,
+                }}
+              >
+                VERIFIED
+              </Tag>
+              <Tag
+                style={{
+                  borderRadius: 999,
+                  background: "#ede9fe",
+                  borderColor: "#c4b5fd",
+                  color: "#6d28d9",
+                  fontWeight: 700,
+                  paddingInline: 10,
+                  fontSize: 11,
+                }}
+              >
+                PRO PLAN
+              </Tag>
+            </Space>
+          </Card>
         </div>
 
         <div style={{ display: "grid", gap: 10 }}>
@@ -134,6 +265,8 @@ const VendorLayout = () => {
                     : isDark
                       ? "#e2e8f0"
                       : "#111827",
+                  overflow: "hidden",
+                  whiteSpace: "nowrap",
                 }}
               >
                 {t.vendor?.[item.key] || item.label}
@@ -142,6 +275,33 @@ const VendorLayout = () => {
           ))}
         </div>
       </div>
+
+      {!sidebarOpen && (
+        <Button
+          type="primary"
+          icon={<MenuOutlined />}
+          onClick={() => setSidebarOpen(true)}
+          style={{
+            position: "fixed",
+            top: 18,
+            left: 18,
+            zIndex: 8,
+            borderRadius: 14,
+          }}
+        />
+      )}
+
+      {sidebarOpen && isMobile && (
+        <div
+          onClick={() => setSidebarOpen(false)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(15, 23, 42, 0.45)",
+            zIndex: 10,
+          }}
+        />
+      )}
 
       <div style={{ flex: 1, padding: 32, overflow: "auto" }}>
         <div

@@ -3,6 +3,10 @@
 -- MySQL Database Schema (v5.1 - Bugfixed & Hardened)
 -- =============================================
 
+
+
+-- 15 table 
+
 CREATE DATABASE IF NOT EXISTS ishare_db;
 USE ishare_db;
 

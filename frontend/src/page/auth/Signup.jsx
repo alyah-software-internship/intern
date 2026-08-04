@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "../../component/LanguageProvider.jsx";
 import {
   AppleOutlined,
@@ -30,12 +30,17 @@ const Signup = () => {
   const [loading, setLoading] = useState(false);
   const [role, setRole] = useState("renter");
   const { lang, setLanguage, translation: t } = useTranslation();
+  const navigate = useNavigate();
 
   const onFinish = (values) => {
     setLoading(true);
     setTimeout(() => {
       console.log("Register success", { ...values, role });
       setLoading(false);
+
+      if (role === "vendor") {
+        navigate("/vendor/verify");
+      }
     }, 900);
   };
 
