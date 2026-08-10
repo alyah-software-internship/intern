@@ -7,8 +7,8 @@
 
 -- 15 table 
 
-CREATE DATABASE IF NOT EXISTS ishare_db;
-USE ishare_db;
+CREATE DATABASE IF NOT EXISTS ishare;
+USE ishare;
 
 -- 1. USERS TABLE
 CREATE TABLE users (
