@@ -1,39 +1,128 @@
 -- =============================================
--- i-Share Multi-Vendor Rental Marketplace
--- MySQL Database Schema (v5.1 - Bugfixed & Hardened)
+-- USERS TABLE 
+-- English names REQUIRED | Amharic names OPTIONAL
 -- =============================================
 
+CREATE DATABASE IF NOT EXISTS ishare_db;
+USE ishare_db;
 
-
--- 15 table 
-
-CREATE DATABASE IF NOT EXISTS ishare;
-USE ishare;
-
--- 1. USERS TABLE
-CREATE TABLE users (
+-- =============================================
+-- 1. ISHARE_USERS TABLE (FIXED)
+-- =============================================
+CREATE TABLE ishare_users (
     id INT PRIMARY KEY AUTO_INCREMENT,
     email VARCHAR(255) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
-    full_name VARCHAR(255) NOT NULL,
-    full_name_am VARCHAR(255),
+    
+    -- =============================================
+    -- ENGLISH NAMES (ALL REQUIRED)
+    -- =============================================
+    first_name VARCHAR(100) NOT NULL COMMENT 'First name / Given name',
+    middle_name VARCHAR(100) NOT NULL COMMENT 'Middle name / Father\'s name',
+    last_name VARCHAR(100) NOT NULL COMMENT 'Last name / Family name',
+    
+    -- =============================================
+    -- AMHARIC NAMES (ALL OPTIONAL)
+    -- =============================================
+    first_name_am VARCHAR(100) NULL COMMENT 'የመጀመሪያ ስም (አማርኛ)',
+    middle_name_am VARCHAR(100) NULL COMMENT 'የአባት ስም (አማርኛ)',
+    last_name_am VARCHAR(100) NULL COMMENT 'የአያት ስም (አማርኛ)',
+    
+    -- =============================================
+    -- CONTACT INFORMATION
+    -- =============================================
     phone VARCHAR(50),
     phone_verified_at TIMESTAMP NULL,
+    email_verified_at TIMESTAMP NULL,
     avatar_url VARCHAR(500),
+    
+    -- =============================================
+    -- ROLE & STATUS
+    -- =============================================
     role ENUM('admin', 'vendor', 'customer', 'operator') DEFAULT 'customer',
     is_active BOOLEAN DEFAULT TRUE,
-    email_verified_at TIMESTAMP NULL,
+    is_banned BOOLEAN DEFAULT FALSE,
+    banned_reason TEXT,
+    banned_at TIMESTAMP NULL,
+    
+    -- =============================================
+    -- SECURITY
+    -- =============================================
     last_login_at TIMESTAMP NULL,
+    last_login_ip VARCHAR(45),
     login_attempts INT DEFAULT 0,
     locked_until TIMESTAMP NULL,
+    remember_token VARCHAR(100),
+    
+    -- =============================================
+    -- PREFERENCES
+    -- =============================================
+    preferred_language ENUM('en', 'am') DEFAULT 'en',
+    preferred_currency VARCHAR(3) DEFAULT 'ETB',
+    timezone VARCHAR(50) DEFAULT 'Africa/Addis_Ababa',
+    
+    -- =============================================
+    -- PROFILE (Optional Amharic versions)
+    -- =============================================
+    bio TEXT,
+    bio_am TEXT NULL,
+    date_of_birth DATE,
+    gender ENUM('male', 'female', 'other', 'prefer_not_to_say') DEFAULT 'prefer_not_to_say',
+    address VARCHAR(500),
+    address_am VARCHAR(500) NULL,
+    city VARCHAR(100),
+    city_am VARCHAR(100) NULL,
+    country VARCHAR(100) DEFAULT 'Ethiopia',
+    postal_code VARCHAR(20),
+    
+    -- =============================================
+    -- META
+    -- =============================================
+    referral_code VARCHAR(50) UNIQUE,
+    referred_by INT NULL,
+    trust_score INT DEFAULT 0,
+    total_spent DECIMAL(10,2) DEFAULT 0.00,
+    notification_preferences JSON,
+    
+    -- =============================================
+    -- TIMESTAMPS
+    -- =============================================
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP NULL,
+    
+    -- =============================================
+    -- FOREIGN KEYS (Self-referencing)
+    -- =============================================
+    FOREIGN KEY (referred_by) REFERENCES ishare_users(id) ON DELETE SET NULL,
+    
+    -- =============================================
+    -- INDEXES
+    -- =============================================
     INDEX idx_email (email),
+    INDEX idx_phone (phone),
     INDEX idx_role (role),
+    INDEX idx_first_name (first_name),
+    INDEX idx_middle_name (middle_name),
+    INDEX idx_last_name (last_name),
+    INDEX idx_first_name_am (first_name_am),
+    INDEX idx_middle_name_am (middle_name_am),
+    INDEX idx_last_name_am (last_name_am),
     INDEX idx_is_active (is_active),
-    INDEX idx_created_at (created_at)
+    INDEX idx_referral_code (referral_code),
+    INDEX idx_language (preferred_language),
+    INDEX idx_city (city),
+    
+    -- =============================================
+    -- FULLTEXT SEARCH
+    -- =============================================
+    FULLTEXT idx_search_english (first_name, middle_name, last_name, bio),
+    FULLTEXT idx_search_amharic (first_name_am, middle_name_am, last_name_am, bio_am)
+    
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+
 
 -- 2. NOTIFICATIONS (ADDED MISSING DEPENDENCY)
 CREATE TABLE notifications (
@@ -45,10 +134,12 @@ CREATE TABLE notifications (
     link VARCHAR(255) NULL,
     is_read BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES ishare_users(id) ON DELETE CASCADE,
     INDEX idx_user_id (user_id),
     INDEX idx_is_read (is_read)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
 
 -- 3. CATEGORIES (ADDED MISSING DEPENDENCY)
 CREATE TABLE categories (
@@ -107,7 +198,7 @@ CREATE TABLE vendor_profiles (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP NULL,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES ishare_users(id) ON DELETE CASCADE,
     INDEX idx_user_id (user_id),
     INDEX idx_verification_status (verification_status),
     INDEX idx_is_active (is_active),
@@ -135,8 +226,8 @@ CREATE TABLE identity_documents (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP NULL,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (verified_by) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY (user_id) REFERENCES ishare_users(id) ON DELETE CASCADE,
+    FOREIGN KEY (verified_by) REFERENCES ishare_users(id) ON DELETE SET NULL,
     UNIQUE KEY unique_user_document (user_id, document_type)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -165,7 +256,7 @@ CREATE TABLE vendor_payment_methods (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP NULL,
     FOREIGN KEY (vendor_id) REFERENCES vendor_profiles(id) ON DELETE CASCADE,
-    FOREIGN KEY (verified_by) REFERENCES users(id) ON DELETE SET NULL
+    FOREIGN KEY (verified_by) REFERENCES ishare_users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 7. OPERATORS
@@ -202,8 +293,8 @@ CREATE TABLE operators (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP NULL,
     FOREIGN KEY (vendor_id) REFERENCES vendor_profiles(id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (verified_by) REFERENCES users(id) ON DELETE SET NULL
+    FOREIGN KEY (user_id) REFERENCES ishare_users(id) ON DELETE CASCADE,
+    FOREIGN KEY (verified_by) REFERENCES ishare_users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 8. PRODUCTS (UPDATED: DATETIME / Inventory enhancements)
@@ -333,7 +424,7 @@ CREATE TABLE bookings (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (product_id) REFERENCES products(id),
-    FOREIGN KEY (customer_id) REFERENCES users(id),
+    FOREIGN KEY (customer_id) REFERENCES ishare_users(id),
     FOREIGN KEY (vendor_id) REFERENCES vendor_profiles(id),
     FOREIGN KEY (operator_id) REFERENCES operators(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -356,7 +447,7 @@ CREATE TABLE payments (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (booking_id) REFERENCES bookings(id),
-    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (user_id) REFERENCES ishare_users(id),
     FOREIGN KEY (vendor_id) REFERENCES vendor_profiles(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -380,7 +471,7 @@ CREATE TABLE security_deposits (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (booking_id) REFERENCES bookings(id),
-    FOREIGN KEY (customer_id) REFERENCES users(id),
+    FOREIGN KEY (customer_id) REFERENCES ishare_users(id),
     FOREIGN KEY (vendor_id) REFERENCES vendor_profiles(id),
     UNIQUE KEY unique_booking_deposit (booking_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
