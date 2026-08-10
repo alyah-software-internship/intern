@@ -1,7 +1,14 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Table, Button, Card, Space, Typography, Tag } from "antd";
-import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import { Table, Button, Card, Col, Row, Space, Typography, Tag } from "antd";
+import {
+  EditOutlined,
+  DeleteOutlined,
+  PlusOutlined,
+  DashboardOutlined,
+  CheckCircleOutlined,
+  WarningOutlined,
+} from "@ant-design/icons";
 import { useTheme } from "../../context/ThemeProvider.jsx";
 import { useTranslation } from "../../component/LanguageProvider.jsx";
 import {
@@ -17,6 +24,10 @@ const Products = () => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const products = getProductsByVendor("vend-1");
+  const activeCount = products.filter(
+    (item) => item.availability?.status === "available",
+  ).length;
+  const reservedCount = products.length - activeCount;
 
   const columns = [
     {
@@ -183,8 +194,11 @@ const Products = () => {
           border: isDark
             ? "1px solid rgba(255,255,255,0.1)"
             : "1px solid rgba(15,23,42,0.08)",
+          boxShadow: isDark
+            ? "0 22px 60px rgba(2, 6, 23, 0.38)"
+            : "0 18px 45px rgba(15, 23, 42, 0.08)",
         }}
-        bodyStyle={{ padding: 24 }}
+        styles={{ body: { padding: 24 } }}
       >
         <div
           style={{
@@ -218,13 +232,96 @@ const Products = () => {
           </Button>
         </div>
 
+        <Row gutter={[16, 16]} style={{ marginBottom: 20 }}>
+          <Col xs={24} md={8}>
+            <Card
+              size="small"
+              style={{
+                borderRadius: 18,
+                background: isDark ? "#111827" : "#f8fbff",
+                border: isDark
+                  ? "1px solid rgba(255,255,255,0.08)"
+                  : "1px solid rgba(15,23,42,0.06)",
+              }}
+            >
+              <Space align="center" size={10}>
+                <DashboardOutlined style={{ color: "#2563eb", fontSize: 18 }} />
+                <div>
+                  <Text type="secondary" style={{ fontSize: 12 }}>
+                    Total Listings
+                  </Text>
+                  <Title level={5} style={{ margin: 0 }}>
+                    {products.length}
+                  </Title>
+                </div>
+              </Space>
+            </Card>
+          </Col>
+          <Col xs={24} md={8}>
+            <Card
+              size="small"
+              style={{
+                borderRadius: 18,
+                background: isDark ? "#111827" : "#f8fbff",
+                border: isDark
+                  ? "1px solid rgba(255,255,255,0.08)"
+                  : "1px solid rgba(15,23,42,0.06)",
+              }}
+            >
+              <Space align="center" size={10}>
+                <CheckCircleOutlined
+                  style={{ color: "#16a34a", fontSize: 18 }}
+                />
+                <div>
+                  <Text type="secondary" style={{ fontSize: 12 }}>
+                    Active
+                  </Text>
+                  <Title level={5} style={{ margin: 0 }}>
+                    {activeCount}
+                  </Title>
+                </div>
+              </Space>
+            </Card>
+          </Col>
+          <Col xs={24} md={8}>
+            <Card
+              size="small"
+              style={{
+                borderRadius: 18,
+                background: isDark ? "#111827" : "#f8fbff",
+                border: isDark
+                  ? "1px solid rgba(255,255,255,0.08)"
+                  : "1px solid rgba(15,23,42,0.06)",
+              }}
+            >
+              <Space align="center" size={10}>
+                <WarningOutlined style={{ color: "#f59e0b", fontSize: 18 }} />
+                <div>
+                  <Text type="secondary" style={{ fontSize: 12 }}>
+                    Reserved / Offline
+                  </Text>
+                  <Title level={5} style={{ margin: 0 }}>
+                    {reservedCount}
+                  </Title>
+                </div>
+              </Space>
+            </Card>
+          </Col>
+        </Row>
+
         <Table
           columns={columns}
           dataSource={products}
           rowKey="id"
           pagination={false}
           bordered
-          style={{ background: isDark ? "#0b1120" : "#fff" }}
+          scroll={{ x: 980 }}
+          style={{
+            background: isDark ? "#0b1120" : "#fff",
+            borderRadius: 18,
+            overflow: "hidden",
+          }}
+          rowClassName={() => (isDark ? "vendor-dark-row" : "vendor-light-row")}
         />
       </Card>
     </div>

@@ -34,7 +34,19 @@ import Subscription from "./page/vendor/Subscription";
 import VendorSettings from "./page/vendor/Settings";
 import AddItem from "./page/vendor/addItem";
 import VendorAlerts from "./page/vendor/Alerts";
+import AdminLayout from "./page/admin/adminLayout.jsx";
+import ControlPannel from "./page/admin/ControlPannel";
+import Users from "./page/admin/Users";
+import VendorAdmin from "./page/admin/Vendor";
+import VendorsDirectory from "./page/admin/VendorsDirectory";
+import Category from "./page/admin/Category";
+import Audit from "./page/admin/Audit";
+import EscrowLedger from "./page/admin/EscrowLedger";
+import MediationCases from "./page/admin/MediationCases";
+import PlatformSettings from "./page/admin/PlatformSettings";
+import SystemHealth from "./page/admin/SystemHealth";
 import TranslationReviewPage from "./page/admin/TranslationReview.jsx";
+import Notifications from "./page/admin/Notifications";
 import DetailPage from "./page/public/DetailPage";
 import Footer from "./component/Footer.jsx";
 
@@ -42,7 +54,9 @@ const App = () => {
   const location = useLocation();
   const { theme } = useTheme();
 
-  const hideMainHeader = location.pathname.startsWith("/vendor");
+  const hideMainHeader =
+    location.pathname.startsWith("/vendor") ||
+    location.pathname.startsWith("/admin");
 
   return (
     <div className={theme === "dark" ? "app-root app-root--dark" : "app-root"}>
@@ -66,10 +80,20 @@ const App = () => {
           <Route path="/messages" element={<Messagespage />} />
           <Route path="/wishlist" element={<WishlistPage />} />
           <Route path="/notifications" element={<NotificationPage />} />
-          <Route
-            path="/admin/translations"
-            element={<TranslationReviewPage />}
-          />
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<ControlPannel />} />
+            <Route path="users" element={<Users />} />
+            <Route path="vendors" element={<VendorAdmin />} />
+            <Route path="vendors-directory" element={<VendorsDirectory />} />
+            <Route path="categories" element={<Category />} />
+            <Route path="escrow-ledger" element={<EscrowLedger />} />
+            <Route path="mediation-cases" element={<MediationCases />} />
+            <Route path="system-health" element={<SystemHealth />} />
+            <Route path="audit" element={<Audit />} />
+            <Route path="platform-settings" element={<PlatformSettings />} />
+            <Route path="notifications" element={<Notifications />} />
+            <Route path="translations" element={<TranslationReviewPage />} />
+          </Route>
           <Route path="/vendor" element={<VendorLayout />}>
             <Route index element={<VendorPage />} />
             <Route path="dashboard" element={<VendorPage />} />

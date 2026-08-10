@@ -51,6 +51,7 @@ const VendorLayout = () => {
   const location = useLocation();
   const [isMobile, setIsMobile] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const sidebarVisible = !isMobile || sidebarOpen;
 
   useEffect(() => {
     const updateViewport = () => {
@@ -68,10 +69,7 @@ const VendorLayout = () => {
   const toggleSidebar = () => {
     if (isMobile) {
       setSidebarOpen((value) => !value);
-      return;
     }
-
-    setSidebarOpen((value) => !value);
   };
 
   const isActive = (path) => {
@@ -106,7 +104,8 @@ const VendorLayout = () => {
     >
       <div
         style={{
-          width: isMobile ? 280 : 280,
+          display: sidebarVisible ? "block" : "none",
+          width: 280,
           padding: isMobile ? "24px 20px" : "32px 24px",
           background: isDark ? "#0b1120" : "#fff",
           borderRight: isDark
@@ -124,9 +123,7 @@ const VendorLayout = () => {
             ? sidebarOpen
               ? "translateX(0)"
               : "translateX(-100%)"
-            : sidebarOpen
-              ? "translateX(0)"
-              : "translateX(-100%)",
+            : "none",
           transition: "transform 0.25s ease, width 0.25s ease",
           overflow: "auto",
         }}
@@ -148,16 +145,18 @@ const VendorLayout = () => {
             className="cursor-pointer"
           />
 
-          <Button
-            type="text"
-            icon={<MenuOutlined />}
-            onClick={toggleSidebar}
-            aria-label="Toggle sidebar menu"
-            style={{
-              color: isDark ? "#e2e8f0" : "#0f172a",
-              fontSize: 18,
-            }}
-          />
+          {!isMobile && (
+            <Button
+              type="text"
+              icon={<MenuOutlined />}
+              onClick={toggleSidebar}
+              aria-label="Toggle sidebar menu"
+              style={{
+                color: isDark ? "#e2e8f0" : "#0f172a",
+                fontSize: 18,
+              }}
+            />
+          )}
         </div>
 
         <div>
@@ -303,7 +302,13 @@ const VendorLayout = () => {
         />
       )}
 
-      <div style={{ flex: 1, padding: 32, overflow: "auto" }}>
+      <div
+        style={{
+          flex: 1,
+          padding: isMobile ? 16 : 32,
+          overflow: "auto",
+        }}
+      >
         <div
           style={{
             display: "flex",
@@ -340,7 +345,7 @@ const VendorLayout = () => {
             </Text>
           </div>
 
-          <Space wrap>
+          <Space wrap size={8}>
             <Button
               icon={<BellOutlined />}
               type="default"
