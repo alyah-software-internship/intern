@@ -9,7 +9,7 @@ USE ishare_db;
 -- =============================================
 -- 1. ISHARE_USERS TABLE (FIXED)
 -- =============================================
-CREATE TABLE ishare_users (
+CREATE TABLE users (
     id INT PRIMARY KEY AUTO_INCREMENT,
     email VARCHAR(255) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
@@ -94,7 +94,7 @@ CREATE TABLE ishare_users (
     -- =============================================
     -- FOREIGN KEYS (Self-referencing)
     -- =============================================
-    FOREIGN KEY (referred_by) REFERENCES ishare_users(id) ON DELETE SET NULL,
+    FOREIGN KEY (referred_by) REFERENCES users(id) ON DELETE SET NULL,
     
     -- =============================================
     -- INDEXES
@@ -134,7 +134,7 @@ CREATE TABLE notifications (
     link VARCHAR(255) NULL,
     is_read BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES ishare_users(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     INDEX idx_user_id (user_id),
     INDEX idx_is_read (is_read)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -198,7 +198,7 @@ CREATE TABLE vendor_profiles (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP NULL,
-    FOREIGN KEY (user_id) REFERENCES ishare_users(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     INDEX idx_user_id (user_id),
     INDEX idx_verification_status (verification_status),
     INDEX idx_is_active (is_active),
@@ -226,8 +226,8 @@ CREATE TABLE identity_documents (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP NULL,
-    FOREIGN KEY (user_id) REFERENCES ishare_users(id) ON DELETE CASCADE,
-    FOREIGN KEY (verified_by) REFERENCES ishare_users(id) ON DELETE SET NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (verified_by) REFERENCES users(id) ON DELETE SET NULL,
     UNIQUE KEY unique_user_document (user_id, document_type)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -256,7 +256,7 @@ CREATE TABLE vendor_payment_methods (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP NULL,
     FOREIGN KEY (vendor_id) REFERENCES vendor_profiles(id) ON DELETE CASCADE,
-    FOREIGN KEY (verified_by) REFERENCES ishare_users(id) ON DELETE SET NULL
+    FOREIGN KEY (verified_by) REFERENCES users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 7. OPERATORS
@@ -293,8 +293,8 @@ CREATE TABLE operators (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP NULL,
     FOREIGN KEY (vendor_id) REFERENCES vendor_profiles(id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES ishare_users(id) ON DELETE CASCADE,
-    FOREIGN KEY (verified_by) REFERENCES ishare_users(id) ON DELETE SET NULL
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (verified_by) REFERENCES users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 8. PRODUCTS (UPDATED: DATETIME / Inventory enhancements)
