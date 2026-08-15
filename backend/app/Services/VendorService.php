@@ -11,49 +11,137 @@ use App\Models\User;
 class VendorService
 {
     /**
-     * Register vendor
+     * Register a user as a vendor.
      */
-    public function register($userId, array $data)
+    public function register(int $userId, array $data): VendorProfile
     {
-        // Check if user already has a vendor profile
-        $existingVendor = VendorProfile::where('user_id', $userId)->first();
-        if ($existingVendor) {
-            throw new \Exception('User is already a vendor');
-        }
+        return VendorProfile::updateOrCreate(
+            ['user_id' => $userId],
+            [
+                'business_name' => $data['business_name'],
+                'business_type' => $data['business_type'] ?? null,
+                'description' => $data['description'] ?? null,
+                'address' => $data['address'] ?? null,
+                'city' => $data['city'] ?? null,
+                'country' => $data['country'] ?? 'Ethiopia',
+                'phone' => $data['phone'] ?? null,
+                'email' => $data['email'] ?? null,
+                'website' => $data['website'] ?? null,
+                'tax_id' => $data['tax_id'] ?? null,
+                'registration_number' => $data['registration_number'] ?? null,
+                'verification_status' => 'pending',
+                'is_active' => true,
+                'rating' => 0,
+                'total_reviews' => 0,
+                'total_bookings' => 0,
+                'total_revenue' => 0,
+                'pending_payouts' => 0,
+                'security_deposit_held' => 0,
+                'trust_score' => 0,
+            ]
+        );
+    }
 
-        $vendor = VendorProfile::create([
-            'user_id' => $userId,
-            'business_name' => $data['business_name'],
-            'business_name_am' => $data['business_name_am'] ?? null,
-            'business_type' => $data['business_type'] ?? null,
-            'business_type_am' => $data['business_type_am'] ?? null,
-            'description' => $data['description'] ?? null,
-            'description_am' => $data['description_am'] ?? null,
-            'address' => $data['address'],
-            'address_am' => $data['address_am'] ?? null,
-            'city' => $data['city'],
-            'city_am' => $data['city_am'] ?? null,
-            'phone' => $data['phone'],
-            'email' => $data['email'] ?? null,
-            'website' => $data['website'] ?? null,
-            'tax_id' => $data['tax_id'] ?? null,
-            'registration_number' => $data['registration_number'] ?? null,
-            'verification_status' => 'pending',
-            'joined_date' => now(),
+    /**
+     * Get vendor by user ID
+     */
+    public function getVendorByUserId(int $userId): ?VendorProfile
+    {
+        return VendorProfile::where('user_id', $userId)->first();
+    }
+
+    /**
+     * Check if user is a vendor
+     */
+    public function isVendor(int $userId): bool
+    {
+        return VendorProfile::where('user_id', $userId)->exists();
+    }
+
+    /**
+     * Get vendor verification status
+     */
+    public function getVerificationStatus(int $vendorId): string
+    {
+        $vendor = VendorProfile::findOrFail($vendorId);
+        return $vendor->verification_status;
+    }
+
+    /**
+     * Get vendor by business name
+     */
+    public function getVendorByBusinessName(string $businessName): ?VendorProfile
+    {
+        return VendorProfile::where('business_name', $businessName)
+            ->orWhere('business_name_am', $businessName)
+            ->first();
+    }
+
+    /**
+     * Update vendor verification status (Admin only)
+     */
+    public function updateVerificationStatus(int $vendorId, string $status, string $notes = null): VendorProfile
+    {
+        $vendor = VendorProfile::findOrFail($vendorId);
+        $vendor->update([
+            'verification_status' => $status,
+            'verification_notes' => $notes,
+            'verified_at' => $status === 'approved' ? now() : null,
         ]);
-
-        // Update user role
-        User::where('id', $userId)->update(['role' => 'vendor']);
-
         return $vendor;
     }
 
     /**
-     * Get vendor dashboard data
+     * Get pending vendor registrations for admin.
      */
-    public function getDashboard($vendorId)
+    public function getPendingVendors()
     {
-        $vendor = VendorProfile::with(['products', 'bookings'])->find($vendorId);
+        return VendorProfile::with(['user'])
+            ->where('verification_status', 'pending')
+            ->orderBy('created_at', 'desc')
+            ->get();
+    }
+
+    /**
+     * Approve a vendor registration.
+     */
+    public function approveVendor(int $vendorId, ?string $notes = null): VendorProfile
+    {
+        $vendor = VendorProfile::findOrFail($vendorId);
+
+        $vendor->update([
+            'verification_status' => 'approved',
+            'verification_notes' => $notes,
+            'verified_at' => now(),
+            'is_active' => true,
+            'verification_approved_at' => now(),
+        ]);
+
+        return $vendor->fresh(['user']);
+    }
+
+    /**
+     * Reject a vendor registration.
+     */
+    public function rejectVendor(int $vendorId, ?string $reason = null): VendorProfile
+    {
+        $vendor = VendorProfile::findOrFail($vendorId);
+
+        $vendor->update([
+            'verification_status' => 'rejected',
+            'verification_notes' => $reason,
+            'is_active' => false,
+        ]);
+
+        return $vendor->fresh(['user']);
+    }
+
+    /**
+     * Get vendor statistics
+     */
+    public function getVendorStatistics(int $vendorId): array
+    {
+        $vendor = VendorProfile::findOrFail($vendorId);
         
         return [
             'total_products' => $vendor->products()->count(),
@@ -62,45 +150,56 @@ class VendorService
             'pending_bookings' => $vendor->bookings()->where('status', 'pending')->count(),
             'active_bookings' => $vendor->bookings()->where('status', 'active')->count(),
             'completed_bookings' => $vendor->bookings()->where('status', 'completed')->count(),
+            'cancelled_bookings' => $vendor->bookings()->where('status', 'cancelled')->count(),
             'total_revenue' => $vendor->total_revenue,
             'pending_payouts' => $vendor->pending_payouts,
+            'security_deposit_held' => $vendor->security_deposit_held,
             'rating' => $vendor->rating,
             'total_reviews' => $vendor->total_reviews,
+            'trust_score' => $vendor->trust_score,
         ];
     }
 
     /**
-     * Add payment method
+     * Update vendor rating
      */
-    public function addPaymentMethod($vendorId, array $data)
+    public function updateVendorRating(int $vendorId): VendorProfile
     {
-        $vendor = VendorProfile::find($vendorId);
+        $vendor = VendorProfile::findOrFail($vendorId);
+        $rating = $vendor->reviews()->avg('rating') ?? 0;
+        $totalReviews = $vendor->reviews()->count();
         
-        // If this is the first payment method, make it primary
-        $isPrimary = $vendor->paymentMethods()->count() === 0;
-        
-        $paymentMethod = VendorPaymentMethod::create([
-            'vendor_id' => $vendorId,
-            'payment_type' => $data['payment_type'],
-            'account_name' => $data['account_name'],
-            'account_number' => $data['account_number'],
-            'bank_name' => $data['bank_name'] ?? null,
-            'bank_branch' => $data['bank_branch'] ?? null,
-            'swift_code' => $data['swift_code'] ?? null,
-            'mobile_provider' => $data['mobile_provider'] ?? null,
-            'mobile_number' => $data['mobile_number'] ?? null,
-            'paypal_email' => $data['paypal_email'] ?? null,
-            'is_primary' => $isPrimary,
-            'verification_status' => 'pending',
+        $vendor->update([
+            'rating' => round($rating, 2),
+            'total_reviews' => $totalReviews,
         ]);
-
-        return $paymentMethod;
+        
+        return $vendor;
     }
 
     /**
-     * Get vendor payment methods
+     * Get vendor performance metrics
      */
-    public function getPaymentMethods($vendorId)
+    public function getVendorPerformance(int $vendorId): array
+    {
+        $vendor = VendorProfile::findOrFail($vendorId);
+        
+        $totalBookings = $vendor->bookings()->count();
+        $completedBookings = $vendor->bookings()->where('status', 'completed')->count();
+        
+        return [
+            'completion_rate' => $totalBookings > 0 ? round(($completedBookings / $totalBookings) * 100, 2) : 0,
+            'average_response_time' => $vendor->response_time_avg,
+            'completed_projects' => $vendor->completed_projects,
+            'trust_score' => $vendor->trust_score,
+            'is_featured' => $vendor->is_featured,
+        ];
+    }
+
+    /**
+     * Get vendor payment methods (active only)
+     */
+    public function getActivePaymentMethods(int $vendorId): \Illuminate\Database\Eloquent\Collection
     {
         return VendorPaymentMethod::where('vendor_id', $vendorId)
             ->where('is_active', true)
@@ -109,86 +208,41 @@ class VendorService
     }
 
     /**
-     * Set primary payment method
+     * Get vendor's primary payment method
      */
-    public function setPrimaryPaymentMethod($vendorId, $methodId)
+    public function getPrimaryPaymentMethod(int $vendorId): ?VendorPaymentMethod
     {
-        // Reset all primary flags
-        VendorPaymentMethod::where('vendor_id', $vendorId)->update(['is_primary' => false]);
-        
-        // Set the selected method as primary
-        $method = VendorPaymentMethod::where('vendor_id', $vendorId)
-            ->where('id', $methodId)
+        return VendorPaymentMethod::where('vendor_id', $vendorId)
+            ->where('is_primary', true)
+            ->where('is_active', true)
             ->first();
-            
-        if ($method) {
-            $method->update(['is_primary' => true]);
-            return $method;
-        }
-        
-        return null;
     }
 
     /**
-     * Get vendor bookings
+     * Get vendor revenue breakdown
      */
-    public function getBookings($vendorId, $status = null)
+    public function getRevenueBreakdown(int $vendorId): array
     {
-        $query = Booking::where('vendor_id', $vendorId)
-            ->with(['product', 'customer', 'operator'])
-            ->orderBy('created_at', 'desc');
-
-        if ($status) {
-            $query->where('status', $status);
-        }
-
-        return $query->get();
-    }
-
-    /**
-     * Get vendor revenue stats
-     */
-    public function getRevenueStats($vendorId, $period = 'monthly')
-    {
-        $vendor = VendorProfile::find($vendorId);
+        $vendor = VendorProfile::findOrFail($vendorId);
         
-        $query = Booking::where('vendor_id', $vendorId)
-            ->where('status', 'completed');
-
-        // Apply period filter
-        switch ($period) {
-            case 'daily':
-                $query->whereDate('completed_at', today());
-                break;
-            case 'weekly':
-                $query->whereBetween('completed_at', [now()->startOfWeek(), now()->endOfWeek()]);
-                break;
-            case 'monthly':
-                $query->whereMonth('completed_at', now()->month);
-                break;
-            case 'yearly':
-                $query->whereYear('completed_at', now()->year);
-                break;
-        }
-
-        $bookings = $query->get();
-
+        $bookings = $vendor->bookings()->where('status', 'completed')->get();
+        
         return [
             'total_revenue' => $bookings->sum('total_amount'),
-            'platform_commission' => $bookings->sum('platform_commission'),
-            'net_revenue' => $bookings->sum('vendor_payment'),
-            'total_bookings' => $bookings->count(),
+            'platform_commission' => $bookings->sum('platform_fee'),
+            'net_earnings' => $bookings->sum('vendor_payment'),
+            'bookings_count' => $bookings->count(),
             'average_booking_value' => $bookings->avg('total_amount') ?? 0,
+            'by_month' => $bookings->groupBy(function ($booking) {
+                return $booking->created_at->format('Y-m');
+            })->map(function ($items) {
+                return [
+                    'count' => $items->count(),
+                    'revenue' => $items->sum('total_amount'),
+                    'commission' => $items->sum('platform_fee'),
+                    'net' => $items->sum('vendor_payment'),
+                ];
+            }),
         ];
-    }
-
-    /**
-     * Update vendor profile
-     */
-    public function updateProfile($vendorId, array $data)
-    {
-        $vendor = VendorProfile::find($vendorId);
-        $vendor->update($data);
-        return $vendor;
     }
 }

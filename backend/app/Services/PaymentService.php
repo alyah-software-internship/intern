@@ -19,6 +19,8 @@ class PaymentService
         $this->notificationService = $notificationService;
     }
 
+    // ========== EXISTING METHODS ==========
+
     /**
      * Process booking payment
      */
@@ -266,7 +268,6 @@ class PaymentService
 
         if (!$primaryMethod) {
             Log::warning("Vendor {$vendor->id} has no primary payment method");
-            // You might want to handle this differently
         }
 
         return VendorPayout::create([
@@ -316,9 +317,11 @@ class PaymentService
     /**
      * Refund payment
      */
-    public function refundPayment(Payment $payment, ?float $amount = null): Payment
+    public function refundPayment(int $paymentId, ?float $amount = null, string $reason = null): Payment
     {
-        return DB::transaction(function () use ($payment, $amount) {
+        return DB::transaction(function () use ($paymentId, $amount, $reason) {
+            $payment = Payment::findOrFail($paymentId);
+
             if ($payment->status !== 'completed') {
                 throw new \Exception('Payment cannot be refunded');
             }
@@ -333,6 +336,25 @@ class PaymentService
                 'refund_amount' => $refundAmount,
                 'refund_transaction_id' => $this->generateTransactionId(),
             ]);
+
+            // Update booking payment status
+            $booking = $payment->booking;
+            if ($booking) {
+                $booking->update([
+                    'payment_status' => 'refunded',
+                ]);
+            }
+
+            // Create notification for user
+            $this->notificationService->createNotification(
+                $payment->user_id,
+                'payment_refunded',
+                'Payment Refunded',
+                "Your payment of {$refundAmount} has been refunded. Reason: " . ($reason ?? 'N/A'),
+                "/payments/{$payment->id}",
+                'high',
+                'payment'
+            );
 
             return $payment;
         });
@@ -370,36 +392,138 @@ class PaymentService
         ];
     }
 
+    // ========== NEW METHODS FOR PAYMENT CONTROLLER ==========
+
+    /**
+     * Get user payments
+     */
+    public function getUserPayments(int $userId): \Illuminate\Database\Eloquent\Collection
+    {
+        return Payment::with(['booking', 'vendor'])
+            ->where('user_id', $userId)
+            ->orderBy('created_at', 'desc')
+            ->get();
+    }
+
+    /**
+     * Get payment details
+     */
+    public function getPaymentDetails(int $paymentId): ?Payment
+    {
+        return Payment::with(['booking', 'user', 'vendor'])
+            ->find($paymentId);
+    }
+
+    /**
+     * Get booking by ID (for PaymentController)
+     */
+    public function getBookingById(int $bookingId): ?Booking
+    {
+        return Booking::with(['product', 'vendor', 'customer'])->find($bookingId);
+    }
+
+    /**
+     * Get vendor payments
+     */
+    public function getVendorPayments(int $vendorId): \Illuminate\Database\Eloquent\Collection
+    {
+        return Payment::with(['booking', 'user'])
+            ->where('vendor_id', $vendorId)
+            ->orderBy('created_at', 'desc')
+            ->get();
+    }
+
+    /**
+     * Get user's total spent
+     */
+    public function getUserTotalSpent(int $userId): float
+    {
+        return Payment::where('user_id', $userId)
+            ->where('status', 'completed')
+            ->where('payment_type', 'rental')
+            ->sum('amount');
+    }
+
+    /**
+     * Get vendor's total earnings
+     */
+    public function getVendorTotalEarnings(int $vendorId): float
+    {
+        return VendorPayout::where('vendor_id', $vendorId)
+            ->where('status', 'completed')
+            ->sum('net_amount');
+    }
+
+    /**
+     * Get pending payouts for vendor
+     */
+    public function getPendingPayouts(int $vendorId): float
+    {
+        return VendorPayout::where('vendor_id', $vendorId)
+            ->where('status', 'pending')
+            ->sum('amount');
+    }
+
+    /**
+     * Get total revenue for admin dashboard.
+     */
+    public function getTotalRevenue(): float
+    {
+        return (float) Payment::where('status', 'completed')->sum('amount');
+    }
+
+    /**
+     * Get total platform commission for admin dashboard.
+     */
+    public function getTotalCommission(): float
+    {
+        return (float) Booking::where('status', 'completed')->sum('platform_fee');
+    }
+
+    /**
+     * Get payment statistics
+     */
+    public function getPaymentStats(): array
+    {
+        return [
+            'total_payments' => Payment::count(),
+            'completed_payments' => Payment::where('status', 'completed')->count(),
+            'pending_payments' => Payment::where('status', 'pending')->count(),
+            'failed_payments' => Payment::where('status', 'failed')->count(),
+            'refunded_payments' => Payment::where('status', 'refunded')->count(),
+            'total_amount' => Payment::where('status', 'completed')->sum('amount'),
+            'total_refunded' => Payment::where('status', 'refunded')->sum('refund_amount'),
+            'today_payments' => Payment::whereDate('created_at', today())->count(),
+            'today_amount' => Payment::whereDate('created_at', today())->where('status', 'completed')->sum('amount'),
+        ];
+    }
+
+    /**
+     * Get payment by transaction ID
+     */
+    public function getPaymentByTransactionId(string $transactionId): ?Payment
+    {
+        return Payment::where('transaction_id', $transactionId)->first();
+    }
+
+    /**
+     * Update payment status
+     */
+    public function updatePaymentStatus(int $paymentId, string $status): Payment
+    {
+        $payment = Payment::findOrFail($paymentId);
+        $payment->update([
+            'status' => $status,
+            'completed_at' => $status === 'completed' ? now() : null,
+        ]);
+        return $payment;
+    }
+
     /**
      * Generate transaction ID
      */
     private function generateTransactionId(): string
     {
         return 'TXN' . date('Ymd') . strtoupper(uniqid()) . rand(1000, 9999);
-    }
-
-    /**
-     * Payment gateway integration (placeholder)
-     */
-    public function processWithPaymentGateway(array $paymentData): array
-    {
-        // Integrate with your payment gateway (Stripe, Chapa, Telebirr, etc.)
-        // Example: Stripe, Chapa, Telebirr integration
-
-        return [
-            'success' => true,
-            'transaction_id' => $this->generateTransactionId(),
-            'status' => 'completed',
-            'message' => 'Payment processed successfully',
-        ];
-    }
-
-    /**
-     * Webhook handler for payment gateway
-     */
-    public function handleWebhook(array $payload): void
-    {
-        // Handle payment gateway webhook events
-        Log::info('Payment webhook received', $payload);
     }
 }

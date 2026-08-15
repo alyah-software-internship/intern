@@ -12,6 +12,74 @@ use Illuminate\Support\Facades\DB;
 class BookingService
 {
     /**
+     * Get bookings for a user.
+     */
+    public function getUserBookings($userId, $status = null)
+    {
+        $query = Booking::with(['product', 'vendor', 'customer'])
+            ->where('customer_id', $userId);
+
+        if ($status !== null && $status !== '') {
+            $query->where('status', $status);
+        }
+
+        return $query->orderBy('created_at', 'desc')->get();
+    }
+
+    /**
+     * Get booking details for a specific user.
+     */
+    public function getBookingDetails($bookingId, $userId)
+    {
+        return Booking::with(['product', 'vendor', 'customer', 'operator', 'securityDeposit'])
+            ->where('id', $bookingId)
+            ->where('customer_id', $userId)
+            ->first();
+    }
+
+    /**
+     * Get booking by ID.
+     */
+    public function getBookingById(int $bookingId): ?Booking
+    {
+        return Booking::with(['product', 'vendor', 'customer', 'operator', 'securityDeposit'])
+            ->find($bookingId);
+    }
+
+    /**
+     * Get bookings for a vendor.
+     */
+    public function getVendorBookings($vendorId, $status = null)
+    {
+        $query = Booking::with(['product', 'customer', 'vendor', 'operator'])
+            ->where('vendor_id', $vendorId);
+
+        if ($status !== null && $status !== '') {
+            $query->where('status', $status);
+        }
+
+        return $query->orderBy('created_at', 'desc')->get();
+    }
+
+    /**
+     * Get all bookings for admin dashboard.
+     */
+    public function getAllBookings()
+    {
+        return Booking::with(['product', 'customer', 'vendor'])->orderBy('created_at', 'desc');
+    }
+
+    /**
+     * Get pending bookings for admin dashboard.
+     */
+    public function getPendingBookings()
+    {
+        return Booking::with(['product', 'customer', 'vendor'])
+            ->where('status', 'pending')
+            ->orderBy('created_at', 'desc');
+    }
+
+    /**
      * Create booking
      */
     public function createBooking(array $data)
