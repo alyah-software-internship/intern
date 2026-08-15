@@ -37,28 +37,28 @@ class Wishlist extends Model
     }
 
     // ========== HELPERS ==========
-    public function isInWishlist($userId, $productId)
+    public static function isInWishlist($userId, $productId)
     {
-        return static::where('user_id', $userId)
-                    ->where('product_id', $productId)
-                    ->exists();
+        return self::where('user_id', $userId)
+            ->where('product_id', $productId)
+            ->exists();
     }
 
-    public function toggle($userId, $productId)
+    public static function toggle($userId, $productId)
     {
-        $wishlist = static::where('user_id', $userId)
-                        ->where('product_id', $productId)
-                        ->first();
+        $wishlist = self::where('user_id', $userId)
+            ->where('product_id', $productId)
+            ->first();
 
         if ($wishlist) {
             $wishlist->delete();
-            return false; // Removed from wishlist
+            return false; // Removed
         }
 
-        static::create([
+        self::create([
             'user_id' => $userId,
             'product_id' => $productId,
         ]);
-        return true; // Added to wishlist
+        return true; // Added
     }
 }
