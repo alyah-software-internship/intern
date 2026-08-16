@@ -8,6 +8,7 @@ use App\Services\UserService;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -42,6 +43,7 @@ class AuthController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
+                'success' => false,
                 'message' => 'Validation failed',
                 'errors' => $validator->errors()
             ], 422);
@@ -64,13 +66,16 @@ class AuthController extends Controller
             $token = $user->createToken('auth_token')->plainTextToken;
 
             return response()->json([
+                'success' => true,
                 'message' => 'User registered successfully',
                 'user' => $user,
                 'token' => $token,
             ], 201);
 
         } catch (\Exception $e) {
+            Log::error('Registration failed', ['error' => $e->getMessage()]);
             return response()->json([
+                'success' => false,
                 'message' => 'Registration failed',
                 'error' => $e->getMessage()
             ], 500);
@@ -82,6 +87,8 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
+        Log::info('Login request received', ['email' => $request->email]);
+
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
             'password' => 'required',
@@ -89,6 +96,7 @@ class AuthController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
+                'success' => false,
                 'message' => 'Validation failed',
                 'errors' => $validator->errors()
             ], 422);
@@ -98,34 +106,51 @@ class AuthController extends Controller
             $user = $this->authService->login($request->only('email', 'password'));
 
             if (!$user) {
+                Log::warning('Login failed - invalid credentials', ['email' => $request->email]);
                 return response()->json([
+                    'success' => false,
                     'message' => 'Invalid credentials'
                 ], 401);
             }
 
             if (!$user->is_active) {
                 return response()->json([
+                    'success' => false,
                     'message' => 'Your account is deactivated'
                 ], 403);
             }
 
             if ($user->is_banned) {
                 return response()->json([
+                    'success' => false,
                     'message' => 'Your account has been banned. Reason: ' . $user->banned_reason
                 ], 403);
             }
 
             $token = $user->createToken('auth_token')->plainTextToken;
 
+            Log::info('Login successful', ['email' => $user->email]);
+
             return response()->json([
+                'success' => true,
                 'message' => 'Login successful',
-                'user' => $user,
+                'user' => [
+                    'id' => $user->id,
+                    'email' => $user->email,
+                    'first_name' => $user->first_name,
+                    'middle_name' => $user->middle_name,
+                    'last_name' => $user->last_name,
+                    'role' => $user->role,
+                    'is_active' => $user->is_active,
+                ],
                 'token' => $token,
                 'role' => $user->role,
             ]);
 
         } catch (\Exception $e) {
+            Log::error('Login failed', ['error' => $e->getMessage()]);
             return response()->json([
+                'success' => false,
                 'message' => 'Login failed',
                 'error' => $e->getMessage()
             ], 500);
@@ -141,11 +166,13 @@ class AuthController extends Controller
             $request->user()->currentAccessToken()->delete();
             
             return response()->json([
+                'success' => true,
                 'message' => 'Logged out successfully'
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
+                'success' => false,
                 'message' => 'Logout failed',
                 'error' => $e->getMessage()
             ], 500);
@@ -161,12 +188,14 @@ class AuthController extends Controller
             $user = $this->userService->getProfile($request->user()->id);
             
             return response()->json([
+                'success' => true,
                 'user' => $user,
                 'unread_notifications' => $this->notificationService->getUnreadCount($user->id),
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
+                'success' => false,
                 'message' => 'Failed to get user profile',
                 'error' => $e->getMessage()
             ], 500);
@@ -184,12 +213,14 @@ class AuthController extends Controller
             $token = $user->createToken('auth_token')->plainTextToken;
 
             return response()->json([
+                'success' => true,
                 'message' => 'Token refreshed',
                 'token' => $token,
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
+                'success' => false,
                 'message' => 'Failed to refresh token',
                 'error' => $e->getMessage()
             ], 500);

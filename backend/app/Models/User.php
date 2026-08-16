@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens; 
+use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class User extends Authenticatable
@@ -77,6 +77,7 @@ class User extends Authenticatable
     ];
 
     // ========== ACCESSORS ==========
+    
     public function getFullNameAttribute()
     {
         return trim($this->first_name . ' ' . $this->middle_name . ' ' . $this->last_name);
@@ -105,6 +106,7 @@ class User extends Authenticatable
     }
 
     // ========== MUTATORS ==========
+    
     public function setPasswordAttribute($value)
     {
         $this->attributes['password'] = bcrypt($value);
@@ -114,7 +116,6 @@ class User extends Authenticatable
     
     public function vendorProfile()
     {
-        // ✅ IMPORTANT: Specify the foreign key 'user_id'
         return $this->hasOne(VendorProfile::class, 'user_id');
     }
 

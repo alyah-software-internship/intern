@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class AuthService
@@ -17,7 +18,7 @@ class AuthService
     {
         $user = User::create([
             'email' => $data['email'],
-            'password' => $data['password'],
+            'password' => Hash::make($data['password']), // ✅ FIXED: Password is now hashed!
             'first_name' => $data['first_name'],
             'middle_name' => $data['middle_name'],
             'last_name' => $data['last_name'],
@@ -41,11 +42,24 @@ class AuthService
      */
     public function login(array $credentials)
     {
+        Log::info('Login attempt', ['email' => $credentials['email']]);
+
         $user = User::where('email', $credentials['email'])->first();
 
-        if (!$user || !Hash::check($credentials['password'], $user->password)) {
+        if (!$user) {
+            Log::warning('User not found', ['email' => $credentials['email']]);
             return null;
         }
+
+        Log::info('User found', ['email' => $user->email]);
+
+        // Check password using bcrypt
+        if (!Hash::check($credentials['password'], $user->password)) {
+            Log::warning('Password mismatch', ['email' => $credentials['email']]);
+            return null;
+        }
+
+        Log::info('Login successful', ['email' => $user->email]);
 
         // Update last login
         $user->update([
@@ -123,6 +137,8 @@ class AuthService
         $user->update([
             'password' => Hash::make($newPassword),
         ]);
+
+        Log::info('Password reset', ['email' => $email]);
 
         return $user;
     }

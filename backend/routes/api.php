@@ -184,6 +184,14 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     
     Route::get('/dashboard', [DashboardController::class, 'adminDashboard']);
     Route::get('/analytics', [DashboardController::class, 'adminAnalytics']);
+
+    // ========== CATEGORY MANAGEMENT ==========
+    Route::post('/categories', [CategoryController::class, 'store']);
+    Route::put('/categories/{id}', [CategoryController::class, 'update']);
+    Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
+    Route::get('/categories/all', [CategoryController::class, 'all']);
+    Route::post('/categories/{id}/toggle', [CategoryController::class, 'toggleActive']);
+    Route::post('/categories/reorder', [CategoryController::class, 'reorder']);
     
     // User Management
     Route::get('/users', [AdminController::class, 'users']);
