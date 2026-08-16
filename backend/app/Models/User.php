@@ -111,14 +111,16 @@ class User extends Authenticatable
     }
 
     // ========== RELATIONSHIPS ==========
+    
     public function vendorProfile()
     {
-        return $this->hasOne(VendorProfile::class);
+        // ✅ IMPORTANT: Specify the foreign key 'user_id'
+        return $this->hasOne(VendorProfile::class, 'user_id');
     }
 
     public function operator()
     {
-        return $this->hasOne(Operator::class);
+        return $this->hasOne(Operator::class, 'user_id');
     }
 
     public function bookings()
@@ -177,6 +179,7 @@ class User extends Authenticatable
     }
 
     // ========== SCOPES ==========
+    
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
@@ -198,6 +201,7 @@ class User extends Authenticatable
     }
 
     // ========== HELPERS ==========
+    
     public function isAdmin()
     {
         return $this->role === 'admin';

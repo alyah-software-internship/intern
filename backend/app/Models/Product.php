@@ -70,7 +70,7 @@ class Product extends Model
     // ========== RELATIONSHIPS ==========
     public function vendor()
     {
-        return $this->belongsTo(VendorProfile::class);
+        return $this->belongsTo(VendorProfile::class, 'vendor_id');
     }
 
     public function category()

@@ -73,7 +73,7 @@ class VendorProfile extends Model
 
     public function products()
     {
-        return $this->hasMany(Product::class);
+        return $this->hasMany(Product::class, 'vendor_id');
     }
 
     public function bookings()
