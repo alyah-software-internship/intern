@@ -69,7 +69,7 @@ Route::get('/reviews/product/{productId}', [ReviewController::class, 'productRev
 Route::get('/reviews/vendor/{vendorId}', [ReviewController::class, 'vendorReviews']);
 
 // =============================================
-// PROTECTED ROUTES (Authentication required)
+// AUTHENTICATED ROUTES (User must be logged in)
 // =============================================
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -89,9 +89,19 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/bookings', [BookingController::class, 'index']);
     });
     
-    // ========== VENDOR ROUTES (Vendor Only) ==========
+    // ============================================================
+    // ⚠️ VENDOR REGISTRATION - OUTSIDE VENDOR MIDDLEWARE! ⚠️
+    // This allows any authenticated user to register as a vendor
+    // ============================================================
+    Route::post('/vendor/register', [VendorController::class, 'register']);
+    
+    // ============================================================
+    // VENDOR ROUTES (Requires vendor role) 
+    // These routes can only be accessed after becoming a vendor
+    // ============================================================
     Route::middleware('vendor')->prefix('vendor')->group(function () {
-        Route::post('/register', [VendorController::class, 'register']);
+        
+        // These routes are protected by vendor middleware
         Route::get('/dashboard', [VendorController::class, 'dashboard']);
         Route::get('/products', [VendorController::class, 'products']);
         Route::post('/products', [ProductController::class, 'store']);
