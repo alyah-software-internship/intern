@@ -63,9 +63,13 @@ class VendorProfile extends Model
         'identity_verified_at' => 'datetime',
         'verification_approved_at' => 'datetime',
         'joined_date' => 'date',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
     ];
 
     // ========== RELATIONSHIPS ==========
+    
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -88,7 +92,8 @@ class VendorProfile extends Model
 
     public function paymentMethods()
     {
-        return $this->hasMany(VendorPaymentMethod::class);
+        // ✅ Explicitly specify the foreign key
+        return $this->hasMany(VendorPaymentMethod::class, 'vendor_id');
     }
 
     public function payouts()
@@ -107,6 +112,7 @@ class VendorProfile extends Model
     }
 
     // ========== SCOPES ==========
+    
     public function scopeVerified($query)
     {
         return $query->where('verification_status', 'approved');
@@ -117,14 +123,62 @@ class VendorProfile extends Model
         return $query->where('is_active', true);
     }
 
+    public function scopePending($query)
+    {
+        return $query->where('verification_status', 'pending');
+    }
+
+    public function scopeFeatured($query)
+    {
+        return $query->where('is_featured', true);
+    }
+
+    // ========== ACCESSORS ==========
+    
+    public function getDisplayNameAttribute()
+    {
+        return $this->business_name_am ?? $this->business_name;
+    }
+
+    public function getVerificationStatusLabelAttribute()
+    {
+        $statuses = [
+            'pending' => 'Pending',
+            'under_review' => 'Under Review',
+            'approved' => 'Approved',
+            'rejected' => 'Rejected',
+            'suspended' => 'Suspended',
+        ];
+        return $statuses[$this->verification_status] ?? $this->verification_status;
+    }
+
     // ========== HELPERS ==========
+    
     public function isVerified()
     {
         return $this->verification_status === 'approved';
     }
 
-    public function getDisplayNameAttribute()
+    public function isPending()
     {
-        return $this->business_name_am ?? $this->business_name;
+        return $this->verification_status === 'pending';
+    }
+
+    public function isActive()
+    {
+        return $this->is_active && $this->isVerified();
+    }
+
+    public function calculateRating()
+    {
+        return $this->reviews()->avg('rating') ?? 0;
+    }
+
+    public function updateRating()
+    {
+        $this->update([
+            'rating' => $this->calculateRating(),
+            'total_reviews' => $this->reviews()->count(),
+        ]);
     }
 }

@@ -41,9 +41,11 @@ class VendorPaymentMethod extends Model
     ];
 
     // ========== RELATIONSHIPS ==========
+    
     public function vendor()
     {
-        return $this->belongsTo(VendorProfile::class);
+        // ✅ Specify the foreign key explicitly
+        return $this->belongsTo(VendorProfile::class, 'vendor_id');
     }
 
     public function verifiedBy()
@@ -53,10 +55,11 @@ class VendorPaymentMethod extends Model
 
     public function payouts()
     {
-        return $this->hasMany(VendorPayout::class);
+        return $this->hasMany(VendorPayout::class, 'payment_method_id');
     }
 
     // ========== SCOPES ==========
+    
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
@@ -78,6 +81,7 @@ class VendorPaymentMethod extends Model
     }
 
     // ========== ACCESSORS ==========
+    
     public function getPaymentTypeLabelAttribute()
     {
         $types = [
@@ -116,6 +120,7 @@ class VendorPaymentMethod extends Model
     }
 
     // ========== HELPERS ==========
+    
     public function isVerified()
     {
         return $this->verification_status === 'verified';
