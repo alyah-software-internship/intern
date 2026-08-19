@@ -9,7 +9,11 @@ export const AppContextProvider = (props) => {
   const [lang, setLang] = useState("en");
   const currency = "ETB";
 
+    const backendUrl =
+      import.meta.env.VITE_BACKEND_URL?.replace(/\/+$/, "") || "";
+
   const value = {
+    backendUrl,
     currency,
     isSignedIn,
     lang,
