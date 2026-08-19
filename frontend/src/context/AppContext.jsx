@@ -2,23 +2,47 @@ import { createContext, useState } from "react";
 
 export const AppContext = createContext({
   isSignedIn: false,
+  user: null,
 });
 
 export const AppContextProvider = (props) => {
-  const [isSignedIn, setIsSignedIn] = useState(true); // Replace with actual authentication state
+  const [user, setUser] = useState(() => {
+    const storedUser = localStorage.getItem("authUser");
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
+  const [isSignedIn, setIsSignedIn] = useState(() =>
+    Boolean(localStorage.getItem("authToken")),
+  );
   const [lang, setLang] = useState("en");
   const currency = "ETB";
 
-    const backendUrl =
-      import.meta.env.VITE_BACKEND_URL?.replace(/\/+$/, "") || "";
+  const backendUrl =
+    import.meta.env.VITE_BACKEND_URL?.replace(/\/+$/, "") || "";
+
+  const signIn = (authUser, token) => {
+    localStorage.setItem("authToken", token);
+    localStorage.setItem("authUser", JSON.stringify(authUser));
+    setUser(authUser);
+    setIsSignedIn(true);
+  };
+
+  const signOut = () => {
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("authUser");
+    setUser(null);
+    setIsSignedIn(false);
+  };
 
   const value = {
     backendUrl,
     currency,
     isSignedIn,
+    user,
     lang,
     setLang,
     setIsSignedIn,
+    signIn,
+    signOut,
   };
 
   return (

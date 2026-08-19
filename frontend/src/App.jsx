@@ -1,7 +1,8 @@
-import React from "react";
-import { Routes, Route, useLocation } from "react-router-dom";
+import React, { useContext } from "react";
+import { Navigate, Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { useTheme } from "./context/ThemeProvider.jsx";
+import { AppContext } from "./context/AppContext.jsx";
 
 import Home from "./page/public/Home";
 import Header from "./component/Header";
@@ -50,6 +51,26 @@ import Notifications from "./page/admin/Notifications";
 import DetailPage from "./page/public/DetailPage";
 import Footer from "./component/Footer.jsx";
 
+const ProtectedRoute = ({ children, roles }) => {
+  const { isSignedIn, user } = useContext(AppContext);
+
+  if (!isSignedIn) {
+    return <Navigate to="/signin" replace />;
+  }
+
+  if (roles && !roles.includes(user?.role)) {
+    const roleHome = {
+      admin: "/admin",
+      vendor: "/vendor/dashboard",
+      customer: "/dashboard",
+    }[user?.role];
+
+    return <Navigate to={roleHome || "/"} replace />;
+  }
+
+  return children;
+};
+
 const App = () => {
   const location = useLocation();
   const { theme } = useTheme();
@@ -64,7 +85,7 @@ const App = () => {
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
           <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/signin" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/rentals" element={<Rentals />} />
           <Route path="/rentals/:id" element={<DetailPage />} />
@@ -73,14 +94,70 @@ const App = () => {
           <Route path="/pricing" element={<PricingPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/contact" element={<ContactPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/settings" element={<SettingPage />} />
-          <Route path="/bookings" element={<BookingPage />} />
-          <Route path="/messages" element={<Messagespage />} />
-          <Route path="/wishlist" element={<WishlistPage />} />
-          <Route path="/notifications" element={<NotificationPage />} />
-          <Route path="/admin" element={<AdminLayout />}>
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute roles={["customer"]}>
+                <ProfilePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute roles={["customer"]}>
+                <DashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute roles={["customer"]}>
+                <SettingPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/bookings"
+            element={
+              <ProtectedRoute roles={["customer"]}>
+                <BookingPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/messages"
+            element={
+              <ProtectedRoute roles={["customer"]}>
+                <Messagespage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/wishlist"
+            element={
+              <ProtectedRoute roles={["customer"]}>
+                <WishlistPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/notifications"
+            element={
+              <ProtectedRoute roles={["customer"]}>
+                <NotificationPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute roles={["admin"]}>
+                <AdminLayout />
+              </ProtectedRoute>
+            }
+          >
             <Route index element={<ControlPannel />} />
             <Route path="users" element={<Users />} />
             <Route path="vendors" element={<VendorAdmin />} />
@@ -94,7 +171,14 @@ const App = () => {
             <Route path="notifications" element={<Notifications />} />
             <Route path="translations" element={<TranslationReviewPage />} />
           </Route>
-          <Route path="/vendor" element={<VendorLayout />}>
+          <Route
+            path="/vendor"
+            element={
+              <ProtectedRoute roles={["vendor"]}>
+                <VendorLayout />
+              </ProtectedRoute>
+            }
+          >
             <Route index element={<VendorPage />} />
             <Route path="dashboard" element={<VendorPage />} />
             <Route path="verify" element={<Verify />} />

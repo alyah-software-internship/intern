@@ -1,5 +1,4 @@
-import React from "react";
-import { Row, Col, Card, Typography, Space, Button, List } from "antd";
+import { Row, Col, Card, Typography, Space, Button } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "../../component/LanguageProvider.jsx";
 import { useTheme } from "../../context/ThemeProvider.jsx";
@@ -284,48 +283,42 @@ const DashboardPage = () => {
                 >
                   {"Quick Actions"}
                 </Title>
-                <List
-                  dataSource={quickActions}
-                  renderItem={(item) => (
-                    <List.Item
+                <div
+                  style={{ display: "flex", flexDirection: "column", gap: 12 }}
+                >
+                  {quickActions.map((item) => (
+                    <Card
+                      key={item.path}
+                      onClick={() => navigate(item.path)}
                       style={{
-                        padding: 0,
-                        border: "none",
-                        margin: 0,
+                        width: "100%",
+                        borderRadius: 20,
+                        cursor: "pointer",
+                        background: isDark ? "#081122" : "#f8fbff",
+                        border: isDark
+                          ? "1px solid rgba(255,255,255,0.08)"
+                          : "1px solid rgba(15,23,42,0.08)",
                       }}
                     >
-                      <Card
-                        onClick={() => navigate(item.path)}
+                      <Text
+                        strong
                         style={{
-                          width: "100%",
-                          borderRadius: 20,
-                          cursor: "pointer",
-                          background: isDark ? "#081122" : "#f8fbff",
-                          border: isDark
-                            ? "1px solid rgba(255,255,255,0.08)"
-                            : "1px solid rgba(15,23,42,0.08)",
+                          display: "block",
+                          color: isDark ? "#f8fafc" : "#0f172a",
                         }}
                       >
-                        <Text
-                          strong
-                          style={{
-                            display: "block",
-                            color: isDark ? "#f8fafc" : "#0f172a",
-                          }}
-                        >
-                          {item.title}
-                        </Text>
-                        <Text
-                          style={{
-                            color: isDark ? "#94a3b8" : "#64748b",
-                          }}
-                        >
-                          {item.description}
-                        </Text>
-                      </Card>
-                    </List.Item>
-                  )}
-                />
+                        {item.title}
+                      </Text>
+                      <Text
+                        style={{
+                          color: isDark ? "#94a3b8" : "#64748b",
+                        }}
+                      >
+                        {item.description}
+                      </Text>
+                    </Card>
+                  ))}
+                </div>
                 <Button type="primary" block>
                   {t.home?.dashboardButtons?.viewBookings || "View Bookings"}
                 </Button>

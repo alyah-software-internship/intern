@@ -31,7 +31,7 @@ const Signup = () => {
   const [loading, setLoading] = useState(false);
   const [role, setRole] = useState("renter");
   const { lang, setLanguage, translation: t } = useTranslation();
-  const { backendUrl } = useContext(AppContext);
+  const { backendUrl, signIn } = useContext(AppContext);
   const navigate = useNavigate();
   const [messageApi, contextHolder] = message.useMessage();
 
@@ -57,8 +57,7 @@ const Signup = () => {
         role: role === "vendor" ? "vendor" : "customer",
       });
 
-      localStorage.setItem("authToken", response.data.token);
-      localStorage.setItem("authUser", JSON.stringify(response.data.user));
+      signIn(response.data.user, response.data.token);
       messageApi.success(
         response.data.message || "Account created successfully",
       );

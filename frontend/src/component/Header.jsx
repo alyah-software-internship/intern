@@ -87,12 +87,12 @@ const Header = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [isWide, setIsWide] = useState(window.innerWidth >= 1300);
   const [langHover, setLangHover] = useState(false);
-  const { isSignedIn, setIsSignedIn } = useContext(AppContext);
+  const { isSignedIn, signOut } = useContext(AppContext);
   const { theme } = useTheme();
   const { setLanguage, translation: t } = useTranslation();
 
   const handleLogout = () => {
-    setIsSignedIn(false);
+    signOut();
     setDrawerOpen(false);
     navigate("/");
   };
@@ -328,7 +328,7 @@ const Header = () => {
               <Button
                 type="default"
                 shape="round"
-                onClick={() => navigate("/login")}
+                onClick={() => navigate("/signin")}
               >
                 {t.nav.login}
               </Button>

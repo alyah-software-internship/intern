@@ -18,7 +18,7 @@ class AuthService
     {
         $user = User::create([
             'email' => $data['email'],
-            'password' => Hash::make($data['password']), // ✅ FIXED: Password is now hashed!
+            'password' => $data['password'],
             'first_name' => $data['first_name'],
             'middle_name' => $data['middle_name'],
             'last_name' => $data['last_name'],
@@ -135,7 +135,7 @@ class AuthService
         }
 
         $user->update([
-            'password' => Hash::make($newPassword),
+            'password' => $newPassword,
         ]);
 
         Log::info('Password reset', ['email' => $email]);
