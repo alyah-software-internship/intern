@@ -1,25 +1,78 @@
-import React, { useState } from "react";
-import { Card, Typography, Tag, Button, Divider } from "antd";
+import { useContext, useState } from "react";
+import axios from "axios";
+import { Card, Typography, Tag, Button, Divider, message } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "../../component/LanguageProvider.jsx";
 import { useTheme } from "../../context/ThemeProvider.jsx";
+import { AppContext } from "../../context/AppContext.jsx";
 
 const { Text, Title } = Typography;
 
 const DetailInfo = ({ item }) => {
   const { translation: t } = useTranslation();
   const { isDark } = useTheme();
+  const { backendUrl } = useContext(AppContext);
   const navigate = useNavigate();
 
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [booking, setBooking] = useState(false);
+  const [messageApi, contextHolder] = message.useMessage();
 
   if (!item) return null;
+
+  const handleBookNow = async () => {
+    if (!localStorage.getItem("authToken")) {
+      messageApi.info("Please sign in to book this rental.");
+      navigate("/signin", { state: { from: window.location.pathname } });
+      return;
+    }
+    if (!item.available) {
+      messageApi.warning("This rental is currently unavailable.");
+      return;
+    }
+    if (!startDate || !endDate) {
+      messageApi.warning("Please select a check-in and checkout date.");
+      return;
+    }
+    if (new Date(endDate) <= new Date(startDate)) {
+      messageApi.error("Checkout date must be after the check-in date.");
+      return;
+    }
+
+    setBooking(true);
+    try {
+      await axios.post(
+        `${backendUrl}/bookings`,
+        { product_id: item.id, start_date: startDate, end_date: endDate },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+        },
+      );
+      messageApi.success("Booking request submitted successfully.");
+      navigate("/bookings");
+    } catch (error) {
+      const errors = error.response?.data?.errors;
+      const firstError = errors ? Object.values(errors).flat()[0] : null;
+      messageApi.error(
+        firstError ||
+          error.response?.data?.message ||
+          "Unable to submit booking request.",
+      );
+    } finally {
+      setBooking(false);
+    }
+  };
 
   const images = item.images && item.images.length ? item.images : [item.image];
   const selectedImage = images[selectedIndex] || item.image;
 
   return (
     <div style={{ display: "flex", gap: 24, alignItems: "flex-start" }}>
+      {contextHolder}
       <div style={{ flex: 1 }}>
         <div style={{ marginBottom: 16 }}>
           <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
@@ -354,6 +407,9 @@ const DetailInfo = ({ item }) => {
             </label>
             <input
               type="date"
+              value={startDate}
+              min={new Date().toISOString().split("T")[0]}
+              onChange={(event) => setStartDate(event.target.value)}
               style={{
                 padding: 10,
                 borderRadius: 6,
@@ -368,6 +424,9 @@ const DetailInfo = ({ item }) => {
             </label>
             <input
               type="date"
+              value={endDate}
+              min={startDate || new Date().toISOString().split("T")[0]}
+              onChange={(event) => setEndDate(event.target.value)}
               style={{
                 padding: 10,
                 borderRadius: 6,
@@ -406,7 +465,14 @@ const DetailInfo = ({ item }) => {
               </div>
             </div>
 
-            <Button type="primary" size="large" style={{ borderRadius: 8 }}>
+            <Button
+              type="primary"
+              size="large"
+              style={{ borderRadius: 8 }}
+              loading={booking}
+              disabled={booking}
+              onClick={handleBookNow}
+            >
               {t.productDetail?.bookNow ||
                 t.common?.bookNow ||
                 "Request to Book Asset"}

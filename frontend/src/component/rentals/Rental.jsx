@@ -375,7 +375,7 @@ const Rental = () => {
             <Card
               title={productStrings.filter || "Filter Products"}
               style={{ borderRadius: 24 }}
-              bodyStyle={{ padding: 24 }}
+              styles={{ body: { padding: 24 } }}
             >
               <Space orientation="vertical" size={24} style={{ width: "100%" }}>
                 <div>

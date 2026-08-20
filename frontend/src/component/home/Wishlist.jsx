@@ -1,36 +1,106 @@
-import React, { useMemo, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Card, Avatar, Typography, Button, Empty } from "antd";
 import { useTranslation } from "../LanguageProvider.jsx";
 import { useTheme } from "../../context/ThemeProvider.jsx";
-import { wishlistItems } from "../../assets/dummyAssets";
+import { AppContext } from "../../context/AppContext.jsx";
 
 const { Text } = Typography;
+const authConfig = () => ({
+  headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` },
+});
+
+const getImageUrl = (product) => {
+  const image =
+    product?.images?.find((entry) => entry.is_primary) || product?.images?.[0];
+  return image?.image_url || "/logo.png";
+};
+const wishlistCacheKey = "customerWishlist";
+
+const readWishlistCache = () => {
+  try {
+    return JSON.parse(localStorage.getItem(wishlistCacheKey) || "[]");
+  } catch {
+    return [];
+  }
+};
 
 const Wishlist = () => {
   const { translation: t } = useTranslation();
   const { theme } = useTheme();
+  const { backendUrl } = useContext(AppContext);
   const isDark = theme === "dark";
   const navigate = useNavigate();
-  const [isMobile, setIsMobile] = React.useState(false);
-  const [items, setItems] = useState(wishlistItems);
+  const [isMobile, setIsMobile] = useState(false);
+  const [items, setItems] = useState(readWishlistCache);
+  const [loading, setLoading] = useState(
+    () => readWishlistCache().length === 0,
+  );
 
   const itemCount = items.length;
 
-  React.useEffect(() => {
+  const loadWishlist = useCallback(async () => {
+    const hasCache = readWishlistCache().length > 0;
+    if (!hasCache) setLoading(true);
+    try {
+      const response = await axios.get(`${backendUrl}/wishlist`, authConfig());
+      const wishlist = response.data.wishlist || [];
+      const nextItems = wishlist.map((entry) => ({
+        id: entry.product_id,
+        title: entry.product?.name || "Unnamed rental",
+        category: entry.product?.category?.name || "Uncategorized",
+        price: Number(entry.product?.price_daily || 0),
+        image: getImageUrl(entry.product),
+      }));
+      setItems(nextItems);
+      localStorage.setItem(wishlistCacheKey, JSON.stringify(nextItems));
+    } finally {
+      setLoading(false);
+    }
+  }, [backendUrl]);
+
+  useEffect(() => {
+    const fetchWishlist = async () => {
+      try {
+        await loadWishlist();
+      } catch {
+        setItems([]);
+        setLoading(false);
+      }
+    };
+    fetchWishlist();
+  }, [loadWishlist]);
+
+  useEffect(() => {
     const updateMobile = () => setIsMobile(window.innerWidth < 768);
     updateMobile();
     window.addEventListener("resize", updateMobile);
     return () => window.removeEventListener("resize", updateMobile);
   }, []);
 
-  const handleRemove = (id) => {
-    setItems((prev) => prev.filter((item) => item.id !== id));
-  };
+  const handleRemove = useCallback(
+    async (id) => {
+      try {
+        await axios.delete(`${backendUrl}/wishlist/${id}`, authConfig());
+        setItems((prev) => {
+          const nextItems = prev.filter((item) => item.id !== id);
+          localStorage.setItem(wishlistCacheKey, JSON.stringify(nextItems));
+          return nextItems;
+        });
+      } catch {
+        await loadWishlist();
+      }
+    },
+    [backendUrl, loadWishlist],
+  );
 
-  const handleRent = (id) => {
-    navigate(`/rentals/${id}`);
-  };
+  const handleRent = useCallback(
+    (id) => {
+      navigate(`/rentals/${id}`);
+    },
+    [navigate],
+  );
 
   const content = useMemo(() => {
     if (itemCount === 0) {
@@ -153,7 +223,17 @@ const Wishlist = () => {
         </div>
       </div>
     ));
-  }, [itemCount, items, isDark, isMobile, t.common, t.home, navigate]);
+  }, [
+    handleRemove,
+    handleRent,
+    itemCount,
+    items,
+    isDark,
+    isMobile,
+    t.common,
+    t.home,
+    navigate,
+  ]);
 
   return (
     <Card
@@ -241,7 +321,7 @@ const Wishlist = () => {
         }}
       />
 
-      {content}
+      {loading ? <Text>Loading wishlist...</Text> : content}
     </Card>
   );
 };

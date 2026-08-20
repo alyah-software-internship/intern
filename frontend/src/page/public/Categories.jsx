@@ -7,14 +7,25 @@ import { useTheme } from "../../context/ThemeProvider.jsx";
 import { AppContext } from "../../context/AppContext.jsx";
 
 const { Title, Text } = Typography;
+const categoryCacheKey = "rentalCategories";
+
+const readCategoryCache = () => {
+  try {
+    return JSON.parse(localStorage.getItem(categoryCacheKey) || "[]");
+  } catch {
+    return [];
+  }
+};
 
 const Categories = () => {
   const { translation: t } = useTranslation();
   const { theme } = useTheme();
   const { backendUrl } = useContext(AppContext);
   const navigate = useNavigate();
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState(readCategoryCache);
+  const [loading, setLoading] = useState(
+    () => readCategoryCache().length === 0,
+  );
   const isDark = theme === "dark";
   const pageSurface = isDark ? "#111827" : "#ffffff";
   const pageSurfaceAlt = isDark ? "#0f172a" : "#f8fbff";
@@ -23,19 +34,27 @@ const Categories = () => {
     : "1px solid rgba(15,23,42,0.08)";
 
   useEffect(() => {
-    const loadCategories = async () => {
-      try {
-        const response = await axios.get(`${backendUrl}/categories`);
-        setCategories(response.data.categories || []);
-      } finally {
+    const controller = new AbortController();
+    axios
+      .get(`${backendUrl}/categories`, { signal: controller.signal })
+      .then((response) => {
+        const nextCategories = response.data.categories || [];
+        setCategories(nextCategories);
         setLoading(false);
-      }
-    };
-    loadCategories().catch(() => {
-      setCategories([]);
-      setLoading(false);
-    });
+        localStorage.setItem(categoryCacheKey, JSON.stringify(nextCategories));
+      })
+      .catch(() => {
+        if (readCategoryCache().length === 0) {
+          setCategories([]);
+          setLoading(false);
+        }
+      });
+    return () => controller.abort();
   }, [backendUrl]);
+
+  const openCategory = (category) => {
+    navigate(`/rentals?category=${encodeURIComponent(category.name)}`);
+  };
 
   const categoryImage = (category) => {
     if (!category.image_url) return "/logo.png";
@@ -122,7 +141,8 @@ const Categories = () => {
                 <Col key={category.id} xs={24} sm={12} lg={8} xl={8}>
                   <Card
                     hoverable
-                    bodyStyle={{ padding: 24 }}
+                    styles={{ body: { padding: 24 } }}
+                    onClick={() => openCategory(category)}
                     style={{
                       borderRadius: 24,
                       background: pageSurface,
@@ -194,7 +214,10 @@ const Categories = () => {
                       </Text>
                       <Button
                         type="default"
-                        onClick={() => navigate("/rentals")}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          openCategory(category);
+                        }}
                       >
                         {t.common?.viewAll}
                       </Button>
