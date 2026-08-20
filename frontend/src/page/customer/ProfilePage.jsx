@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect } from "react";
+import { useContext, useState, useRef, useEffect, useCallback } from "react";
+import axios from "axios";
 import {
   Row,
   Col,
@@ -9,20 +10,23 @@ import {
   Space,
   Avatar,
   Tooltip,
+  Spin,
+  message,
 } from "antd";
-import {
-  UserOutlined,
-  CheckCircleOutlined,
-  UploadOutlined,
-} from "@ant-design/icons";
+import { UserOutlined, CheckCircleOutlined } from "@ant-design/icons";
 import { useTranslation } from "../../component/LanguageProvider.jsx";
 import { useTheme } from "../../context/ThemeProvider.jsx";
+import { AppContext } from "../../context/AppContext.jsx";
 
 const { Title, Text } = Typography;
+const authConfig = () => ({
+  headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` },
+});
 
 const ProfilePage = () => {
   const { translation: t } = useTranslation();
   const { theme } = useTheme();
+  const { backendUrl } = useContext(AppContext);
   const isDark = theme === "dark";
 
   const initialProfile = {
@@ -46,6 +50,59 @@ const ProfilePage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [profile, setProfile] = useState(initialProfile);
   const [backupProfile, setBackupProfile] = useState(initialProfile);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [messageApi, contextHolder] = message.useMessage();
+
+  const loadProfile = useCallback(async () => {
+    try {
+      const [profileResponse, statsResponse] = await Promise.all([
+        axios.get(`${backendUrl}/user/profile`, authConfig()),
+        axios.get(`${backendUrl}/user/stats`, authConfig()),
+      ]);
+      const user = profileResponse.data.user;
+      const stats = statsResponse.data.stats || {};
+      const nextProfile = {
+        fullName: [user.first_name, user.middle_name, user.last_name]
+          .filter(Boolean)
+          .join(" "),
+        businessName: user.vendor_profile?.business_name || "",
+        email: user.email || "",
+        phone: user.phone || "",
+        address: user.address || "",
+        city: user.city || "",
+        country: user.country || "",
+        bio: user.bio || "",
+        image: user.avatar_url || "",
+        verificationStatus:
+          user.vendor_profile?.verification_status ||
+          (user.email_verified_at ? "verified" : "pending"),
+        identityVerified: Boolean(
+          user.vendor_profile?.identity_verified || user.email_verified_at,
+        ),
+        paymentMethodsVerified: Boolean(
+          user.vendor_profile?.payment_methods_verified,
+        ),
+        rating: stats.rating || 0,
+        totalBookings: stats.total_bookings || user.bookings?.length || 0,
+      };
+      setProfile(nextProfile);
+      setBackupProfile(nextProfile);
+    } catch (error) {
+      messageApi.error(
+        error.response?.data?.message || "Unable to load your profile.",
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, [backendUrl, messageApi]);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      await loadProfile();
+    };
+    fetchProfile();
+  }, [loadProfile]);
 
   useEffect(() => {
     return () => {
@@ -68,7 +125,7 @@ const ProfilePage = () => {
     const file = event.target.files?.[0];
     if (!file) return;
     const previewUrl = URL.createObjectURL(file);
-    setProfile((prev) => ({ ...prev, image: previewUrl }));
+    setProfile((prev) => ({ ...prev, image: previewUrl, avatarFile: file }));
     event.target.value = "";
   };
 
@@ -77,14 +134,77 @@ const ProfilePage = () => {
     setIsEditing(true);
   };
 
-  const handleSave = () => {
-    setIsEditing(false);
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const formData = new FormData();
+      const nameParts = profile.fullName.trim().split(/\s+/);
+      const fields = {
+        first_name: nameParts[0] || "",
+        middle_name:
+          nameParts.length > 2 ? nameParts.slice(1, -1).join(" ") : "",
+        last_name: nameParts.length > 1 ? nameParts[nameParts.length - 1] : "",
+        phone: profile.phone,
+        bio: profile.bio,
+        address: profile.address,
+        city: profile.city,
+      };
+      Object.entries(fields).forEach(([key, value]) =>
+        formData.append(key, value || ""),
+      );
+      if (profile.avatarFile) formData.append("avatar", profile.avatarFile);
+      formData.append("_method", "PUT");
+      const response = await axios.post(
+        `${backendUrl}/user/profile`,
+        formData,
+        {
+          ...authConfig(),
+          headers: {
+            ...authConfig().headers,
+            "Content-Type": "multipart/form-data",
+          },
+        },
+      );
+      const user = response.data.user;
+      const updatedProfile = {
+        ...profile,
+        fullName: [user.first_name, user.middle_name, user.last_name]
+          .filter(Boolean)
+          .join(" "),
+        image: user.avatar_url || profile.image,
+        avatarFile: null,
+      };
+      setProfile(updatedProfile);
+      setBackupProfile(updatedProfile);
+      setIsEditing(false);
+      messageApi.success(
+        response.data.message || "Profile updated successfully.",
+      );
+    } catch (error) {
+      const errors = error.response?.data?.errors;
+      messageApi.error(
+        errors
+          ? Object.values(errors).flat()[0]
+          : error.response?.data?.message || "Unable to save your profile.",
+      );
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleCancel = () => {
     setProfile(backupProfile);
     setIsEditing(false);
   };
+
+  if (loading) {
+    return (
+      <div style={{ minHeight: "70vh", display: "grid", placeItems: "center" }}>
+        {contextHolder}
+        <Spin size="large" />
+      </div>
+    );
+  }
 
   return (
     <div
@@ -96,6 +216,7 @@ const ProfilePage = () => {
           : "#eef4ff",
       }}
     >
+      {contextHolder}
       <div style={{ maxWidth: 1200, margin: "0 auto" }}>
         <div
           style={{
@@ -515,7 +636,12 @@ const ProfilePage = () => {
                       <Button onClick={handleCancel} size="large">
                         {t.profile?.cancelButton || "Cancel"}
                       </Button>
-                      <Button type="primary" size="large" onClick={handleSave}>
+                      <Button
+                        type="primary"
+                        size="large"
+                        onClick={handleSave}
+                        loading={saving}
+                      >
                         {t.profile?.saveButton || "Save Profile Changes"}
                       </Button>
                     </>

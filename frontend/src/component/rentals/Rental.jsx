@@ -25,6 +25,16 @@ import { AppContext } from "../../context/AppContext.jsx";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 const { Title, Text } = Typography;
+const rentalProductsCacheKey = "rentalProducts";
+const rentalCategoriesCacheKey = "rentalCategories";
+
+const readCache = (key) => {
+  try {
+    return JSON.parse(localStorage.getItem(key) || "null");
+  } catch {
+    return null;
+  }
+};
 
 const Rental = () => {
   const { translation: t } = useTranslation();
@@ -49,35 +59,51 @@ const Rental = () => {
   const [availability, setAvailability] = useState("all");
   const [priceRange, setPriceRange] = useState([30, 500]);
   const [sortBy, setSortBy] = useState("relevance");
-  const [products, setProducts] = useState([]);
-  const [categoryRecords, setCategoryRecords] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const cachedProducts = readCache(rentalProductsCacheKey);
+  const cachedCategories = readCache(rentalCategoriesCacheKey);
+  const [products, setProducts] = useState(cachedProducts || []);
+  const [categoryRecords, setCategoryRecords] = useState(
+    cachedCategories || [],
+  );
+  const [loading, setLoading] = useState(!cachedProducts);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const loadRentals = async () => {
-      setLoading(true);
-      try {
-        const [productsResponse, categoriesResponse] = await Promise.all([
-          axios.get(`${backendUrl}/products?per_page=100`),
-          axios.get(`${backendUrl}/categories`),
-        ]);
-        const productData = productsResponse.data.products;
-        setProducts(
-          Array.isArray(productData) ? productData : productData?.data || [],
-        );
-        setCategoryRecords(categoriesResponse.data.categories || []);
-      } catch {
-        setProducts([]);
-        setCategoryRecords([]);
-      } finally {
+    const controller = new AbortController();
+    const requestConfig = { signal: controller.signal };
+    const hasCachedProducts = Boolean(readCache(rentalProductsCacheKey));
+
+    axios
+      .get(`${backendUrl}/products?per_page=100`, requestConfig)
+      .then((response) => {
+        const productData = response.data.products;
+        const nextProducts = Array.isArray(productData)
+          ? productData
+          : productData?.data || [];
+        setProducts(nextProducts);
         setLoading(false);
-      }
-    };
-    const fetchRentals = async () => {
-      await loadRentals();
-    };
-    fetchRentals();
+        localStorage.setItem(
+          rentalProductsCacheKey,
+          JSON.stringify(nextProducts),
+        );
+      })
+      .catch(() => {
+        if (!hasCachedProducts) setLoading(false);
+      });
+
+    axios
+      .get(`${backendUrl}/categories`, requestConfig)
+      .then((response) => {
+        const nextCategories = response.data.categories || [];
+        setCategoryRecords(nextCategories);
+        localStorage.setItem(
+          rentalCategoriesCacheKey,
+          JSON.stringify(nextCategories),
+        );
+      })
+      .catch(() => undefined);
+
+    return () => controller.abort();
   }, [backendUrl]);
 
   const imageUrl = useCallback(
