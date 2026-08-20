@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import { useContext, useState, useEffect } from "react";
+import axios from "axios";
 import {
   Row,
   Col,
@@ -21,15 +22,14 @@ import {
 import {
   CheckCircleOutlined,
   ClockCircleOutlined,
-  WarningOutlined,
   BankOutlined,
   IdcardOutlined,
   FileOutlined,
   UserOutlined,
-  MobileOutlined,
   GlobalOutlined,
 } from "@ant-design/icons";
 import { useTheme } from "../../context/ThemeProvider.jsx";
+import { AppContext } from "../../context/AppContext.jsx";
 
 const { Title, Text, Paragraph } = Typography;
 const { useBreakpoint } = Grid;
@@ -293,7 +293,7 @@ const PaymentMethodsList = ({ payments, isDark }) => {
   );
 };
 
-const VerificationForm = ({ onSubmit, isDark, loading }) => {
+const VerificationForm = ({ onSubmit, isDark }) => {
   const screens = useBreakpoint();
   const [form] = Form.useForm();
   const [submitState, setSubmitState] = useState("idle");
@@ -312,6 +312,13 @@ const VerificationForm = ({ onSubmit, isDark, loading }) => {
     }
   };
 
+  const normFile = (event) => {
+    if (Array.isArray(event)) {
+      return event;
+    }
+    return event?.fileList || [];
+  };
+
   return (
     <Card
       style={{
@@ -328,7 +335,7 @@ const VerificationForm = ({ onSubmit, isDark, loading }) => {
 
       {error && (
         <Alert
-          message="Error"
+          title="Error"
           description={error}
           type="error"
           showIcon
@@ -352,7 +359,7 @@ const VerificationForm = ({ onSubmit, isDark, loading }) => {
           {/* Document Section */}
           <Col xs={24}>
             <Divider
-              orientation="left"
+              titlePlacement="left"
               style={{ fontSize: screens.xs ? "14px" : "16px" }}
             >
               <UserOutlined /> Document Information
@@ -397,6 +404,8 @@ const VerificationForm = ({ onSubmit, isDark, loading }) => {
             <Form.Item
               label="Document Front Image"
               name="documentFrontUrl"
+              valuePropName="fileList"
+              getValueFromEvent={normFile}
               rules={[{ required: true, message: "Please upload front image" }]}
             >
               <Upload
@@ -410,7 +419,12 @@ const VerificationForm = ({ onSubmit, isDark, loading }) => {
           </Col>
 
           <Col xs={24} sm={12} md={8}>
-            <Form.Item label="Document Back Image" name="documentBackUrl">
+            <Form.Item
+              label="Document Back Image"
+              name="documentBackUrl"
+              valuePropName="fileList"
+              getValueFromEvent={normFile}
+            >
               <Upload
                 beforeUpload={() => false}
                 maxCount={1}
@@ -425,6 +439,8 @@ const VerificationForm = ({ onSubmit, isDark, loading }) => {
             <Form.Item
               label="Selfie With Document"
               name="selfieWithDocumentUrl"
+              valuePropName="fileList"
+              getValueFromEvent={normFile}
             >
               <Upload
                 beforeUpload={() => false}
@@ -439,7 +455,7 @@ const VerificationForm = ({ onSubmit, isDark, loading }) => {
           {/* Payment Section */}
           <Col xs={24}>
             <Divider
-              orientation="left"
+              titlePlacement="left"
               style={{ fontSize: screens.xs ? "14px" : "16px" }}
             >
               <BankOutlined /> Payment Information
@@ -507,7 +523,7 @@ const VerificationForm = ({ onSubmit, isDark, loading }) => {
           {/* Business Section */}
           <Col xs={24}>
             <Divider
-              orientation="left"
+              titlePlacement="left"
               style={{ fontSize: screens.xs ? "14px" : "16px" }}
             >
               <BankOutlined /> Business Information
@@ -515,8 +531,72 @@ const VerificationForm = ({ onSubmit, isDark, loading }) => {
           </Col>
 
           <Col xs={24} sm={12} md={8}>
-            <Form.Item label="Business Name" name="businessName">
+            <Form.Item
+              label="Business Name"
+              name="businessName"
+              rules={[
+                { required: true, message: "Please enter business name" },
+              ]}
+            >
               <Input placeholder="Sterling Constructions Ltd" />
+            </Form.Item>
+          </Col>
+
+          <Col xs={24} sm={12} md={8}>
+            <Form.Item
+              label="Business Type"
+              name="businessType"
+              rules={[
+                { required: true, message: "Please enter business type" },
+              ]}
+            >
+              <Input placeholder="Equipment rental" />
+            </Form.Item>
+          </Col>
+
+          <Col xs={24} sm={12} md={8}>
+            <Form.Item
+              label="Business Phone"
+              name="businessPhone"
+              rules={[
+                { required: true, message: "Please enter business phone" },
+              ]}
+            >
+              <Input placeholder="+251-900-111-222" />
+            </Form.Item>
+          </Col>
+
+          <Col xs={24} sm={12} md={8}>
+            <Form.Item label="Business Email" name="businessEmail">
+              <Input type="email" placeholder="business@example.com" />
+            </Form.Item>
+          </Col>
+
+          <Col xs={24} sm={12} md={8}>
+            <Form.Item
+              label="Address"
+              name="businessAddress"
+              rules={[
+                { required: true, message: "Please enter business address" },
+              ]}
+            >
+              <Input placeholder="Bole, Addis Ababa" />
+            </Form.Item>
+          </Col>
+
+          <Col xs={24} sm={12} md={8}>
+            <Form.Item
+              label="City"
+              name="businessCity"
+              rules={[{ required: true, message: "Please enter city" }]}
+            >
+              <Input placeholder="Addis Ababa" />
+            </Form.Item>
+          </Col>
+
+          <Col xs={24}>
+            <Form.Item label="Business Description" name="businessDescription">
+              <Input.TextArea rows={3} placeholder="Describe your business" />
             </Form.Item>
           </Col>
 
@@ -530,7 +610,7 @@ const VerificationForm = ({ onSubmit, isDark, loading }) => {
           <Col xs={24}>
             <Form.Item>
               <Space
-                direction={screens.xs ? "vertical" : "horizontal"}
+                orientation={screens.xs ? "vertical" : "horizontal"}
                 size={16}
                 style={{ width: screens.xs ? "100%" : "auto" }}
               >
@@ -548,7 +628,7 @@ const VerificationForm = ({ onSubmit, isDark, loading }) => {
               </Space>
               {submitState === "submitted" && (
                 <Alert
-                  message="Success"
+                  title="Success"
                   description="Verification input submitted successfully."
                   type="success"
                   showIcon
@@ -565,6 +645,7 @@ const VerificationForm = ({ onSubmit, isDark, loading }) => {
 
 // Main Component
 const Verify = () => {
+  const { backendUrl } = useContext(AppContext);
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const screens = useBreakpoint();
@@ -575,10 +656,10 @@ const Verify = () => {
   // Mock data - in real app, fetch from API
   const mockData = {
     vendor: {
-      verificationStatus: "approved",
-      identityVerified: true,
-      paymentMethodsVerified: true,
-      businessName: "Sterling Constructions Ltd",
+      verificationStatus: "pending",
+      identityVerified: false,
+      paymentMethodsVerified: false,
+      businessName: "",
       trustScore: 92,
       totalDocs: 3,
       reviewStage: "final review",
@@ -631,10 +712,47 @@ const Verify = () => {
   }, []);
 
   const handleFormSubmit = async (values) => {
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    console.log("Verification submission payload:", values);
-    return Promise.resolve();
+    const response = await axios.post(
+      `${backendUrl}/vendor/verification`,
+      {
+        document_type: values.documentType,
+        document_number: values.documentNumber,
+        document_country: values.documentCountry,
+        business_name: values.businessName,
+        business_type: values.businessType,
+        business_description: values.businessDescription,
+        business_address: values.businessAddress,
+        business_city: values.businessCity,
+        business_phone: values.businessPhone,
+        business_email: values.businessEmail || undefined,
+        registration_number: values.registrationNumber || undefined,
+        payment_type: values.paymentType,
+        account_name: values.accountName,
+        account_number: values.accountNumber,
+        bank_name: values.bankName || undefined,
+        bank_branch: values.bankBranch || undefined,
+        mobile_provider: values.mobileProvider || undefined,
+        mobile_number: values.mobileNumber || undefined,
+        paypal_email: values.paypalEmail || undefined,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+      },
+    );
+
+    const vendor = response.data.vendor;
+    setVerificationData((current) => ({
+      ...current,
+      vendor: {
+        ...current.vendor,
+        verificationStatus: vendor.verification_status || "approved",
+        identityVerified: true,
+        paymentMethodsVerified: true,
+        businessName: vendor.business_name,
+      },
+    }));
   };
 
   if (loading) {
@@ -663,7 +781,7 @@ const Verify = () => {
         }}
       >
         <Alert
-          message="Error Loading Data"
+          title="Error Loading Data"
           description={error}
           type="error"
           showIcon
@@ -751,11 +869,7 @@ const Verify = () => {
         {/* Verification Form or Summary */}
         {!vendorVerified ? (
           <Col xs={24}>
-            <VerificationForm
-              onSubmit={handleFormSubmit}
-              isDark={isDark}
-              loading={loading}
-            />
+            <VerificationForm onSubmit={handleFormSubmit} isDark={isDark} />
           </Col>
         ) : (
           <>

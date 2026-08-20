@@ -1,6 +1,17 @@
-import React from "react";
+import { useContext, useEffect, useState } from "react";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { Table, Button, Card, Col, Row, Space, Typography, Tag } from "antd";
+import {
+  Table,
+  Button,
+  Card,
+  Col,
+  Row,
+  Space,
+  Typography,
+  Tag,
+  message,
+} from "antd";
 import {
   EditOutlined,
   DeleteOutlined,
@@ -11,23 +22,76 @@ import {
 } from "@ant-design/icons";
 import { useTheme } from "../../context/ThemeProvider.jsx";
 import { useTranslation } from "../../component/LanguageProvider.jsx";
-import {
-  getProductsByVendor,
-  getCategoryById,
-} from "../../assets/dummyAssets.js";
+import { AppContext } from "../../context/AppContext.jsx";
 
 const { Title, Text } = Typography;
 
 const Products = () => {
   const navigate = useNavigate();
   const { translation: t, lang } = useTranslation();
+  const { backendUrl } = useContext(AppContext);
   const { theme } = useTheme();
   const isDark = theme === "dark";
-  const products = getProductsByVendor("vend-1");
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [messageApi, contextHolder] = message.useMessage();
+
+  const authConfig = () => ({
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+    },
+  });
+
+  useEffect(() => {
+    let isCurrent = true;
+
+    axios
+      .get(`${backendUrl}/vendor/products`, authConfig())
+      .then((response) => {
+        if (isCurrent) {
+          setProducts(response.data.products || []);
+        }
+      })
+      .catch((error) => {
+        if (isCurrent) {
+          messageApi.error(
+            error.response?.data?.message || "Unable to load your products.",
+          );
+        }
+      })
+      .finally(() => {
+        if (isCurrent) {
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [backendUrl, messageApi]);
+
   const activeCount = products.filter(
-    (item) => item.availability?.status === "available",
+    (item) =>
+      item.status === "active" && item.availability_status === "available",
   ).length;
   const reservedCount = products.length - activeCount;
+
+  const handleDelete = async (productId) => {
+    try {
+      await axios.delete(
+        `${backendUrl}/vendor/products/${productId}`,
+        authConfig(),
+      );
+      setProducts((current) =>
+        current.filter((product) => product.id !== productId),
+      );
+      messageApi.success("Product deleted successfully.");
+    } catch (error) {
+      messageApi.error(
+        error.response?.data?.message || "Unable to delete product.",
+      );
+    }
+  };
 
   const columns = [
     {
@@ -36,9 +100,8 @@ const Products = () => {
       key: "details",
       width: 320,
       render: (_, record) => {
-        const category = getCategoryById(record.category);
         const imageUrl =
-          record.images?.[0] ||
+          record.images?.[0]?.image_url ||
           "https://via.placeholder.com/72x72?text=No+Image";
         return (
           <Space align="start" style={{ minWidth: 0 }}>
@@ -70,7 +133,7 @@ const Products = () => {
                 strong
                 style={{ fontSize: 16, color: isDark ? "#f8fafc" : "#0f172a" }}
               >
-                {lang === "am" ? record.nameAm || record.name : record.name}
+                {lang === "am" ? record.name_am || record.name : record.name}
               </Text>
               <div>
                 <Text type="secondary">SKU: {record.id}</Text>
@@ -81,7 +144,7 @@ const Products = () => {
                   style={{ maxWidth: 360, display: "block" }}
                 >
                   {lang === "am"
-                    ? record.descriptionAm || record.description
+                    ? record.description_am || record.description
                     : record.description}
                 </Text>
               </div>
@@ -92,50 +155,59 @@ const Products = () => {
     },
     {
       title: t.vendor?.industryCategory || "Industry Category",
-      dataIndex: "category",
+      dataIndex: "category_id",
       key: "category",
       render: (categoryId) => {
-        const category = getCategoryById(categoryId);
+        const category = products.find(
+          (product) => product.category_id === categoryId,
+        )?.category;
         return (
           <div>
             <Text strong>
               {lang === "am"
-                ? category?.nameAm || category?.name
+                ? category?.name_am || category?.name
                 : category?.name}
             </Text>
             <div>
-              <Text type="secondary">
-                {lang === "am"
-                  ? category?.descriptionAm || category?.description
-                  : category?.description}
-              </Text>
+              <Text type="secondary">{category?.slug || ""}</Text>
             </div>
           </div>
         );
       },
     },
     {
-      title: t.vendor?.dailyPricing || "Daily Pricing",
+      title: t.vendor?.dailyPricing || "Pricing",
       dataIndex: "pricing",
       key: "pricing",
-      render: (pricing) => (
-        <Text strong>
-          {lang === "am"
-            ? pricing?.daily?.labelAm || pricing?.daily?.label
-            : pricing?.daily?.label}
-        </Text>
-      ),
+      render: (_, record) => {
+        const pricing = {
+          hourly: { amount: record.price_hourly, unit: "hour" },
+          daily: { amount: record.price_daily, unit: "day" },
+          weekly: { amount: record.price_weekly, unit: "week" },
+          monthly: { amount: record.price_monthly, unit: "month" },
+        }[record.pricing_model] || {
+          amount:
+            record.price_daily || record.price_hourly || record.price_monthly,
+          unit: record.price_hourly
+            ? "hour"
+            : record.price_monthly
+              ? "month"
+              : "day",
+        };
+
+        return (
+          <Text strong>
+            {pricing.amount || 0} ETB / {pricing.unit}
+          </Text>
+        );
+      },
     },
     {
       title: t.vendor?.refundableDeposit || "Refundable Deposit",
       dataIndex: ["rentalPolicies", "securityDeposit", "label"],
       key: "deposit",
       render: (_, record) => {
-        const label =
-          lang === "am"
-            ? record.rentalPolicies.securityDeposit.labelAm
-            : record.rentalPolicies.securityDeposit.label;
-        return <Text>{label}</Text>;
+        return <Text>{record.security_deposit_amount || 0}</Text>;
       },
     },
     {
@@ -143,15 +215,10 @@ const Products = () => {
       dataIndex: ["availability", "status"],
       key: "availability",
       render: (_, record) => {
-        const status =
-          lang === "am"
-            ? record.availability.statusAm || record.availability.status
-            : record.availability.status;
+        const status = record.availability_status || "unavailable";
         return (
           <Tag
-            color={
-              record.availability.status === "available" ? "success" : "default"
-            }
+            color={status === "available" ? "success" : "default"}
             style={{ borderRadius: 999 }}
           >
             {status}
@@ -167,13 +234,16 @@ const Products = () => {
           <Button
             type="default"
             icon={<EditOutlined />}
-            onClick={() => navigate(`/vendor/add-product`)}
+            onClick={() => navigate(`/vendor/add-product?edit=${record.id}`)}
           >
             {t.vendor?.editProduct || "Edit Pricing"}
           </Button>
-          <Button type="text" danger icon={<DeleteOutlined />}>
-            {t.vendor?.deleteProduct || "Delete"}
-          </Button>
+          <Button
+            type="text"
+            danger
+            icon={<DeleteOutlined />}
+            onClick={() => handleDelete(record.id)}
+          ></Button>
         </Space>
       ),
     },
@@ -187,6 +257,7 @@ const Products = () => {
         padding: 24,
       }}
     >
+      {contextHolder}
       <Card
         style={{
           borderRadius: 24,
@@ -312,6 +383,7 @@ const Products = () => {
         <Table
           columns={columns}
           dataSource={products}
+          loading={loading}
           rowKey="id"
           pagination={false}
           bordered

@@ -94,6 +94,12 @@ Route::middleware('auth:sanctum')->group(function () {
     // This allows any authenticated user to register as a vendor
     // ============================================================
     Route::post('/vendor/register', [VendorController::class, 'register']);
+    Route::get('/vendor/profile', [VendorController::class, 'profile']);
+    Route::put('/vendor/profile', [VendorController::class, 'updateProfile']);
+    Route::post('/vendor/verification', [VendorController::class, 'submitVerification']);
+    Route::post('/vendor/payment-methods', [VendorController::class, 'addPaymentMethod']);
+    Route::put('/vendor/payment-methods/{id}', [VendorController::class, 'updatePaymentMethod']);
+    Route::delete('/vendor/payment-methods/{id}', [VendorController::class, 'deletePaymentMethod']);
     
     // ============================================================
     // VENDOR ROUTES (Requires vendor role) 

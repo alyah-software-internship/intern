@@ -1,5 +1,6 @@
-﻿import React from "react";
-import { useNavigate } from "react-router-dom";
+﻿import { useContext, useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import axios from "axios";
 import {
   Button,
   Card,
@@ -7,6 +8,7 @@ import {
   Input,
   InputNumber,
   Select,
+  Segmented,
   Upload,
   message,
   Typography,
@@ -20,16 +22,10 @@ import {
 } from "@ant-design/icons";
 import { useTheme } from "../../context/ThemeProvider.jsx";
 import { useTranslation } from "../../component/LanguageProvider.jsx";
+import { AppContext } from "../../context/AppContext.jsx";
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
-
-const categories = [
-  { label: "Construction", value: "construction" },
-  { label: "Agriculture", value: "agriculture" },
-  { label: "Event", value: "event" },
-  { label: "Tools", value: "tools" },
-];
 
 const priceUnits = [
   { label: "Per Time", value: "time" },
@@ -40,13 +36,152 @@ const priceUnits = [
 
 const AddItem = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const editId = searchParams.get("edit");
   const { translation: t } = useTranslation();
+  const { backendUrl } = useContext(AppContext);
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [loadingProduct, setLoadingProduct] = useState(Boolean(editId));
+  const [inputLanguage, setInputLanguage] = useState("en");
+  const [messageApi, contextHolder] = message.useMessage();
 
-  const onFinish = (values) => {
-    message.success(t.vendor?.productSaved || "Product saved successfully!");
-    navigate("/vendor/products");
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const response = await axios.get(`${backendUrl}/categories`);
+        setCategories(
+          (response.data.categories || []).map((category) => ({
+            label: category.name,
+            value: category.id,
+          })),
+        );
+      } catch (error) {
+        messageApi.error(
+          error.response?.data?.message || "Unable to load categories.",
+        );
+      }
+    };
+
+    loadCategories();
+  }, [backendUrl, messageApi]);
+
+  const [form] = Form.useForm();
+
+  useEffect(() => {
+    if (!editId) {
+      return;
+    }
+
+    axios
+      .get(`${backendUrl}/vendor/products`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+      })
+      .then((response) => {
+        const product = (response.data.products || []).find(
+          (item) => String(item.id) === String(editId),
+        );
+
+        if (!product) {
+          throw new Error("Product not found.");
+        }
+
+        const unit = product.price_hourly
+          ? "time"
+          : product.price_monthly
+            ? "month"
+            : "day";
+        const amount =
+          product.price_hourly || product.price_monthly || product.price_daily;
+        const availabilityStatus = product.availability_status || "available";
+
+        form.setFieldsValue({
+          nameEn: product.name,
+          nameAm: product.name_am,
+          category: product.category_id,
+          descriptionEn: product.description,
+          descriptionAm: product.description_am,
+          prices: [{ amount, unit }],
+          quantity: product.quantity,
+          securityDeposit: product.security_deposit_amount || 0,
+          availabilityStatus,
+        });
+      })
+      .catch((error) => {
+        messageApi.error(error.message || "Unable to load product.");
+        navigate("/vendor/products");
+      })
+      .finally(() => setLoadingProduct(false));
+  }, [backendUrl, editId, form, messageApi, navigate]);
+
+  const onFinish = async (values) => {
+    const price = values.prices?.[0];
+    const pricingModel =
+      { time: "hourly", day: "daily", month: "monthly", year: "monthly" }[
+        price?.unit
+      ] || "daily";
+
+    setLoading(true);
+
+    try {
+      const payload = {
+        name: values.nameEn,
+        name_am: values.nameAm,
+        category_id: values.category,
+        description: values.descriptionEn,
+        description_am: values.descriptionAm,
+        pricing_model: pricingModel,
+        price_daily: pricingModel === "daily" ? price.amount : 0,
+        price_hourly: pricingModel === "hourly" ? price.amount : 0,
+        price_monthly: pricingModel === "monthly" ? price.amount : 0,
+        quantity: values.quantity,
+        security_deposit_amount: values.securityDeposit || 0,
+        availability_status: values.availabilityStatus || "available",
+      };
+
+      const formData = new FormData();
+      Object.entries(payload).forEach(([key, value]) =>
+        formData.append(key, value),
+      );
+      values.images?.forEach((file) => {
+        if (file.originFileObj) formData.append("images[]", file.originFileObj);
+      });
+
+      const response = editId
+        ? await axios.put(`${backendUrl}/vendor/products/${editId}`, payload, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            },
+          })
+        : await axios.post(`${backendUrl}/vendor/products`, formData, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            },
+          });
+
+      messageApi.success(
+        response.data.message ||
+          t.vendor?.productSaved ||
+          "Product saved successfully!",
+      );
+      navigate("/vendor/products");
+    } catch (error) {
+      const validationErrors = error.response?.data?.errors;
+      const firstValidationError = validationErrors
+        ? Object.values(validationErrors).flat()[0]
+        : null;
+      messageApi.error(
+        firstValidationError ||
+          error.response?.data?.message ||
+          "Unable to save product. Please try again.",
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   const normFile = (e) => {
@@ -57,219 +192,270 @@ const AddItem = () => {
   };
 
   return (
-    <Card
-      style={{
-        borderRadius: 24,
-        minHeight: "72vh",
-        background: isDark ? "#0b1120" : "#ffffff",
-        color: isDark ? "#f8fafc" : "#0f172a",
-      }}
-    >
-      <Button
-        type="link"
-        icon={<ArrowLeftOutlined />}
-        onClick={() => navigate(-1)}
-        style={{ marginBottom: 24, padding: 0 }}
+    <>
+      {contextHolder}
+      <Card
+        style={{
+          borderRadius: 24,
+          minHeight: "72vh",
+          background: isDark ? "#0b1120" : "#ffffff",
+          color: isDark ? "#f8fafc" : "#0f172a",
+        }}
       >
-        {t.vendor?.dashboard || "Back"}
-      </Button>
-
-      <Title
-        level={3}
-        style={{ marginBottom: 8, color: isDark ? "#f8fafc" : "#0f172a" }}
-      >
-        {t.vendor?.addProductTitle || "Add Product"}
-      </Title>
-      <Text type="secondary">
-        {t.vendor?.addProductFormDescription ||
-          "List a new product so customers can discover and rent it."}
-      </Text>
-
-      <Form
-        layout="vertical"
-        style={{ marginTop: 24, maxWidth: 720 }}
-        onFinish={onFinish}
-      >
-        <Form.Item
-          name="nameEn"
-          label={t.vendor?.productNameEnglish || "Product Name (English)"}
-          rules={[
-            {
-              required: true,
-              message: "Please enter a product name in English.",
-            },
-          ]}
+        <Button
+          type="link"
+          icon={<ArrowLeftOutlined />}
+          onClick={() => navigate(-1)}
+          style={{ marginBottom: 24, padding: 0 }}
         >
-          <Input
-            placeholder={
-              t.vendor?.productNameEnglish || "Product Name (English)"
-            }
-          />
-        </Form.Item>
+          {t.vendor?.dashboard || "Back"}
+        </Button>
 
-        <Form.Item
-          name="nameAm"
-          label={t.vendor?.productNameAmharic || "Product Name (Amharic)"}
-          rules={[
-            {
-              required: true,
-              message: "Please enter a product name in Amharic.",
-            },
-          ]}
+        <Title
+          level={3}
+          style={{ marginBottom: 8, color: isDark ? "#f8fafc" : "#0f172a" }}
         >
-          <Input
-            placeholder={
-              t.vendor?.productNameAmharic || "Product Name (Amharic)"
-            }
-          />
-        </Form.Item>
+          {editId ? "Edit Product" : t.vendor?.addProductTitle || "Add Product"}
+        </Title>
+        <Text type="secondary">
+          {t.vendor?.addProductFormDescription ||
+            "List a new product so customers can discover and rent it."}
+        </Text>
 
-        <Form.Item
-          name="category"
-          label={t.vendor?.productCategory || "Product Category"}
-          rules={[{ required: true, message: "Please select a category." }]}
+        <Form
+          form={form}
+          layout="vertical"
+          style={{ marginTop: 24, maxWidth: 720 }}
+          onFinish={onFinish}
+          disabled={loadingProduct}
         >
-          <Select options={categories} placeholder="Select category" />
-        </Form.Item>
+          <Form.Item label="Input Language">
+            <Segmented
+              block
+              options={[
+                { label: "English", value: "en" },
+                { label: "አማርኛ", value: "am" },
+              ]}
+              value={inputLanguage}
+              onChange={setInputLanguage}
+            />
+          </Form.Item>
 
-        <Form.Item
-          name="descriptionEn"
-          label={
-            t.vendor?.productDescriptionEnglish ||
-            "Product Description (English)"
-          }
-          rules={[
-            {
-              required: true,
-              message: "Please enter a product description in English.",
-            },
-          ]}
-        >
-          <TextArea
-            rows={5}
-            placeholder={
-              t.vendor?.productDescriptionEnglish ||
-              "Product Description (English)"
-            }
-          />
-        </Form.Item>
-
-        <Form.Item
-          name="descriptionAm"
-          label={
-            t.vendor?.productDescriptionAmharic ||
-            "Product Description (Amharic)"
-          }
-          rules={[
-            {
-              required: true,
-              message: "Please enter a product description in Amharic.",
-            },
-          ]}
-        >
-          <TextArea
-            rows={5}
-            placeholder={
-              t.vendor?.productDescriptionAmharic ||
-              "Product Description (Amharic)"
-            }
-          />
-        </Form.Item>
-
-        <Form.List name="prices" initialValue={[{ amount: null, unit: "day" }]}>
-          {(fields, { add, remove }) => (
-            <>
-              {fields.map(({ key, name, fieldKey, ...restField }) => (
-                <Space
-                  key={key}
-                  style={{ display: "flex", marginBottom: 8 }}
-                  align="baseline"
-                >
-                  <Form.Item
-                    {...restField}
-                    name={[name, "amount"]}
-                    fieldKey={[fieldKey, "amount"]}
-                    label={t.vendor?.priceAmount || "Price"}
-                    rules={[{ required: true, message: "Enter a price." }]}
-                  >
-                    <InputNumber
-                      style={{ width: 160 }}
-                      min={0}
-                      formatter={(value) => `${value}`}
-                      parser={(value) => value?.replace(/\D/g, "")}
-                      placeholder={t.vendor?.priceAmount || "Price"}
-                    />
-                  </Form.Item>
-
-                  <Form.Item
-                    {...restField}
-                    name={[name, "unit"]}
-                    fieldKey={[fieldKey, "unit"]}
-                    label={t.vendor?.priceUnit || "Unit"}
-                    rules={[{ required: true, message: "Select a unit." }]}
-                  >
-                    <Select
-                      options={priceUnits}
-                      placeholder={t.vendor?.priceUnit || "Unit"}
-                      style={{ width: 180 }}
-                    />
-                  </Form.Item>
-
-                  {fields.length > 1 ? (
-                    <MinusCircleOutlined
-                      onClick={() => remove(name)}
-                      style={{ marginTop: 30, color: "#ff4d4f" }}
-                    />
-                  ) : null}
-                </Space>
-              ))}
-
-              <Form.Item>
-                <Button
-                  type="dashed"
-                  onClick={() => add()}
-                  block
-                  icon={<PlusOutlined />}
-                  style={{ borderRadius: 14 }}
-                >
-                  {t.vendor?.addPriceOption || "Add Price Option"}
-                </Button>
-              </Form.Item>
-            </>
+          {inputLanguage === "en" ? (
+            <Form.Item
+              name="nameEn"
+              label={t.vendor?.productNameEnglish || "Product Name (English)"}
+              rules={[
+                {
+                  required: true,
+                  message: "Please enter a product name in English.",
+                },
+              ]}
+            >
+              <Input placeholder="Product Name (English)" />
+            </Form.Item>
+          ) : (
+            <Form.Item
+              name="nameAm"
+              label={t.vendor?.productNameAmharic || "Product Name (Amharic)"}
+              rules={[
+                {
+                  required: true,
+                  message: "Please enter a product name in Amharic.",
+                },
+              ]}
+            >
+              <Input placeholder="የምርት ስም" />
+            </Form.Item>
           )}
-        </Form.List>
 
-        <Form.Item
-          name="quantity"
-          label={t.vendor?.productQuantity || "Quantity Available"}
-          rules={[{ required: true, message: "Please enter a quantity." }]}
-        >
-          <InputNumber
-            style={{ width: "100%" }}
-            min={1}
-            placeholder={t.vendor?.productQuantity || "Quantity Available"}
-          />
-        </Form.Item>
+          <Form.Item
+            name="category"
+            label={t.vendor?.productCategory || "Product Category"}
+            rules={[{ required: true, message: "Please select a category." }]}
+          >
+            <Select options={categories} placeholder="Select category" />
+          </Form.Item>
 
-        <Form.Item
-          name="images"
-          label={t.vendor?.productImages || "Product Images"}
-          valuePropName="fileList"
-          getValueFromEvent={normFile}
-          extra="Upload up to 4 images."
-        >
-          <Upload listType="picture" beforeUpload={() => false} maxCount={4}>
-            <Button icon={<UploadOutlined />}>Upload Images</Button>
-          </Upload>
-        </Form.Item>
+          {inputLanguage === "en" ? (
+            <Form.Item
+              name="descriptionEn"
+              label={
+                t.vendor?.productDescriptionEnglish ||
+                "Product Description (English)"
+              }
+              rules={[
+                {
+                  required: true,
+                  message: "Please enter a product description in English.",
+                },
+              ]}
+            >
+              <TextArea rows={5} placeholder="Product Description (English)" />
+            </Form.Item>
+          ) : (
+            <Form.Item
+              name="descriptionAm"
+              label={
+                t.vendor?.productDescriptionAmharic ||
+                "Product Description (Amharic)"
+              }
+              rules={[
+                {
+                  required: true,
+                  message: "Please enter a product description in Amharic.",
+                },
+              ]}
+            >
+              <TextArea rows={5} placeholder="የምርት መግለጫ" />
+            </Form.Item>
+          )}
 
-        <Form.Item>
-          <Button type="primary" htmlType="submit" style={{ borderRadius: 14 }}>
-            {t.vendor?.saveProduct || "Save Product"}
-          </Button>
-        </Form.Item>
-      </Form>
-    </Card>
+          <Form.List
+            name="prices"
+            initialValue={[{ amount: null, unit: "day" }]}
+          >
+            {(fields, { add, remove }) => (
+              <>
+                {fields.map(({ key, name, fieldKey, ...restField }) => (
+                  <Space
+                    key={key}
+                    style={{ display: "flex", marginBottom: 8 }}
+                    align="baseline"
+                  >
+                    <Form.Item
+                      {...restField}
+                      name={[name, "amount"]}
+                      fieldKey={[fieldKey, "amount"]}
+                      label={t.vendor?.priceAmount || "Price"}
+                      rules={[{ required: true, message: "Enter a price." }]}
+                    >
+                      <InputNumber
+                        style={{ width: 160 }}
+                        min={0}
+                        formatter={(value) => `${value}`}
+                        parser={(value) => value?.replace(/\D/g, "")}
+                        placeholder={t.vendor?.priceAmount || "Price"}
+                      />
+                    </Form.Item>
+
+                    <Form.Item
+                      {...restField}
+                      name={[name, "unit"]}
+                      fieldKey={[fieldKey, "unit"]}
+                      label={t.vendor?.priceUnit || "Unit"}
+                      rules={[{ required: true, message: "Select a unit." }]}
+                    >
+                      <Select
+                        options={priceUnits}
+                        placeholder={t.vendor?.priceUnit || "Unit"}
+                        style={{ width: 180 }}
+                      />
+                    </Form.Item>
+
+                    {fields.length > 1 ? (
+                      <MinusCircleOutlined
+                        onClick={() => remove(name)}
+                        style={{ marginTop: 30, color: "#ff4d4f" }}
+                      />
+                    ) : null}
+                  </Space>
+                ))}
+
+                <Form.Item>
+                  <Button
+                    type="dashed"
+                    onClick={() => add()}
+                    block
+                    icon={<PlusOutlined />}
+                    style={{ borderRadius: 14 }}
+                  >
+                    {t.vendor?.addPriceOption || "Add Price Option"}
+                  </Button>
+                </Form.Item>
+              </>
+            )}
+          </Form.List>
+
+          <Form.Item
+            name="quantity"
+            label={t.vendor?.productQuantity || "Quantity Available"}
+            rules={[{ required: true, message: "Please enter a quantity." }]}
+          >
+            <InputNumber
+              style={{ width: "100%" }}
+              min={1}
+              placeholder={t.vendor?.productQuantity || "Quantity Available"}
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="securityDeposit"
+            label="Refundable Deposit"
+            rules={[
+              {
+                required: true,
+                message: "Please enter the refundable deposit.",
+              },
+            ]}
+          >
+            <InputNumber
+              min={0}
+              style={{ width: "100%" }}
+              placeholder="Refundable deposit amount"
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="availabilityStatus"
+            label="Calendar State"
+            initialValue="available"
+            rules={[
+              { required: true, message: "Please select the calendar state." },
+            ]}
+          >
+            <Select
+              options={[
+                { label: "Available", value: "available" },
+                { label: "Unavailable", value: "unavailable" },
+                { label: "Booked", value: "booked" },
+                { label: "Maintenance", value: "maintenance" },
+              ]}
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="images"
+            label={t.vendor?.productImages || "Product Images"}
+            valuePropName="fileList"
+            getValueFromEvent={normFile}
+            extra="Upload up to 4 images."
+          >
+            <Upload
+              listType="picture"
+              beforeUpload={() => false}
+              multiple
+              maxCount={4}
+            >
+              <Button icon={<UploadOutlined />}>Upload Images</Button>
+            </Upload>
+          </Form.Item>
+
+          <Form.Item>
+            <Button
+              type="primary"
+              htmlType="submit"
+              loading={loading}
+              style={{ borderRadius: 14 }}
+            >
+              {editId
+                ? "Update Product"
+                : t.vendor?.saveProduct || "Save Product"}
+            </Button>
+          </Form.Item>
+        </Form>
+      </Card>
+    </>
   );
 };
 

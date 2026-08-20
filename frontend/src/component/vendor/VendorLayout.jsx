@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { Button, Card, Space, Tag, Typography } from "antd";
 import {
   BellOutlined,
   CheckCircleOutlined,
-  CloseOutlined,
   MenuOutlined,
   PlusOutlined,
 } from "@ant-design/icons";
@@ -15,7 +14,6 @@ const { Title, Text } = Typography;
 
 const navItems = [
   { key: "dashboard", label: "Dashboard", path: "/vendor/dashboard" },
-  { key: "verify", label: "Verify Credentials", path: "/vendor/verify" },
   { key: "products", label: "Products", path: "/vendor/products" },
   { key: "bookings", label: "Bookings", path: "/vendor/bookings" },
   { key: "customers", label: "Customers", path: "/vendor/customers" },

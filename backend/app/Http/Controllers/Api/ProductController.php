@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\ProductImage;
 use App\Services\ProductService;
 use App\Services\VendorService;
 use Illuminate\Http\Request;
@@ -96,6 +97,9 @@ class ProductController extends Controller
             'quantity' => 'required|integer|min:1',
             'delivery_available' => 'boolean',
             'operator_required' => 'boolean',
+            'availability_status' => 'nullable|in:available,unavailable,booked,maintenance',
+            'images' => 'nullable|array|max:4',
+            'images.*' => 'image|mimes:jpeg,png,jpg,webp|max:5120',
         ]);
 
         if ($validator->fails()) {
@@ -119,6 +123,20 @@ class ProductController extends Controller
                 $vendor->id,
                 $request->all()
             );
+
+            foreach ($request->file('images', []) as $sortOrder => $image) {
+                $path = $image->store('products', 'public');
+
+                ProductImage::create([
+                    'product_id' => $product->id,
+                    'image_url' => $path,
+                    'alt_text' => $request->input('name'),
+                    'is_primary' => $sortOrder === 0,
+                    'sort_order' => $sortOrder,
+                ]);
+            }
+
+            $product->load(['vendor', 'category', 'images']);
 
             return response()->json([
                 'success' => true,
@@ -144,7 +162,12 @@ class ProductController extends Controller
             'name' => 'sometimes|string|max:255',
             'category_id' => 'sometimes|exists:categories,id',
             'description' => 'sometimes|string',
+            'name_am' => 'sometimes|nullable|string|max:255',
+            'description_am' => 'sometimes|nullable|string',
+            'pricing_model' => 'sometimes|in:hourly,daily,weekly,monthly,flexible',
             'price_daily' => 'sometimes|numeric|min:0',
+            'price_hourly' => 'sometimes|numeric|min:0',
+            'price_monthly' => 'sometimes|numeric|min:0',
             'security_deposit_amount' => 'nullable|numeric|min:0',
             'quantity' => 'sometimes|integer|min:1',
             'status' => 'sometimes|in:active,inactive,pending,suspended',
