@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class CategoryController extends Controller
@@ -99,7 +100,9 @@ class CategoryController extends Controller
             'name' => 'required|string|max:255',
             'name_am' => 'nullable|string|max:255',
             'slug' => 'required|string|max:255|unique:categories,slug',
+            'description' => 'nullable|string|max:2000',
             'image_url' => 'nullable|string|max:500',
+            'image' => 'nullable|image|mimes:jpeg,jpg,png|max:2048',
             'parent_id' => 'nullable|exists:categories,id',
             'is_active' => 'nullable|boolean',
             'sort_order' => 'nullable|integer',
@@ -114,11 +117,18 @@ class CategoryController extends Controller
         }
 
         try {
+            $imageUrl = $request->image_url;
+            if ($request->hasFile('image')) {
+                $imagePath = $request->file('image')->store('categories', 'public');
+                $imageUrl = asset('storage/' . $imagePath);
+            }
+
             $category = Category::create([
                 'name' => $request->name,
                 'name_am' => $request->name_am,
                 'slug' => Str::slug($request->slug),
-                'image_url' => $request->image_url,
+                'description' => $request->description,
+                'image_url' => $imageUrl,
                 'parent_id' => $request->parent_id,
                 'is_active' => $request->is_active ?? true,
                 'sort_order' => $request->sort_order ?? 0,
@@ -148,7 +158,9 @@ class CategoryController extends Controller
             'name' => 'sometimes|string|max:255',
             'name_am' => 'nullable|string|max:255',
             'slug' => 'sometimes|string|max:255|unique:categories,slug,' . $id,
+            'description' => 'nullable|string|max:2000',
             'image_url' => 'nullable|string|max:500',
+            'image' => 'nullable|image|mimes:jpeg,jpg,png|max:2048',
             'parent_id' => 'nullable|exists:categories,id',
             'is_active' => 'nullable|boolean',
             'sort_order' => 'nullable|integer',
@@ -166,6 +178,18 @@ class CategoryController extends Controller
             $category = Category::findOrFail($id);
             
             $data = $request->all();
+            if ($request->hasFile('image')) {
+                if ($category->image_url) {
+                    $oldPath = parse_url($category->image_url, PHP_URL_PATH);
+                    $oldPath = $oldPath ? ltrim(str_replace('/storage/', '', $oldPath), '/') : null;
+                    if ($oldPath) {
+                        Storage::disk('public')->delete($oldPath);
+                    }
+                }
+                $imagePath = $request->file('image')->store('categories', 'public');
+                $data['image_url'] = asset('storage/' . $imagePath);
+            }
+            unset($data['image']);
             if (isset($data['slug'])) {
                 $data['slug'] = Str::slug($data['slug']);
             }

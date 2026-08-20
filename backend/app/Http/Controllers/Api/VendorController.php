@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class VendorController extends Controller
@@ -194,6 +195,9 @@ class VendorController extends Controller
             'document_type' => 'required|in:national_id,passport,drivers_license,voter_id',
             'document_number' => 'required|string|max:100',
             'document_country' => 'required|string|max:100',
+            'document_front' => 'nullable|image|mimes:jpeg,jpg,png|max:5120',
+            'document_back' => 'nullable|image|mimes:jpeg,jpg,png|max:5120',
+            'selfie_with_document' => 'nullable|image|mimes:jpeg,jpg,png|max:5120',
             'business_name' => 'required|string|max:255',
             'business_type' => 'required|string|max:100',
             'business_description' => 'nullable|string',
@@ -234,11 +238,23 @@ class VendorController extends Controller
                 ->where('is_primary', true)
                 ->update(['is_primary' => false]);
 
+            $documentUrls = [];
+            foreach ([
+                'document_front' => 'document_front_url',
+                'document_back' => 'document_back_url',
+                'selfie_with_document' => 'selfie_with_document_url',
+            ] as $fileKey => $column) {
+                if ($request->hasFile($fileKey)) {
+                    $documentUrls[$column] = asset('storage/' . $request->file($fileKey)->store('identity-documents', 'public'));
+                }
+            }
+
             IdentityDocument::create([
                 'user_id' => $request->user()->id,
                 'document_type' => $request->document_type,
                 'document_number' => $request->document_number,
                 'document_country' => $request->document_country,
+                ...$documentUrls,
                 'verification_status' => 'verified',
                 'is_primary' => true,
                 'verified_at' => now(),

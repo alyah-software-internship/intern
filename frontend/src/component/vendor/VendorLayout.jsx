@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import axios from "axios";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { Button, Card, Space, Tag, Typography } from "antd";
 import {
@@ -6,9 +7,11 @@ import {
   CheckCircleOutlined,
   MenuOutlined,
   PlusOutlined,
+  WarningOutlined,
 } from "@ant-design/icons";
 import { useTheme } from "../../context/ThemeProvider.jsx";
 import { useTranslation } from "../../component/LanguageProvider.jsx";
+import { AppContext } from "../../context/AppContext.jsx";
 
 const { Title, Text } = Typography;
 
@@ -42,13 +45,23 @@ const routeTitles = {
   "/vendor/add-product": "addProduct",
 };
 
+const vendorProfileCacheKey = "vendorProfile";
+
 const VendorLayout = () => {
   const { theme } = useTheme();
   const { translation: t } = useTranslation();
+  const { backendUrl } = useContext(AppContext);
   const isDark = theme === "dark";
   const location = useLocation();
   const [isMobile, setIsMobile] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [vendor, setVendor] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem(vendorProfileCacheKey)) || null;
+    } catch {
+      return null;
+    }
+  });
   const sidebarVisible = !isMobile || sidebarOpen;
 
   useEffect(() => {
@@ -63,6 +76,30 @@ const VendorLayout = () => {
 
     return () => window.removeEventListener("resize", updateViewport);
   }, []);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    axios
+      .get(`${backendUrl}/vendor/profile`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+        signal: controller.signal,
+      })
+      .then((response) => {
+        setVendor(response.data.vendor);
+        localStorage.setItem(
+          vendorProfileCacheKey,
+          JSON.stringify(response.data.vendor),
+        );
+      })
+      .catch((error) => {
+        if (!axios.isCancel(error)) return;
+      });
+
+    return () => controller.abort();
+  }, [backendUrl]);
 
   const toggleSidebar = () => {
     if (isMobile) {
@@ -91,6 +128,24 @@ const VendorLayout = () => {
     day: "numeric",
     year: "numeric",
   });
+
+  const businessName = vendor?.business_name || "Complete profile";
+  const initials = vendor?.business_name
+    ? vendor.business_name
+        .split(" ")
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((part) => part[0])
+        .join("")
+        .toUpperCase()
+    : "VP";
+  const verificationStatus = vendor?.verification_status || "pending";
+  const joinedDate = vendor?.joined_date
+    ? new Date(vendor.joined_date).toLocaleDateString("en-US", {
+        month: "short",
+        year: "numeric",
+      })
+    : null;
 
   return (
     <div
@@ -185,7 +240,7 @@ const VendorLayout = () => {
                   fontWeight: 800,
                 }}
               >
-                GA
+                {initials}
               </div>
               <div>
                 <Title
@@ -198,7 +253,7 @@ const VendorLayout = () => {
                     color: isDark ? "#f8fafc" : "#0f172a",
                   }}
                 >
-                  GreenField Agri Services
+                  {businessName}
                 </Title>
                 <Text
                   style={{
@@ -206,38 +261,36 @@ const VendorLayout = () => {
                     fontSize: 12,
                   }}
                 >
-                  Since Jan 2024
+                  {joinedDate ? `Since ${joinedDate}` : "Vendor profile"}
                 </Text>
               </div>
             </Space>
 
             <Space wrap size={8} style={{ marginTop: 18 }}>
               <Tag
-                icon={<CheckCircleOutlined />}
+                icon={
+                  verificationStatus === "approved" ? (
+                    <CheckCircleOutlined />
+                  ) : (
+                    <WarningOutlined />
+                  )
+                }
                 style={{
                   borderRadius: 999,
-                  background: "#dcfce7",
-                  borderColor: "#86efac",
-                  color: "#166534",
+                  background:
+                    verificationStatus === "approved" ? "#dcfce7" : "#fef3c7",
+                  borderColor:
+                    verificationStatus === "approved" ? "#86efac" : "#fcd34d",
+                  color:
+                    verificationStatus === "approved" ? "#166534" : "#92400e",
                   fontWeight: 700,
                   paddingInline: 10,
                   fontSize: 11,
                 }}
               >
-                VERIFIED
-              </Tag>
-              <Tag
-                style={{
-                  borderRadius: 999,
-                  background: "#ede9fe",
-                  borderColor: "#c4b5fd",
-                  color: "#6d28d9",
-                  fontWeight: 700,
-                  paddingInline: 10,
-                  fontSize: 11,
-                }}
-              >
-                PRO PLAN
+                {verificationStatus === "approved"
+                  ? "VERIFIED"
+                  : "NOT VERIFIED"}
               </Tag>
             </Space>
           </Card>

@@ -1,4 +1,6 @@
-import React, { useMemo, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import {
   Avatar,
   Button,
@@ -8,237 +10,183 @@ import {
   Table,
   Tag,
   Typography,
+  message,
 } from "antd";
-import { DeleteOutlined, FlagOutlined } from "@ant-design/icons";
-import { users as allUsers } from "../../assets/dummyAssets.js";
+import { EyeOutlined, ReloadOutlined, SearchOutlined } from "@ant-design/icons";
+import { AppContext } from "../../context/AppContext.jsx";
 import { useTheme } from "../../context/ThemeProvider.jsx";
 
 const { Title, Text } = Typography;
+const authConfig = () => ({
+  headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` },
+});
 
 const Users = () => {
+  const { backendUrl } = useContext(AppContext);
   const { theme } = useTheme();
+  const navigate = useNavigate();
   const isDark = theme === "dark";
-  const [searchValue, setSearchValue] = useState("");
-  const [userStatus, setUserStatus] = useState({
-    "user-1": "active",
-    "user-2": "active",
-    "user-3": "active",
-    "user-4": "suspended",
-  });
+  const [users, setUsers] = useState([]);
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [messageApi, contextHolder] = message.useMessage();
 
-  const rows = useMemo(() => {
-    return allUsers.map((user) => {
-      const status = userStatus[user.id] || "active";
-      return {
-        key: user.id,
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role.toUpperCase(),
-        joinDate: user.joinDate,
-        status,
-        initials: user.name
-          .split(" ")
-          .map((part) => part[0])
-          .slice(0, 2)
-          .join("")
-          .toUpperCase(),
-      };
-    });
-  }, [userStatus]);
+  const loadUsers = useCallback(async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(
+        `${backendUrl}/admin/users?per_page=100`,
+        authConfig(),
+      );
+      const data = response.data.users;
+      setUsers(Array.isArray(data) ? data : data?.data || []);
+    } catch (error) {
+      messageApi.error(
+        error.response?.data?.message || "Unable to load users.",
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, [backendUrl, messageApi]);
 
-  const filteredRows = useMemo(() => {
-    const term = searchValue.trim().toLowerCase();
-    if (!term) return rows;
+  useEffect(() => {
+    const fetchUsers = async () => {
+      await loadUsers();
+    };
+    fetchUsers();
+  }, [loadUsers]);
 
-    return rows.filter((row) => {
-      return [row.name, row.email, row.role, row.joinDate, row.status]
+  const filteredUsers = useMemo(() => {
+    const term = search.trim().toLowerCase();
+    if (!term) return users;
+    return users.filter((user) =>
+      [user.full_name, user.email, user.role, user.phone]
         .join(" ")
         .toLowerCase()
-        .includes(term);
-    });
-  }, [rows, searchValue]);
+        .includes(term),
+    );
+  }, [search, users]);
 
   const columns = [
     {
-      title: "USER NAME",
-      dataIndex: "name",
-      key: "name",
-      render: (name, record) => (
-        <Space size={14} align="center">
-          <Avatar size={40} style={{ background: "#c7d2fe", color: "#3730a3" }}>
-            {record.initials}
-          </Avatar>
-          <div>
-            <Text strong style={{ color: isDark ? "#f8fafc" : "#111827" }}>
-              {name}
-            </Text>
-            <Text type="secondary" style={{ display: "block" }}>
-              ID: {record.id}
-            </Text>
-          </div>
-        </Space>
-      ),
-      width: 260,
+      title: "USER",
+      key: "user",
+      render: (_, user) => {
+        const name =
+          user.full_name ||
+          [user.first_name, user.middle_name, user.last_name]
+            .filter(Boolean)
+            .join(" ") ||
+          "Unnamed user";
+        const initials = name
+          .split(" ")
+          .filter(Boolean)
+          .slice(0, 2)
+          .map((part) => part[0])
+          .join("")
+          .toUpperCase();
+        return (
+          <Space>
+            <Avatar style={{ background: "#fed7aa", color: "#c2410c" }}>
+              {initials}
+            </Avatar>
+            <div>
+              <Text strong>{name}</Text>
+              <Text type="secondary" style={{ display: "block" }}>
+                ID: {user.id}
+              </Text>
+            </div>
+          </Space>
+        );
+      },
     },
+    { title: "EMAIL", dataIndex: "email", key: "email" },
     {
-      title: "CONTACT EMAIL",
-      dataIndex: "email",
-      key: "email",
-      render: (email) => (
-        <Text style={{ color: isDark ? "#cbd5e1" : "#475569" }}>{email}</Text>
-      ),
-      width: 260,
-    },
-    {
-      title: "SYSTEM ACCESS LEVEL",
+      title: "ROLE",
       dataIndex: "role",
       key: "role",
-      render: (role) => (
-        <Tag color="geekblue" style={{ borderRadius: 999, fontWeight: 700 }}>
-          {role}
+      render: (role) => <Tag color="blue">{role?.toUpperCase()}</Tag>,
+    },
+    {
+      title: "PHONE",
+      dataIndex: "phone",
+      key: "phone",
+      render: (phone) => phone || "Not provided",
+    },
+    {
+      title: "STATUS",
+      key: "status",
+      render: (_, user) => (
+        <Tag
+          color={user.is_banned ? "red" : user.is_active ? "green" : "default"}
+        >
+          {user.is_banned ? "Banned" : user.is_active ? "Active" : "Inactive"}
         </Tag>
       ),
-      width: 180,
     },
     {
-      title: "MEMBER SINCE",
-      dataIndex: "joinDate",
-      key: "joinDate",
-      render: (joinDate) => <Text>{joinDate}</Text>,
-      width: 160,
-    },
-    {
-      title: "SECURITY STATE",
-      dataIndex: "status",
-      key: "status",
-      render: (status) => (
-        <Tag
-          color={status === "active" ? "#dcfce7" : "#fee2e2"}
-          style={{
-            color: status === "active" ? "#166534" : "#991b1b",
-            borderRadius: 999,
-            fontWeight: 700,
+      title: "ACTION",
+      key: "action",
+      render: (_, user) => (
+        <Button
+          type="link"
+          icon={<EyeOutlined />}
+          onClick={(event) => {
+            event.stopPropagation();
+            navigate(`/admin/users/${user.id}`);
           }}
         >
-          {status.toUpperCase()}
-        </Tag>
+          View Details
+        </Button>
       ),
-      width: 180,
-    },
-    {
-      title: "ADMINISTRATIVE ACTIONS",
-      key: "actions",
-      render: (_, record) => (
-        <Space size={8} wrap>
-          <Button
-            type={record.status === "active" ? "primary" : "default"}
-            danger={record.status === "active"}
-            onClick={() => {
-              setUserStatus((prev) => ({
-                ...prev,
-                [record.id]:
-                  prev[record.id] === "active" ? "suspended" : "active",
-              }));
-            }}
-            style={{ borderRadius: 8 }}
-          >
-            {record.status === "active" ? "Flag & Suspend" : "Activate Account"}
-          </Button>
-          <Button
-            type="text"
-            icon={<DeleteOutlined />}
-            style={{ color: isDark ? "#f8fafc" : "#ef4444" }}
-          />
-        </Space>
-      ),
-      width: 240,
     },
   ];
 
   return (
     <div
-      style={{
-        minHeight: "100vh",
-        padding: 28,
-        background: isDark ? "#060b17" : "#f4f8fd",
-      }}
+      className="admin-users-page"
+      style={{ background: isDark ? "#060b17" : "#f4f8fd" }}
     >
-      <Card
-        style={{
-          borderRadius: 22,
-          background: isDark ? "#0f172a" : "#ffffff",
-          border: isDark
-            ? "1px solid rgba(255,255,255,0.08)"
-            : "1px solid rgba(15,23,42,0.08)",
-        }}
-      >
-        <Space
-          direction="vertical"
-          size={20}
-          style={{ width: "100%", marginBottom: 20 }}
-        >
-          <div
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              gap: 16,
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <div>
-              <Text
-                style={{
-                  display: "block",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.24em",
-                  color: isDark ? "#94a3b8" : "#64748b",
-                  fontWeight: 700,
-                  fontSize: 12,
-                }}
-              >
-                User Security Registry
-              </Text>
-              <Title
-                level={3}
-                style={{
-                  margin: "8px 0 0",
-                  color: isDark ? "#f8fafc" : "#0f172a",
-                }}
-              >
-                Suspend, activate, or review operator logs.
-              </Title>
-            </div>
-
-            <Input
-              value={searchValue}
-              onChange={(event) => setSearchValue(event.target.value)}
-              placeholder="Search user name, email, or status"
-              style={{
-                minWidth: 280,
-                borderRadius: 12,
-                background: isDark ? "#0b1423" : "#f8fafc",
-                color: isDark ? "#f8fafc" : "#0f172a",
-                border: isDark
-                  ? "1px solid rgba(255,255,255,0.08)"
-                  : "1px solid rgba(15,23,42,0.08)",
-              }}
-            />
+      {contextHolder}
+      <Card className="admin-users-card">
+        <div className="admin-users-heading">
+          <div>
+            <Text className="admin-users-eyebrow">USER SECURITY REGISTRY</Text>
+            <Title level={2}>Users & Flags</Title>
+            <Text type="secondary">
+              Review accounts, access levels, and security status from the
+              database.
+            </Text>
           </div>
-          <Text type="secondary">
-            Review operator account logs and flag fraudulent transactions from
-            this registry.
-          </Text>
-        </Space>
-
+          <Space>
+            <Button
+              icon={<ReloadOutlined />}
+              onClick={loadUsers}
+              loading={loading}
+            >
+              Refresh
+            </Button>
+            <Input
+              prefix={<SearchOutlined />}
+              placeholder="Search users"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              allowClear
+            />
+          </Space>
+        </div>
         <Table
+          rowKey="id"
           columns={columns}
-          dataSource={filteredRows}
-          pagination={false}
-          rowKey="key"
-          scroll={{ x: 1200 }}
-          style={{ background: isDark ? "#0f172a" : "#ffffff" }}
+          dataSource={filteredUsers}
+          loading={loading}
+          onRow={(user) => ({
+            onClick: () => navigate(`/admin/users/${user.id}`),
+            style: { cursor: "pointer" },
+          })}
+          pagination={{ pageSize: 10 }}
+          scroll={{ x: 900 }}
+          locale={{ emptyText: "No users found." }}
         />
       </Card>
     </div>

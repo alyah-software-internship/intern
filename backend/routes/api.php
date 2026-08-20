@@ -204,6 +204,10 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::get('/users/{id}', [AdminController::class, 'userDetails']);
     Route::post('/users/{id}/ban', [AdminController::class, 'banUser']);
     Route::post('/users/{id}/unban', [AdminController::class, 'unbanUser']);
+    Route::post('/users/{id}/activate', [AdminController::class, 'activateUser']);
+    Route::post('/users/{id}/deactivate', [AdminController::class, 'deactivateUser']);
+    Route::post('/users/{userId}/documents/{documentId}/approve', [AdminController::class, 'approveDocument']);
+    Route::post('/users/{userId}/documents/{documentId}/reject', [AdminController::class, 'rejectDocument']);
     
     // Vendor Management
     Route::get('/vendors', [AdminController::class, 'vendors']);

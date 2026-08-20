@@ -712,32 +712,47 @@ const Verify = () => {
   }, []);
 
   const handleFormSubmit = async (values) => {
+    const requestData = new FormData();
+    const fields = {
+      document_type: values.documentType,
+      document_number: values.documentNumber,
+      document_country: values.documentCountry,
+      business_name: values.businessName,
+      business_type: values.businessType,
+      business_description: values.businessDescription,
+      business_address: values.businessAddress,
+      business_city: values.businessCity,
+      business_phone: values.businessPhone,
+      business_email: values.businessEmail,
+      registration_number: values.registrationNumber,
+      payment_type: values.paymentType,
+      account_name: values.accountName,
+      account_number: values.accountNumber,
+      bank_name: values.bankName,
+      bank_branch: values.bankBranch,
+      mobile_provider: values.mobileProvider,
+      mobile_number: values.mobileNumber,
+      paypal_email: values.paypalEmail,
+    };
+    Object.entries(fields).forEach(([key, value]) => {
+      if (value !== undefined && value !== "") requestData.append(key, value);
+    });
+    [
+      ["document_front", values.documentFrontUrl],
+      ["document_back", values.documentBackUrl],
+      ["selfie_with_document", values.selfieWithDocumentUrl],
+    ].forEach(([key, files]) => {
+      const file = files?.[0]?.originFileObj;
+      if (file) requestData.append(key, file);
+    });
+
     const response = await axios.post(
       `${backendUrl}/vendor/verification`,
-      {
-        document_type: values.documentType,
-        document_number: values.documentNumber,
-        document_country: values.documentCountry,
-        business_name: values.businessName,
-        business_type: values.businessType,
-        business_description: values.businessDescription,
-        business_address: values.businessAddress,
-        business_city: values.businessCity,
-        business_phone: values.businessPhone,
-        business_email: values.businessEmail || undefined,
-        registration_number: values.registrationNumber || undefined,
-        payment_type: values.paymentType,
-        account_name: values.accountName,
-        account_number: values.accountNumber,
-        bank_name: values.bankName || undefined,
-        bank_branch: values.bankBranch || undefined,
-        mobile_provider: values.mobileProvider || undefined,
-        mobile_number: values.mobileNumber || undefined,
-        paypal_email: values.paypalEmail || undefined,
-      },
+      requestData,
       {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          "Content-Type": "multipart/form-data",
         },
       },
     );

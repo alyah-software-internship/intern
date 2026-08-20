@@ -38,9 +38,11 @@ import VendorAlerts from "./page/vendor/Alerts";
 import AdminLayout from "./page/admin/adminLayout.jsx";
 import ControlPannel from "./page/admin/ControlPannel";
 import Users from "./page/admin/Users";
+import UserDetails from "./page/admin/UserDetails";
 import VendorAdmin from "./page/admin/Vendor";
 import VendorsDirectory from "./page/admin/VendorsDirectory";
 import Category from "./page/admin/Category";
+import RegisterCategory from "./page/admin/RegisterCategory";
 import Audit from "./page/admin/Audit";
 import EscrowLedger from "./page/admin/EscrowLedger";
 import MediationCases from "./page/admin/MediationCases";
@@ -160,9 +162,12 @@ const App = () => {
           >
             <Route index element={<ControlPannel />} />
             <Route path="users" element={<Users />} />
+            <Route path="users/:id" element={<UserDetails />} />
             <Route path="vendors" element={<VendorAdmin />} />
             <Route path="vendors-directory" element={<VendorsDirectory />} />
             <Route path="categories" element={<Category />} />
+            <Route path="categories/new" element={<RegisterCategory />} />
+            <Route path="categories/:id/edit" element={<RegisterCategory />} />
             <Route path="escrow-ledger" element={<EscrowLedger />} />
             <Route path="mediation-cases" element={<MediationCases />} />
             <Route path="system-health" element={<SystemHealth />} />

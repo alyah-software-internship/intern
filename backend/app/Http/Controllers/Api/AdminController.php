@@ -9,6 +9,7 @@ use App\Services\PaymentService;
 use App\Services\ReportService;
 use App\Services\NotificationService;
 use App\Models\User;
+use App\Models\IdentityDocument;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -91,6 +92,42 @@ class AdminController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+    public function userDetails($id)
+    {
+        try {
+            $user = User::with(['vendorProfile', 'identityDocuments'])
+                ->withCount(['bookings', 'notifications'])
+                ->findOrFail($id);
+
+            return response()->json([
+                'success' => true,
+                'user' => $user,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to get user details',
+                'error' => $e->getMessage(),
+            ], 404);
+        }
+    }
+
+    public function approveDocument($userId, $documentId)
+    {
+        $document = IdentityDocument::where('user_id', $userId)->findOrFail($documentId);
+        $document->approve(request()->user()->id);
+
+        return response()->json(['success' => true, 'message' => 'Document approved successfully', 'document' => $document->fresh()]);
+    }
+
+    public function rejectDocument($userId, $documentId, Request $request)
+    {
+        $document = IdentityDocument::where('user_id', $userId)->findOrFail($documentId);
+        $document->reject(request()->user()->id, $request->input('reason', 'Document rejected by administrator'));
+
+        return response()->json(['success' => true, 'message' => 'Document rejected successfully', 'document' => $document->fresh()]);
     }
 
     /**
@@ -285,6 +322,22 @@ class AdminController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+    public function activateUser($id)
+    {
+        $user = User::findOrFail($id);
+        $user->update(['is_active' => true]);
+
+        return response()->json(['success' => true, 'message' => 'User activated successfully', 'user' => $user->fresh()]);
+    }
+
+    public function deactivateUser($id)
+    {
+        $user = User::findOrFail($id);
+        $user->update(['is_active' => false]);
+
+        return response()->json(['success' => true, 'message' => 'User deactivated successfully', 'user' => $user->fresh()]);
     }
 
     /**

@@ -1,22 +1,48 @@
-import React from "react";
+import { useContext, useEffect, useState } from "react";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Row, Col, Card, Typography, Button } from "antd";
 import { useTranslation } from "../../component/LanguageProvider.jsx";
 import { useTheme } from "../../context/ThemeProvider.jsx";
-import { categories } from "../../assets/dummyAssets";
+import { AppContext } from "../../context/AppContext.jsx";
 
 const { Title, Text } = Typography;
 
 const Categories = () => {
-  const { translation: t, lang } = useTranslation();
+  const { translation: t } = useTranslation();
   const { theme } = useTheme();
+  const { backendUrl } = useContext(AppContext);
   const navigate = useNavigate();
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
   const isDark = theme === "dark";
   const pageSurface = isDark ? "#111827" : "#ffffff";
   const pageSurfaceAlt = isDark ? "#0f172a" : "#f8fbff";
   const cardBorder = isDark
     ? "1px solid rgba(255,255,255,0.08)"
     : "1px solid rgba(15,23,42,0.08)";
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const response = await axios.get(`${backendUrl}/categories`);
+        setCategories(response.data.categories || []);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadCategories().catch(() => {
+      setCategories([]);
+      setLoading(false);
+    });
+  }, [backendUrl]);
+
+  const categoryImage = (category) => {
+    if (!category.image_url) return "/logo.png";
+    if (category.image_url.startsWith("http")) return category.image_url;
+    const apiBase = backendUrl.replace(/\/api\/?$/, "");
+    return `${apiBase}/storage/${category.image_url.replace(/^\/+/, "")}`;
+  };
 
   return (
     <div
@@ -84,83 +110,100 @@ const Categories = () => {
         </div>
 
         <Row gutter={[24, 24]}>
-          {categories.map((category) => {
-            const title = lang === "am" ? category.nameAm : category.name;
-            const description =
-              lang === "am" ? category.descriptionAm : category.description;
+          {loading ? (
+            <Text>Loading categories...</Text>
+          ) : (
+            categories.map((category) => {
+              const title = category.name;
+              const description =
+                category.description || "Explore rentals in this category.";
 
-            return (
-              <Col key={category.id} xs={24} sm={12} lg={8} xl={8}>
-                <Card
-                  hoverable
-                  bodyStyle={{ padding: 24 }}
-                  style={{
-                    borderRadius: 24,
-                    background: pageSurface,
-                    border: cardBorder,
-                  }}
-                >
-                  <div
+              return (
+                <Col key={category.id} xs={24} sm={12} lg={8} xl={8}>
+                  <Card
+                    hoverable
+                    bodyStyle={{ padding: 24 }}
                     style={{
-                      width: 52,
-                      height: 52,
-                      borderRadius: 18,
-                      background: "rgba(22, 163, 74, 0.12)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      marginBottom: 22,
-                      fontSize: 24,
+                      borderRadius: 24,
+                      background: pageSurface,
+                      border: cardBorder,
                     }}
                   >
-                    {category.icon}
-                  </div>
+                    <div
+                      style={{
+                        width: 52,
+                        height: 52,
+                        borderRadius: 18,
+                        background: "rgba(22, 163, 74, 0.12)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        marginBottom: 22,
+                        fontSize: 24,
+                      }}
+                    >
+                      <img
+                        src={categoryImage(category)}
+                        alt={title}
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                          borderRadius: 18,
+                        }}
+                      />
+                    </div>
 
-                  <Text
-                    strong
-                    style={{
-                      display: "block",
-                      fontSize: 18,
-                      marginBottom: 10,
-                      color: isDark ? "#f8fafc" : "#0f172a",
-                    }}
-                  >
-                    {title}
-                  </Text>
-
-                  <Text
-                    style={{
-                      display: "block",
-                      marginBottom: 18,
-                      color: isDark ? "#cbd5e1" : "#64748b",
-                      lineHeight: 1.7,
-                    }}
-                  >
-                    {description}
-                  </Text>
-
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      gap: 12,
-                    }}
-                  >
                     <Text
                       strong
-                      style={{ color: isDark ? "#d1fae5" : "#16a34a" }}
+                      style={{
+                        display: "block",
+                        fontSize: 18,
+                        marginBottom: 10,
+                        color: isDark ? "#f8fafc" : "#0f172a",
+                      }}
                     >
-                      {category.count} {t.common?.items}
+                      {title}
                     </Text>
-                    <Button type="default" onClick={() => navigate("/rentals")}>
-                      {t.common?.viewAll}
-                    </Button>
-                  </div>
-                </Card>
-              </Col>
-            );
-          })}
+
+                    <Text
+                      style={{
+                        display: "block",
+                        marginBottom: 18,
+                        color: isDark ? "#cbd5e1" : "#64748b",
+                        lineHeight: 1.7,
+                      }}
+                    >
+                      {description}
+                    </Text>
+
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        gap: 12,
+                      }}
+                    >
+                      <Text
+                        strong
+                        style={{ color: isDark ? "#d1fae5" : "#16a34a" }}
+                      >
+                        {category.products_count ?? 0}{" "}
+                        {t.common?.items || "items"}
+                      </Text>
+                      <Button
+                        type="default"
+                        onClick={() => navigate("/rentals")}
+                      >
+                        {t.common?.viewAll}
+                      </Button>
+                    </div>
+                  </Card>
+                </Col>
+              );
+            })
+          )}
         </Row>
       </div>
     </div>

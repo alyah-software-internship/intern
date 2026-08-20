@@ -1,4 +1,12 @@
-import React, { useMemo, useState, useEffect } from "react";
+import {
+  startTransition,
+  useMemo,
+  useState,
+  useEffect,
+  useContext,
+  useCallback,
+} from "react";
+import axios from "axios";
 import {
   Row,
   Col,
@@ -11,25 +19,19 @@ import {
   Button,
 } from "antd";
 import ItemCard from "../../component/home/ItemCard.jsx";
-import Bookings from "../home/Bookings.jsx";
 import { useTranslation } from "../../component/LanguageProvider.jsx";
 import { useTheme } from "../../context/ThemeProvider.jsx";
-import {
-  rentalItems,
-  categories as dummyCategories,
-  vendors as dummyVendors,
-} from "../../assets/dummyAssets";
+import { AppContext } from "../../context/AppContext.jsx";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import Searchbar from "../home/Searchbar.jsx";
 
 const { Title, Text } = Typography;
 
 const Rental = () => {
   const { translation: t } = useTranslation();
   const { theme } = useTheme();
+  const { backendUrl } = useContext(AppContext);
   const isDark = theme === "dark";
   const productStrings = t.products || t.home?.products || {};
-  const rentalStrings = t.rentals || t.home?.rentals || {};
 
   const [searchParams] = useSearchParams();
   const [search, setSearch] = useState(() => {
@@ -47,53 +49,100 @@ const Rental = () => {
   const [availability, setAvailability] = useState("all");
   const [priceRange, setPriceRange] = useState([30, 500]);
   const [sortBy, setSortBy] = useState("relevance");
+  const [products, setProducts] = useState([]);
+  const [categoryRecords, setCategoryRecords] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const loadRentals = async () => {
+      setLoading(true);
+      try {
+        const [productsResponse, categoriesResponse] = await Promise.all([
+          axios.get(`${backendUrl}/products?per_page=100`),
+          axios.get(`${backendUrl}/categories`),
+        ]);
+        const productData = productsResponse.data.products;
+        setProducts(
+          Array.isArray(productData) ? productData : productData?.data || [],
+        );
+        setCategoryRecords(categoriesResponse.data.categories || []);
+      } catch {
+        setProducts([]);
+        setCategoryRecords([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    const fetchRentals = async () => {
+      await loadRentals();
+    };
+    fetchRentals();
+  }, [backendUrl]);
+
+  const imageUrl = useCallback(
+    (product) => {
+      const image =
+        product.images?.find((item) => item.is_primary) || product.images?.[0];
+      if (!image?.image_url) return "/logo.png";
+      if (image.image_url.startsWith("http")) return image.image_url;
+      const apiBase = backendUrl.replace(/\/api\/?$/, "");
+      return `${apiBase}/storage/${image.image_url.replace(/^\/+/, "")}`;
+    },
+    [backendUrl],
+  );
+
+  const rentalItems = useMemo(
+    () =>
+      products.map((product) => ({
+        id: product.id,
+        title: product.name,
+        category: product.category?.name || "Uncategorized",
+        vendor: product.vendor?.business_name || "Unknown vendor",
+        rating: product.rating || 0,
+        badge: product.is_featured
+          ? "FEATURED"
+          : product.availability_status?.toUpperCase() || "AVAILABLE",
+        image: imageUrl(product),
+        description: product.description || "No description available.",
+        price: Number(product.price_daily || product.price || 0),
+        location: [product.vendor?.city, product.vendor?.country]
+          .filter(Boolean)
+          .join(", "),
+        available: product.availability_status === "available",
+        actionLabel: t.common?.rent || "Rent Now",
+      })),
+    [products, imageUrl, t.common?.rent],
+  );
 
   const categories = useMemo(
     () => [
       { value: "all", label: productStrings.allCategories || "All Categories" },
-      {
-        value: "Construction & Tools",
-        label: rentalStrings.categories?.construction || "Construction & Tools",
-      },
-      {
-        value: "Beauty & Wellness",
-        label: rentalStrings.categories?.beauty || "Beauty & Wellness",
-      },
-      {
-        value: "Agriculture & Tractors",
-        label:
-          rentalStrings.categories?.agriculture || "Agriculture & Tractors",
-      },
-      {
-        value: "Event Management",
-        label: rentalStrings.categories?.event || "Event Management",
-      },
+      ...categoryRecords.map((item) => ({
+        value: item.name,
+        label: item.name,
+      })),
     ],
-    [productStrings.allCategories, rentalStrings.categories],
+    [categoryRecords, productStrings.allCategories],
   );
 
   const vendors = useMemo(
     () => [
       { value: "all", label: productStrings.allVendors || "All Vendors" },
-      {
-        value: "Titan Heavy Rentals",
-        label: rentalStrings.vendors?.titan || "Titan Heavy Rentals",
-      },
-      {
-        value: "GlowTech Aesthetic Suites",
-        label: rentalStrings.vendors?.glowtech || "GlowTech Aesthetic Suites",
-      },
-      {
-        value: "GreenField Agri Services",
-        label: rentalStrings.vendors?.greenfield || "GreenField Agri Services",
-      },
-      {
-        value: "SoundVibe Event Gear",
-        label: rentalStrings.vendors?.soundvibe || "SoundVibe Event Gear",
-      },
+      ...Array.from(
+        new Map(
+          products
+            .map((item) => [
+              item.vendor?.business_name,
+              item.vendor?.business_name,
+            ])
+            .filter(([name]) => name),
+        ),
+      )
+        .keys()
+        .map((name) => ({ value: name, label: name })),
     ],
-    [productStrings.allVendors, rentalStrings.vendors],
+    [products, productStrings.allVendors],
   );
 
   const availabilityOptions = useMemo(
@@ -135,23 +184,7 @@ const Rental = () => {
     [productStrings.sortOptions],
   );
 
-  const localizedRentalItems = useMemo(
-    () =>
-      rentalItems.map((item) => {
-        const translatedItem = rentalStrings.items?.[item.translationKey] || {};
-        return {
-          ...item,
-          title: translatedItem.title || item.title,
-          category: translatedItem.category || item.category,
-          vendor: translatedItem.vendor || item.vendor,
-          badge: translatedItem.badge || item.badge,
-          description: translatedItem.description || item.description,
-          location: translatedItem.location || item.location,
-          actionLabel: t.common?.rent || "Rent Now",
-        };
-      }),
-    [t],
-  );
+  const localizedRentalItems = rentalItems;
 
   const filteredItems = useMemo(() => {
     const filtered = localizedRentalItems.filter((item) => {
@@ -193,7 +226,15 @@ const Rental = () => {
       return filtered;
     }
     return filtered;
-  }, [search, category, vendor, availability, priceRange, sortBy]);
+  }, [
+    localizedRentalItems,
+    search,
+    category,
+    vendor,
+    availability,
+    priceRange,
+    sortBy,
+  ]);
 
   useEffect(() => {
     const vendorFromQuery = searchParams.get("vendor");
@@ -201,9 +242,11 @@ const Rental = () => {
       searchParams.get("search") || searchParams.get("query") || "";
     const categoryFromQuery = searchParams.get("category") || "all";
 
-    setVendor(vendorFromQuery || "all");
-    setSearch(searchFromQuery);
-    setCategory(categoryFromQuery);
+    startTransition(() => {
+      setVendor(vendorFromQuery || "all");
+      setSearch(searchFromQuery);
+      setCategory(categoryFromQuery);
+    });
   }, [searchParams]);
 
   const handleRentNow = (item) => {
@@ -408,22 +451,22 @@ const Rental = () => {
 
           <Col xs={24} lg={18}>
             <Row gutter={[24, 24]}>
-              {filteredItems.map((item) => (
-                <Col key={item.id} xs={24} sm={12} lg={12}>
-                  <ItemCard
-                    item={item}
-                    onAction={handleRentNow}
-                    onSelect={handleSelectItem}
-                  />
-                </Col>
-              ))}
+              {loading ? (
+                <Text>Loading rentals...</Text>
+              ) : (
+                filteredItems.map((item) => (
+                  <Col key={item.id} xs={24} sm={12} lg={12}>
+                    <ItemCard
+                      item={item}
+                      onAction={handleRentNow}
+                      onSelect={handleSelectItem}
+                    />
+                  </Col>
+                ))
+              )}
             </Row>
           </Col>
         </Row>
-      </div>
-
-      <div style={{ maxWidth: 1440, margin: "0 auto", padding: "24px 0" }}>
-        <Bookings />
       </div>
     </div>
   );

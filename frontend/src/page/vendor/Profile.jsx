@@ -173,6 +173,10 @@ const VendorProfile = () => {
       );
       setVendor(nextVendor);
       setProfileExists(true);
+      localStorage.setItem(
+        "vendorProfile",
+        JSON.stringify(response.data.vendor),
+      );
       businessForm.setFieldsValue(businessValues(nextVendor));
     } catch (error) {
       if (error.response?.status === 404) {
@@ -222,6 +226,10 @@ const VendorProfile = () => {
           response.data.vendor,
           response.data.identity_documents || vendor.identityDocuments,
         ),
+      );
+      localStorage.setItem(
+        "vendorProfile",
+        JSON.stringify(response.data.vendor),
       );
       setProfileExists(true);
       setBusinessOpen(false);
