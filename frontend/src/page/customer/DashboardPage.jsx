@@ -22,7 +22,7 @@ const DashboardPage = () => {
     {
       title: t.home?.dashboardButtons?.becomeVendor || "Become a Vendor",
       description: "Start listing your assets and grow your rental business.",
-      path: "/vendor",
+      path: "/signin",
     },
     {
       title: t.home?.dashboardButtons?.viewBookings || "View Bookings",

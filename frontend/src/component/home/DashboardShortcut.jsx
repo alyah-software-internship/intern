@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, Col, Row, Typography, Button as AntdButton, Space } from "antd";
 import { useTranslation } from "../LanguageProvider.jsx";
 import { useTheme } from "../../context/ThemeProvider.jsx";
@@ -10,6 +11,7 @@ import RecentlyViewed from "./RecentlyViewed.jsx";
 const { Title, Text } = Typography;
 
 const DashboardShortcut = () => {
+  const navigate = useNavigate();
   const { translation: t } = useTranslation();
   const { theme } = useTheme();
   const isDark = theme === "dark";
@@ -105,6 +107,7 @@ const DashboardShortcut = () => {
             <AntdButton
               type="default"
               block={isMobile}
+              onClick={() => navigate("/signin")}
               style={{
                 minWidth: isMobile ? "100%" : 160,
                 borderRadius: 999,

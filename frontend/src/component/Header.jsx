@@ -72,7 +72,7 @@ const createProfileItems = (navigate, handleLogout, t) => [
   {
     key: "vendor",
     label: t.nav.becomeVendor,
-    onClick: () => navigate("/vendor"),
+    onClick: () => navigate("/signin"),
   },
   {
     key: "logout",
