@@ -16,4 +16,16 @@ class ExampleTest extends TestCase
 
         $response->assertStatus(200);
     }
+
+    public function test_api_bookings_requires_authentication(): void
+    {
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->get('/api/bookings');
+
+        $response->assertStatus(401)
+            ->assertJson([
+                'success' => false,
+            ]);
+    }
 }

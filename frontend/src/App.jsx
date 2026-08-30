@@ -18,6 +18,7 @@ import ProfilePage from "./page/customer/ProfilePage";
 import DashboardPage from "./page/customer/DashboardPage";
 import SettingPage from "./page/customer/SettingPage";
 import BookingPage from "./page/customer/BookingPage";
+import BookingDetailsPage from "./page/customer/BookingDetailsPage";
 import Messagespage from "./page/customer/Messagespage";
 import WishlistPage from "./page/customer/WishlistPage";
 import NotificationPage from "./page/customer/NotificationPage";
@@ -54,18 +55,25 @@ import DetailPage from "./page/public/DetailPage";
 import Footer from "./component/Footer.jsx";
 
 const ProtectedRoute = ({ children, roles }) => {
+  const location = useLocation();
   const { isSignedIn, user } = useContext(AppContext);
 
   if (!isSignedIn) {
     return <Navigate to="/signin" replace />;
   }
 
-  if (roles && !roles.includes(user?.role)) {
+  const userRole = user?.role || "customer";
+
+  if (roles && !roles.includes(userRole)) {
+    if (location.pathname === "/bookings") {
+      return children;
+    }
+
     const roleHome = {
       admin: "/admin",
       vendor: "/vendor/dashboard",
       customer: "/dashboard",
-    }[user?.role];
+    }[userRole];
 
     return <Navigate to={roleHome || "/"} replace />;
   }
@@ -121,10 +129,27 @@ const App = () => {
             }
           />
           <Route
+            path="/booking-details"
+            element={
+              <ProtectedRoute roles={["customer"]}>
+                <BookingDetailsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/bookings"
             element={
               <ProtectedRoute roles={["customer"]}>
                 <BookingPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/booking-details/:bookingId"
+            element={
+              <ProtectedRoute roles={["customer"]}>
+                <BookingDetailsPage />
               </ProtectedRoute>
             }
           />

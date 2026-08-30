@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Services\PaymentService;
 use App\Services\BookingService;
 use App\Services\NotificationService;
+use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 
 class PaymentController extends Controller
 {
@@ -31,7 +33,7 @@ class PaymentController extends Controller
     public function processPayment(Request $request, $bookingId)
     {
         $validator = Validator::make($request->all(), [
-            'payment_method' => 'required|in:card,mobile_money,bank_transfer,paypal,chapa,telebirr',
+            'payment_method' => 'required|in:credit_card,paypal,apple_pay,bank_transfer,cbe,telebirr',
             'payment_data' => 'nullable|array',
         ]);
 

@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { Alert, Spin, Typography } from "antd";
 import { Link, useParams } from "react-router-dom";
-import DetailInfo from "../../component/Detail/DetailInfo.jsx";
+import DetailInfo from "../../component/detail/DetailInfo";
 import { AppContext } from "../../context/AppContext.jsx";
 
 const { Text } = Typography;

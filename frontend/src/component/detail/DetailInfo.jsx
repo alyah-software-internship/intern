@@ -43,25 +43,13 @@ const DetailInfo = ({ item }) => {
 
     setBooking(true);
     try {
-      await axios.post(
-        `${backendUrl}/bookings`,
-        { product_id: item.id, start_date: startDate, end_date: endDate },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-          },
+      navigate("/booking-details", {
+        state: {
+          item,
+          startDate,
+          endDate,
         },
-      );
-      messageApi.success("Booking request submitted successfully.");
-      navigate("/bookings");
-    } catch (error) {
-      const errors = error.response?.data?.errors;
-      const firstError = errors ? Object.values(errors).flat()[0] : null;
-      messageApi.error(
-        firstError ||
-          error.response?.data?.message ||
-          "Unable to submit booking request.",
-      );
+      });
     } finally {
       setBooking(false);
     }
@@ -69,6 +57,28 @@ const DetailInfo = ({ item }) => {
 
   const images = item.images && item.images.length ? item.images : [item.image];
   const selectedImage = images[selectedIndex] || item.image;
+
+  const rentalDays = (() => {
+    if (!startDate || !endDate) return 1;
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+      return 1;
+    }
+
+    return Math.max(1, Math.ceil((end - start) / (1000 * 60 * 60 * 24)));
+  })();
+
+  const rentalSubtotal = Number(item.price || 0) * rentalDays;
+  const refundableDeposit = Number(
+    item.deposit ?? item.refundableDeposit ?? 500,
+  );
+  const platformFee = Number(
+    item.platformFee ?? Math.max(0, Math.round(rentalSubtotal * 0.05)),
+  );
+  const totalPrice = rentalSubtotal + refundableDeposit + platformFee;
 
   return (
     <div style={{ display: "flex", gap: 24, alignItems: "flex-start" }}>
@@ -445,24 +455,36 @@ const DetailInfo = ({ item }) => {
             >
               <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <Text type="secondary">
-                  {t.productDetail?.rentSubtotal || "Rent Subtotal (3 days)"}
+                  {t.productDetail?.rentSubtotal || "Rent Subtotal"} (
+                  {rentalDays} day{rentalDays > 1 ? "s" : ""})
                 </Text>
-                <Text>${item.price * 3}</Text>
+                <Text>${rentalSubtotal}</Text>
               </div>
               <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <Text type="secondary">
                   {t.productDetail?.refundableDeposit ||
                     "Refundable Escrow Deposit"}
                 </Text>
-                <Text>$500</Text>
+                <Text>${refundableDeposit}</Text>
               </div>
               <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <Text type="secondary">
                   {t.productDetail?.platformFee ||
                     "Platform Commission Fee (5%)"}
                 </Text>
-                <Text>$38</Text>
+                <Text>${platformFee}</Text>
               </div>
+            </div>
+
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginTop: 12,
+              }}
+            >
+              <Text strong>{t.common?.total || "Total"}</Text>
+              <Text strong>${totalPrice}</Text>
             </div>
 
             <Button

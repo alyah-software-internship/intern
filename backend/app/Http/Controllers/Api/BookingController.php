@@ -7,6 +7,7 @@ use App\Services\BookingService;
 use App\Services\ProductService;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class BookingController extends Controller
@@ -62,11 +63,21 @@ class BookingController extends Controller
             ], 201);
 
         } catch (\Exception $e) {
+            $status = $e->getMessage() === 'Product is not available for the selected dates'
+                ? 409
+                : 500;
+
+            Log::error('Booking creation failed', [
+                'customer_id' => $request->user()->id,
+                'product_id' => $request->input('product_id'),
+                'error' => $e->getMessage(),
+            ]);
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to create booking',
                 'error' => $e->getMessage()
-            ], 500);
+            ], $status);
         }
     }
 
@@ -76,6 +87,13 @@ class BookingController extends Controller
     public function index(Request $request)
     {
         try {
+            if (!$request->user()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthenticated',
+                ], 401);
+            }
+
             $bookings = $this->bookingService->getUserBookings(
                 $request->user()->id,
                 $request->status ?? null
@@ -101,6 +119,13 @@ class BookingController extends Controller
     public function show($id, Request $request)
     {
         try {
+            if (!$request->user()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthenticated',
+                ], 401);
+            }
+
             $booking = $this->bookingService->getBookingDetails(
                 $id,
                 $request->user()->id

@@ -157,7 +157,7 @@ class BookingService
      */
     public function isProductAvailable($product, $startDate, $endDate)
     {
-        if ($product->availability_status !== 'available') {
+        if (!$product || $product->status !== 'active' || $product->availability_status !== 'available') {
             return false;
         }
 

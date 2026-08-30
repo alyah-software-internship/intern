@@ -1,234 +1,242 @@
-import React, { useMemo } from "react";
+import { useContext, useMemo } from "react";
+import { Button, Card, Col, Row, Tag, Typography } from "antd";
 import { useNavigate } from "react-router-dom";
+import { AppContext } from "../../context/AppContext.jsx";
 import {
-  Row,
-  Col,
-  Card,
-  Typography,
-  Button,
-  Table,
-  Tag,
-  Space,
-  Image,
-} from "antd";
-import { useTranslation } from "../../component/LanguageProvider.jsx";
-import { useTheme } from "../../context/ThemeProvider.jsx";
-import { bookings, rentalItems, vendors } from "../../assets/dummyAssets.js";
+  bookings as allBookings,
+  getProductById,
+} from "../../assets/dummyAssets.js";
 
 const { Title, Text } = Typography;
 
-const statusColors = {
-  confirmed: "green",
-  pending: "gold",
-  active: "cyan",
-  completed: "blue",
-  cancelled: "red",
-  rejected: "volcano",
-};
-
-const getStatusColor = (status) =>
-  statusColors[status?.toLowerCase()] || "default";
+const formatDate = (dateValue) =>
+  new Date(dateValue).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 
 const BookingPage = () => {
   const navigate = useNavigate();
-  const { translation: t } = useTranslation();
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
+  const { user } = useContext(AppContext);
 
-  const bookingRows = useMemo(
-    () =>
-      bookings.map((booking) => {
-        const product =
-          rentalItems.find((item) => item.id === booking.productId) || {};
-        const vendor =
-          vendors.find((item) => item.id === booking.vendorId) || {};
-        const deposit = Math.round(booking.totalAmount * 0.38);
+  const bookings = useMemo(() => {
+    const authUser =
+      user ||
+      (() => {
+        try {
+          return JSON.parse(localStorage.getItem("authUser") || "null");
+        } catch {
+          return null;
+        }
+      })();
 
-        return {
-          key: booking.id,
-          ...booking,
-          productName: product.title || booking.productId,
-          productImage: product.images?.[0] || product.image,
-          vendorName: vendor.name || product.vendor || booking.vendorId,
-          deposit,
-        };
-      }),
-    [],
-  );
+    const customerId =
+      authUser?.id ||
+      authUser?.user_id ||
+      authUser?.customer_id ||
+      authUser?._id ||
+      "user-1";
 
-  const columns = [
-    {
-      title: t.booking?.bookingDetails || "Product Details",
-      dataIndex: "productName",
-      key: "productName",
-      render: (_, record) => (
-        <Space align="start">
-          <Image
-            width={96}
-            height={72}
-            src={record.productImage}
-            preview={false}
-            style={{ borderRadius: 16, objectFit: "cover" }}
-            fallback="https://via.placeholder.com/96x72?text=No+Image"
-          />
-          <div style={{ minWidth: 0 }}>
-            <Text strong style={{ display: "block" }}>
-              {record.productName}
-            </Text>
-            <Text type="secondary" style={{ fontSize: 12 }}>
-              ID: {record.productId}
-            </Text>
-          </div>
-        </Space>
-      ),
-    },
-    {
-      title: t.booking?.rentalPeriod || "Rental Period",
-      dataIndex: "startDate",
-      key: "rentalPeriod",
-      render: (_, record) => (
-        <div>
-          <Text strong style={{ display: "block" }}>
-            {record.startDate} to {record.endDate}
-          </Text>
-          <Text type="secondary" style={{ fontSize: 12 }}>
-            {Math.max(
-              1,
-              Math.ceil(
-                (new Date(record.endDate) - new Date(record.startDate)) /
-                  (1000 * 60 * 60 * 24),
-              ),
-            )}{" "}
-            Rental Days
-          </Text>
-        </div>
-      ),
-    },
-    {
-      title: t.booking?.vendor || "Vendor",
-      dataIndex: "vendorName",
-      key: "vendorName",
-      render: (vendorName) => <Text>{vendorName}</Text>,
-    },
-    {
-      title: t.booking?.totalAmount || "Financial Holding",
-      dataIndex: "totalAmount",
-      key: "financial",
-      render: (_, record) => (
-        <div>
-          <Text strong style={{ display: "block" }}>
-            ETB {record.totalAmount.toLocaleString()}
-          </Text>
-          <Text type="secondary" style={{ fontSize: 12 }}>
-            (Incl. ETB {record.deposit.toLocaleString()} deposit)
-          </Text>
-        </div>
-      ),
-    },
-    {
-      title: t.booking?.paymentStatus || "Status",
-      dataIndex: "status",
-      key: "status",
-      render: (status, record) => (
-        <Tag color={getStatusColor(status)}>
-          {t.booking?.[status] || status}
-        </Tag>
-      ),
-    },
-    {
-      title: t.booking?.actions || "Actions",
-      key: "actions",
-      render: (_, record) => (
-        <Space wrap>
-          {record.status === "pending" && (
-            <Button danger size="small">
-              {t.booking?.cancelBooking || "Cancel"}
-            </Button>
-          )}
-          {record.status === "completed" && (
-            <Button type="default" size="small">
-              {t.booking?.modifyBooking || "Modify Booking"}
-            </Button>
-          )}
-          <Button
-            type="link"
-            size="small"
-            onClick={() => navigate(`/rentals/${record.productId}`)}
-          >
-            {t.booking?.viewDetails || "View Item"}
-          </Button>
-        </Space>
-      ),
-    },
-  ];
+    return allBookings
+      .filter(
+        (booking) =>
+          booking.customerId === customerId ||
+          booking.userId === customerId ||
+          booking.customer_id === customerId,
+      )
+      .sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
+  }, [user]);
 
   return (
     <div
       style={{
         minHeight: "100vh",
-        padding: "48px 24px 64px",
-        background: isDark ? "#050b16" : "#f4f7ff",
+        background: "#f4f7fb",
+        padding: "40px 24px",
       }}
     >
-      <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-        <Card
-          bordered={false}
+      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+        <div
           style={{
-            borderRadius: 28,
-            padding: 32,
-            background: isDark ? "#0f172a" : "#ffffff",
-            boxShadow: isDark
-              ? "0 30px 80px rgba(0,0,0,0.18)"
-              : "0 24px 60px rgba(15,23,42,0.08)",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: 12,
+            marginBottom: 24,
+            flexWrap: "wrap",
           }}
         >
-          <Row gutter={[24, 24]} align="middle">
-            <Col xs={24} md={16}>
-              <Title
-                level={2}
-                style={{
-                  margin: 0,
-                  color: isDark ? "#f8fafc" : "#0f172a",
-                }}
-              >
-                {t.booking?.title || "Your Bookings"}
-              </Title>
-              <Text
-                style={{
-                  color: isDark ? "#cbd5e1" : "#475569",
-                  fontSize: 16,
-                }}
-              >
-                {t.booking?.subtitle || "Manage all your rentals in one place"}
-              </Text>
-            </Col>
-            <Col xs={24} md={8}>
-              <Space
-                size="middle"
-                style={{
-                  display: "flex",
-                  justifyContent: "flex-end",
-                  flexWrap: "wrap",
-                }}
-              >
-                <Button type="primary" onClick={() => navigate("/dashboard")}>
-                  {t.booking?.viewAllBookings || "View All Bookings"}
-                </Button>
-              </Space>
-            </Col>
-          </Row>
-
-          <div style={{ marginTop: 28 }}>
-            <Table
-              columns={columns}
-              dataSource={bookingRows}
-              pagination={false}
-              rowKey="key"
-              scroll={{ x: 900 }}
-              style={{ background: isDark ? "#0f172a" : "#ffffff" }}
-            />
+          <div>
+            <Text
+              style={{
+                display: "block",
+                fontSize: 12,
+                letterSpacing: "0.18em",
+                textTransform: "uppercase",
+                color: "#2563eb",
+                marginBottom: 8,
+              }}
+            >
+              Customer
+            </Text>
+            <Title level={2} style={{ margin: 0 }}>
+              My Bookings
+            </Title>
           </div>
-        </Card>
+
+          <Button type="primary" onClick={() => navigate("/rentals")}>
+            Browse Rentals
+          </Button>
+        </div>
+
+        {bookings.length === 0 ? (
+          <Card>
+            <Text>No bookings found yet.</Text>
+          </Card>
+        ) : (
+          <Row gutter={[20, 20]}>
+            {bookings.map((booking) => {
+              const product = getProductById(booking.productId) || {};
+              const durationDays = Math.max(
+                1,
+                Math.ceil(
+                  (new Date(booking.endDate) - new Date(booking.startDate)) /
+                    (1000 * 60 * 60 * 24),
+                ),
+              );
+
+              const statusColors = {
+                confirmed: "green",
+                pending: "gold",
+                completed: "blue",
+                cancelled: "red",
+              };
+
+              return (
+                <Col xs={24} md={12} key={booking.id}>
+                  <Card
+                    bordered={false}
+                    style={{
+                      borderRadius: 18,
+                      boxShadow: "0 18px 40px rgba(15, 23, 42, 0.06)",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        gap: 12,
+                        marginBottom: 16,
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      <div>
+                        <Text type="secondary" style={{ fontSize: 12 }}>
+                          Booking ID
+                        </Text>
+                        <div style={{ fontWeight: 700 }}>{booking.id}</div>
+                      </div>
+
+                      <Tag color={statusColors[booking.status] || "default"}>
+                        {booking.status}
+                      </Tag>
+                    </div>
+
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: 12,
+                        alignItems: "center",
+                        marginBottom: 14,
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: 60,
+                          height: 60,
+                          borderRadius: 12,
+                          background:
+                            "linear-gradient(135deg, #334155, #2563eb)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          color: "#fff",
+                          fontWeight: 700,
+                        }}
+                      >
+                        {(product.name || "Item").slice(0, 2).toUpperCase()}
+                      </div>
+
+                      <div>
+                        <Text strong style={{ display: "block", fontSize: 18 }}>
+                          {product.name || "Rental Item"}
+                        </Text>
+                        <Text type="secondary">
+                          {booking.items || 1} item
+                          {booking.items > 1 ? "s" : ""}
+                        </Text>
+                      </div>
+                    </div>
+
+                    <div style={{ display: "grid", gap: 10 }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                        }}
+                      >
+                        <Text type="secondary">Dates</Text>
+                        <Text>
+                          {formatDate(booking.startDate)} -{" "}
+                          {formatDate(booking.endDate)}
+                        </Text>
+                      </div>
+
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                        }}
+                      >
+                        <Text type="secondary">Duration</Text>
+                        <Text>
+                          {durationDays} day{durationDays > 1 ? "s" : ""}
+                        </Text>
+                      </div>
+
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                        }}
+                      >
+                        <Text type="secondary">Payment</Text>
+                        <Text>{booking.paymentStatus || "paid"}</Text>
+                      </div>
+
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                        }}
+                      >
+                        <Text type="secondary">Total</Text>
+                        <Text strong>
+                          $
+                          {booking.totalAmount ??
+                            product.pricing?.daily?.amount ??
+                            0}
+                        </Text>
+                      </div>
+                    </div>
+                  </Card>
+                </Col>
+              );
+            })}
+          </Row>
+        )}
       </div>
     </div>
   );

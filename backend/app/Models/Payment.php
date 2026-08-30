@@ -19,6 +19,12 @@ class Payment extends Model
         'transaction_id',
         'status',
         'payment_data',
+        'payment_proof_path',
+        'payment_proof_type',
+        'payment_remarks',
+        'proof_verification_status',
+        'verified_at',
+        'verified_by',
         'refund_amount',
         'refund_transaction_id',
         'completed_at',
@@ -29,6 +35,7 @@ class Payment extends Model
         'refund_amount' => 'decimal:2',
         'payment_data' => 'array',
         'completed_at' => 'datetime',
+        'verified_at' => 'datetime',
     ];
 
     // ========== RELATIONSHIPS ==========
@@ -47,6 +54,11 @@ class Payment extends Model
         return $this->belongsTo(VendorProfile::class, 'vendor_id');
     }
 
+    public function verifiedBy()
+    {
+        return $this->belongsTo(User::class, 'verified_by');
+    }
+
     // ========== HELPERS ==========
     public function isCompleted()
     {
@@ -56,5 +68,20 @@ class Payment extends Model
     public function isRefunded()
     {
         return $this->status === 'refunded';
+    }
+
+    public function isProofVerified()
+    {
+        return $this->proof_verification_status === 'verified';
+    }
+
+    public function isManualPaymentMethod()
+    {
+        return in_array($this->payment_method, ['cbe', 'telebirr']);
+    }
+
+    public function requiresProofVerification()
+    {
+        return $this->isManualPaymentMethod() && $this->payment_proof_path;
     }
 }

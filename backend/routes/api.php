@@ -138,7 +138,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
     
     // ========== BOOKING ROUTES ==========
-    Route::prefix('bookings')->group(function () {
+    Route::middleware('auth:sanctum')->prefix('bookings')->group(function () {
         Route::post('/', [BookingController::class, 'store']);
         Route::get('/', [BookingController::class, 'index']);
         Route::get('/{id}', [BookingController::class, 'show']);

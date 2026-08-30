@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Auth\Middleware\Authenticate as Middleware;
 use Illuminate\Http\Request;
 
@@ -26,11 +27,7 @@ class Authenticate extends Middleware
     protected function unauthenticated($request, array $guards)
     {
         if ($request->expectsJson() || $request->is('api/*')) {
-            abort(response()->json([
-                'success' => false,
-                'message' => 'Unauthenticated. Please login to continue.',
-                'error' => 'Unauthenticated'
-            ], 401));
+            throw new AuthenticationException('Unauthenticated. Please login to continue.', $guards);
         }
 
         parent::unauthenticated($request, $guards);

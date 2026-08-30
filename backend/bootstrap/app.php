@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -94,11 +95,21 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $exceptions->render(function (Throwable $e, Request $request) {
             if ($request->expectsJson() || $request->is('api/*')) {
+                $status = method_exists($e, 'getStatusCode') ? $e->getStatusCode() : 500;
+
+                if ($e instanceof AuthenticationException) {
+                    $status = 401;
+                }
+
+                if ($status === 0 || $status === null || $status < 100) {
+                    $status = 500;
+                }
+
                 return response()->json([
                     'success' => false,
-                    'message' => $e->getMessage(),
-                    'code' => $e->getCode(),
-                ], method_exists($e, 'getStatusCode') ? $e->getStatusCode() : 500);
+                    'message' => $e->getMessage() ?: ($e instanceof AuthenticationException ? 'Unauthenticated.' : 'An error occurred.'),
+                    'code' => $e->getCode() ?: $status,
+                ], $status);
             }
         });
     })
