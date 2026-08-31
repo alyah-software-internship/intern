@@ -131,6 +131,61 @@ class AdminController extends Controller
     }
 
     /**
+     * Get all vendors
+     */
+    public function vendors(Request $request)
+    {
+        try {
+            $vendors = \App\Models\VendorProfile::with('user')
+                ->when($request->verification_status, function ($query, $status) {
+                    return $query->where('verification_status', $status);
+                })
+                ->paginate($request->per_page ?? 20);
+
+            return response()->json([
+                'success' => true,
+                'vendors' => $vendors,
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to get vendors',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get vendor details for admin approval
+     */
+    public function vendorDetails($id)
+    {
+        try {
+            $vendor = \App\Models\VendorProfile::with([
+                'user' => function ($query) {
+                    $query->with('identityDocuments');
+                },
+                'paymentMethods',
+                'products',
+            ])
+                ->findOrFail($id);
+
+            return response()->json([
+                'success' => true,
+                'vendor' => $vendor,
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to get vendor details',
+                'error' => $e->getMessage(),
+            ], 404);
+        }
+    }
+
+    /**
      * Get pending vendor registrations
      */
     public function pendingVendors(Request $request)
@@ -234,6 +289,55 @@ class AdminController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to reject vendor',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Suspend vendor
+     */
+    public function suspendVendor($id, Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'reason' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $vendor = \App\Models\VendorProfile::findOrFail($id);
+            $vendor->update([
+                'is_active' => false,
+                'suspension_reason' => $request->reason,
+                'suspended_at' => now(),
+            ]);
+
+            $this->notificationService->createNotification(
+                $vendor->user_id,
+                'vendor_suspended',
+                'Vendor Account Suspended',
+                "Your vendor account has been suspended. Reason: {$request->reason}",
+                '/vendor/dashboard',
+                'urgent',
+                'vendor'
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Vendor suspended successfully',
+                'vendor' => $vendor->fresh(),
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to suspend vendor',
                 'error' => $e->getMessage()
             ], 500);
         }

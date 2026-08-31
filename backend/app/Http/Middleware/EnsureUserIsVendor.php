@@ -45,7 +45,7 @@ class EnsureUserIsVendor
             ], 403);
         }
 
-        // Check if vendor is active
+        // Check if vendor is active only after approval.
         if (!$user->is_active || !$user->vendorProfile->is_active) {
             return response()->json([
                 'success' => false,

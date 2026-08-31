@@ -122,6 +122,11 @@ const UserDetails = () => {
     );
   if (!user) return null;
 
+  const flags = user.flags || {
+    active: Boolean(user.is_active),
+    banned: Boolean(user.is_banned),
+    label: user.is_banned ? "Banned" : user.is_active ? "Active" : "Inactive",
+  };
   const name =
     user.full_name ||
     [user.first_name, user.middle_name, user.last_name]
@@ -162,15 +167,9 @@ const UserDetails = () => {
         </Space>
         <Space wrap>
           <Tag
-            color={
-              user.is_banned ? "red" : user.is_active ? "green" : "default"
-            }
+            color={flags.banned ? "red" : flags.active ? "green" : "default"}
           >
-            {user.is_banned
-              ? "Blocked"
-              : user.is_active
-                ? "Active"
-                : "Inactive"}
+            {flags.label}
           </Tag>
           {user.is_banned ? (
             <Button

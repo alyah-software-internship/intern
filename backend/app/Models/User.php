@@ -62,6 +62,14 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    protected $appends = [
+        'full_name',
+        'full_name_am',
+        'display_name',
+        'initials',
+        'flags',
+    ];
+
     protected $casts = [
         'email_verified_at' => 'datetime',
         'phone_verified_at' => 'datetime',
@@ -99,10 +107,27 @@ class User extends Authenticatable
     public function getInitialsAttribute()
     {
         return strtoupper(
-            substr($this->first_name, 0, 1) . 
-            substr($this->middle_name, 0, 1) . 
-            substr($this->last_name, 0, 1)
+            substr($this->first_name ?? '', 0, 1) .
+            substr($this->middle_name ?? '', 0, 1) .
+            substr($this->last_name ?? '', 0, 1)
         );
+    }
+
+    public function getFlagsAttribute()
+    {
+        if ($this->is_banned) {
+            $label = 'Banned';
+        } elseif ($this->is_active) {
+            $label = 'Active';
+        } else {
+            $label = 'Inactive';
+        }
+
+        return [
+            'active' => (bool) $this->is_active,
+            'banned' => (bool) $this->is_banned,
+            'label' => $label,
+        ];
     }
 
     // ========== MUTATORS ==========

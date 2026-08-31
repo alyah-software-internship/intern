@@ -124,17 +124,10 @@ class VendorController extends Controller
             ->where('user_id', $request->user()->id)
             ->first();
 
-        if (!$vendor) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Vendor profile not found',
-            ], 404);
-        }
-
         return response()->json([
             'success' => true,
             'vendor' => $vendor,
-            'identity_documents' => $request->user()->identityDocuments()->latest()->get(),
+            'identity_documents' => $vendor ? $request->user()->identityDocuments()->latest()->get() : [],
         ]);
     }
 
@@ -227,10 +220,20 @@ class VendorController extends Controller
         $vendor = VendorProfile::where('user_id', $request->user()->id)->first();
 
         if (!$vendor) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Vendor profile not found',
-            ], 404);
+            $vendor = VendorProfile::create([
+                'user_id' => $request->user()->id,
+                'business_name' => $request->business_name,
+                'business_type' => $request->business_type,
+                'description' => $request->business_description,
+                'address' => $request->business_address,
+                'city' => $request->business_city,
+                'phone' => $request->business_phone,
+                'email' => $request->business_email,
+                'registration_number' => $request->registration_number,
+                'verification_status' => 'pending',
+                'is_active' => true,
+                'joined_date' => now(),
+            ]);
         }
 
         $vendor = DB::transaction(function () use ($request, $vendor) {
@@ -287,8 +290,9 @@ class VendorController extends Controller
                 'registration_number' => $request->registration_number,
                 'identity_verified' => true,
                 'payment_methods_verified' => true,
-                'verification_status' => 'approved',
-                'verification_approved_at' => now(),
+                'verification_status' => 'pending',
+                'is_active' => false,
+                'verification_approved_at' => null,
             ]);
 
             return $vendor->fresh('paymentMethods');

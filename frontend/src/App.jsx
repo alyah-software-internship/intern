@@ -42,6 +42,7 @@ import ControlPannel from "./page/admin/ControlPannel";
 import Users from "./page/admin/Users";
 import UserDetails from "./page/admin/UserDetails";
 import VendorAdmin from "./page/admin/Vendor";
+import VendorDetail from "./page/admin/VendorDetail";
 import VendorsDirectory from "./page/admin/VendorsDirectory";
 import Category from "./page/admin/Category";
 import RegisterCategory from "./page/admin/RegisterCategory";
@@ -199,6 +200,7 @@ const App = () => {
             <Route path="users" element={<Users />} />
             <Route path="users/:id" element={<UserDetails />} />
             <Route path="vendors" element={<VendorAdmin />} />
+            <Route path="vendors/:id" element={<VendorDetail />} />
             <Route path="vendors-directory" element={<VendorsDirectory />} />
             <Route path="categories" element={<Category />} />
             <Route path="categories/new" element={<RegisterCategory />} />

@@ -746,28 +746,42 @@ const Verify = () => {
       if (file) requestData.append(key, file);
     });
 
-    const response = await axios.post(
-      `${backendUrl}/vendor/verification`,
-      requestData,
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-          "Content-Type": "multipart/form-data",
+    try {
+      const response = await axios.post(
+        `${backendUrl}/vendor/verification`,
+        requestData,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            "Content-Type": "multipart/form-data",
+          },
         },
-      },
-    );
+      );
 
-    const vendor = response.data.vendor;
-    setVerificationData((current) => ({
-      ...current,
-      vendor: {
-        ...current.vendor,
-        verificationStatus: vendor.verification_status || "approved",
-        identityVerified: true,
-        paymentMethodsVerified: true,
-        businessName: vendor.business_name,
-      },
-    }));
+      const vendor = response.data.vendor;
+      setVerificationData((current) => ({
+        ...current,
+        vendor: {
+          ...current.vendor,
+          verificationStatus: vendor.verification_status || "approved",
+          identityVerified: true,
+          paymentMethodsVerified: true,
+          businessName: vendor.business_name,
+        },
+      }));
+    } catch (err) {
+      const message =
+        err?.response?.data?.message ||
+        err?.message ||
+        "Unable to submit verification.";
+
+      setError(
+        message ===
+          "Please register your vendor profile before submitting verification."
+          ? "Please complete vendor registration first before submitting your verification details."
+          : message,
+      );
+    }
   };
 
   if (loading) {

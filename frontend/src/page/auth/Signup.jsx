@@ -61,7 +61,7 @@ const Signup = () => {
       messageApi.success(
         response.data.message || "Account created successfully",
       );
-      navigate(role === "vendor" ? "/vendor/verify" : "/dashboard");
+      navigate(role === "vendor" ? "/vendor/profile" : "/dashboard");
     } catch (error) {
       const validationErrors = error.response?.data?.errors;
       const firstValidationError = validationErrors

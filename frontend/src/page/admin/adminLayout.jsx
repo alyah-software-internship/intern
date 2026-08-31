@@ -202,7 +202,7 @@ const AdminLayout = () => {
             background: isDark ? "#0b1726" : "#111827",
             border: "1px solid rgba(255,255,255,0.08)",
           }}
-          bodyStyle={{ padding: 20 }}
+          styles={{ body: { padding: 20 } }}
         >
           <Space align="center" size={16} style={{ width: "100%" }}>
             <Avatar

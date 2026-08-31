@@ -39,7 +39,27 @@ const Users = () => {
         authConfig(),
       );
       const data = response.data.users;
-      setUsers(Array.isArray(data) ? data : data?.data || []);
+      const userList = Array.isArray(data) ? data : data?.data || [];
+      setUsers(
+        userList.map((user) => ({
+          ...user,
+          full_name:
+            user.full_name ||
+            [user.first_name, user.middle_name, user.last_name]
+              .filter(Boolean)
+              .join(" ") ||
+            "Unnamed user",
+          flags: user.flags || {
+            active: Boolean(user.is_active),
+            banned: Boolean(user.is_banned),
+            label: user.is_banned
+              ? "Banned"
+              : user.is_active
+                ? "Active"
+                : "Inactive",
+          },
+        })),
+      );
     } catch (error) {
       messageApi.error(
         error.response?.data?.message || "Unable to load users.",
@@ -116,13 +136,27 @@ const Users = () => {
     {
       title: "STATUS",
       key: "status",
-      render: (_, user) => (
-        <Tag
-          color={user.is_banned ? "red" : user.is_active ? "green" : "default"}
-        >
-          {user.is_banned ? "Banned" : user.is_active ? "Active" : "Inactive"}
-        </Tag>
-      ),
+      render: (_, user) => {
+        const flagState = user.flags || {
+          active: Boolean(user.is_active),
+          banned: Boolean(user.is_banned),
+          label: user.is_banned
+            ? "Banned"
+            : user.is_active
+              ? "Active"
+              : "Inactive",
+        };
+
+        return (
+          <Tag
+            color={
+              flagState.banned ? "red" : flagState.active ? "green" : "default"
+            }
+          >
+            {flagState.label}
+          </Tag>
+        );
+      },
     },
     {
       title: "ACTION",
