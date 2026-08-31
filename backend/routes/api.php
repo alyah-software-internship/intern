@@ -220,9 +220,15 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     // Vendor Management
     Route::get('/vendors/pending', [AdminController::class, 'pendingVendors']);
     Route::get('/vendors', [AdminController::class, 'vendors']);
+    Route::get('/escrow-ledger', [AdminController::class, 'escrowLedger']);
+    Route::get('/mediation-cases', [AdminController::class, 'mediationCases']);
+    Route::post('/mediation-cases/{id}/resolve', [AdminController::class, 'resolveMediation']);
     Route::get('/vendors/{id}', [AdminController::class, 'vendorDetails']);
     Route::post('/vendors/{id}/approve', [AdminController::class, 'approveVendor']);
     Route::post('/vendors/{id}/reject', [AdminController::class, 'rejectVendor']);
+    Route::post('/vendors/{id}/activate', [AdminController::class, 'activateVendor']);
+    Route::post('/vendors/{id}/deactivate', [AdminController::class, 'deactivateVendor']);
+    Route::post('/vendors/{id}/block', [AdminController::class, 'blockVendor']);
     Route::post('/vendors/{id}/suspend', [AdminController::class, 'suspendVendor']);
     
     // Reviews
@@ -236,6 +242,11 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     
     // Reports
     Route::get('/reports', [AdminController::class, 'reports']);
+    Route::get('/system-health', [AdminController::class, 'systemHealth']);
+    Route::get('/audit-logs', [AdminController::class, 'auditLogs']);
+    Route::get('/platform-settings', [AdminController::class, 'platformSettings']);
+    Route::put('/platform-settings', [AdminController::class, 'platformSettings']);
+    Route::post('/platform-settings', [AdminController::class, 'platformSettings']);
 });
 
 // =============================================

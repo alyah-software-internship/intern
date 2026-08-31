@@ -16,6 +16,7 @@ class PlatformCommissionSetting extends Model
         'max_commission',
         'applies_to',
         'is_active',
+        'currency',
     ];
 
     protected $casts = [

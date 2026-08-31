@@ -160,6 +160,67 @@ const Vendor = () => {
     }
   };
 
+  const handleActivateVendor = async (vendorId) => {
+    setActionLoading(`activate-${vendorId}`);
+    try {
+      const response = await axios.post(
+        `${backendUrl}/admin/vendors/${vendorId}/activate`,
+        {},
+        authConfig(),
+      );
+      messageApi.success(response.data.message);
+      await loadVendors();
+    } catch (error) {
+      messageApi.error(
+        error.response?.data?.message || "Unable to activate vendor.",
+      );
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleDeactivateVendor = async (vendorId) => {
+    setActionLoading(`deactivate-${vendorId}`);
+    try {
+      const response = await axios.post(
+        `${backendUrl}/admin/vendors/${vendorId}/deactivate`,
+        { reason: "Deactivated by administrator" },
+        authConfig(),
+      );
+      messageApi.success(response.data.message);
+      await loadVendors();
+    } catch (error) {
+      messageApi.error(
+        error.response?.data?.message || "Unable to deactivate vendor.",
+      );
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleBlockVendor = async (vendorId) => {
+    const reason =
+      form.getFieldValue("block_reason") || "Blocked by administrator";
+    setActionLoading(`block-${vendorId}`);
+    try {
+      const response = await axios.post(
+        `${backendUrl}/admin/vendors/${vendorId}/block`,
+        { reason },
+        authConfig(),
+      );
+      messageApi.success(response.data.message);
+      setSuspendModal({ visible: false, vendor: null });
+      form.resetFields();
+      await loadVendors();
+    } catch (error) {
+      messageApi.error(
+        error.response?.data?.message || "Unable to block vendor.",
+      );
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   const filteredPendingVendors = useMemo(() => {
     const term = search.trim().toLowerCase();
     if (!term) return pendingVendors;
@@ -351,20 +412,37 @@ const Vendor = () => {
           >
             View
           </Button>
-          {vendor.is_active && (
+          {vendor.is_active ? (
             <Button
               size="small"
               danger
               icon={<StopOutlined />}
-              loading={actionLoading === `suspend-${vendor.id}`}
-              onClick={() => {
-                setSuspendModal({ visible: true, vendor });
-                form.resetFields();
-              }}
+              loading={actionLoading === `deactivate-${vendor.id}`}
+              onClick={() => handleDeactivateVendor(vendor.id)}
             >
-              Suspend
+              Deactivate
+            </Button>
+          ) : (
+            <Button
+              size="small"
+              type="primary"
+              loading={actionLoading === `activate-${vendor.id}`}
+              onClick={() => handleActivateVendor(vendor.id)}
+            >
+              Activate
             </Button>
           )}
+          <Button
+            size="small"
+            danger
+            loading={actionLoading === `block-${vendor.id}`}
+            onClick={() => {
+              form.setFieldValue("block_reason", "Blocked by administrator");
+              handleBlockVendor(vendor.id);
+            }}
+          >
+            Block
+          </Button>
         </Space>
       ),
     },

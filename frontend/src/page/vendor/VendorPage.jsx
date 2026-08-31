@@ -1,5 +1,6 @@
-import React from "react";
-import { Row, Col, Card, Typography, Space, Tag } from "antd";
+import React, { useContext, useEffect, useState } from "react";
+import axios from "axios";
+import { Row, Col, Card, Typography, Space, Tag, Spin } from "antd";
 import {
   DollarOutlined,
   AppstoreOutlined,
@@ -8,10 +9,22 @@ import {
   CheckCircleOutlined,
   WarningOutlined,
 } from "@ant-design/icons";
+import { AppContext } from "../../context/AppContext.jsx";
 import { useTheme } from "../../context/ThemeProvider.jsx";
 import { useTranslation } from "../../component/LanguageProvider.jsx";
 
 const { Title, Text } = Typography;
+
+const authConfig = () => ({
+  headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` },
+});
+
+const formatCurrency = (value, currencyCode = "USD") =>
+  new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: currencyCode,
+    maximumFractionDigits: 2,
+  }).format(Number(value || 0));
 
 const createAlerts = (t) => [
   {
@@ -43,9 +56,59 @@ const createAlerts = (t) => [
 ];
 
 const VendorPage = () => {
+  const { backendUrl, currency } = useContext(AppContext);
   const { theme } = useTheme();
   const { translation: t } = useTranslation();
   const isDark = theme === "dark";
+  const [stats, setStats] = useState({});
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDashboard = async () => {
+      try {
+        const response = await axios.get(
+          `${backendUrl}/vendor/dashboard`,
+          authConfig(),
+        );
+        setStats(response.data?.stats || {});
+      } catch (error) {
+        console.error("Failed to load vendor dashboard", error);
+        setStats({});
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboard();
+  }, [backendUrl]);
+
+  const totalBookings = Number(stats.total_bookings || 0);
+  const activeBookings = Number(stats.active_bookings || 0);
+  const rating = Number(stats.rating || 0);
+  const completedRevenue = Number(stats.total_revenue || 0);
+  const utilization =
+    totalBookings > 0
+      ? Math.min(100, (activeBookings / totalBookings) * 100)
+      : 0;
+  const reviewsText = stats.total_reviews
+    ? `${stats.total_reviews} reviews`
+    : "No reviews yet";
+
+  if (loading) {
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: isDark ? "#060b17" : "#f3f7fb",
+        }}
+      >
+        <Spin size="large" />
+      </div>
+    );
+  }
 
   return (
     <div
@@ -78,7 +141,7 @@ const VendorPage = () => {
                 level={2}
                 style={{ margin: 0, color: isDark ? "#f8fafc" : "#0f172a" }}
               >
-                $500
+                {formatCurrency(completedRevenue, currency)}
               </Title>
               <Tag
                 style={{
@@ -89,7 +152,9 @@ const VendorPage = () => {
                   fontWeight: 700,
                 }}
               >
-                +12.4% vs last month
+                {stats.pending_payouts
+                  ? `Pending payout: ${formatCurrency(stats.pending_payouts, currency)}`
+                  : "No pending payout"}
               </Tag>
             </Card>
           </Col>
@@ -109,10 +174,12 @@ const VendorPage = () => {
                 level={2}
                 style={{ margin: 0, color: isDark ? "#f8fafc" : "#0f172a" }}
               >
-                1
+                {activeBookings}
               </Title>
               <Text style={{ color: isDark ? "#94a3b8" : "#475569" }}>
-                Machinery working outdoors
+                {stats.pending_bookings
+                  ? `${stats.pending_bookings} pending bookings`
+                  : "No active bookings"}
               </Text>
             </Card>
           </Col>
@@ -134,10 +201,12 @@ const VendorPage = () => {
                 level={2}
                 style={{ margin: 0, color: isDark ? "#f8fafc" : "#0f172a" }}
               >
-                50%
+                {Math.round(utilization)}%
               </Title>
               <Text style={{ color: isDark ? "#94a3b8" : "#475569" }}>
-                Rent days vs idle catalog slots
+                {totalBookings
+                  ? `${totalBookings} total bookings`
+                  : "No booking history yet"}
               </Text>
             </Card>
           </Col>
@@ -157,10 +226,10 @@ const VendorPage = () => {
                 level={2}
                 style={{ margin: 0, color: isDark ? "#f8fafc" : "#0f172a" }}
               >
-                4.8 / 5
+                {rating > 0 ? `${Number(rating).toFixed(1)} / 5` : "0.0 / 5"}
               </Title>
               <Text style={{ color: isDark ? "#94a3b8" : "#475569" }}>
-                Based on 38 verification checks
+                {reviewsText}
               </Text>
             </Card>
           </Col>
@@ -268,7 +337,6 @@ const VendorPage = () => {
                             style={{ color: isDark ? "#f8fafc" : "#0f172a" }}
                           >
                             {item.title}
-                          
                           </Text>
                           <Text
                             style={{

@@ -29,7 +29,7 @@ const { Title, Paragraph, Text } = Typography;
 
 const Signup = () => {
   const [loading, setLoading] = useState(false);
-  const [role, setRole] = useState("renter");
+  const [role, setRole] = useState("customer");
   const { lang, setLanguage, translation: t } = useTranslation();
   const { backendUrl, signIn } = useContext(AppContext);
   const navigate = useNavigate();
@@ -54,14 +54,18 @@ const Signup = () => {
         middle_name: middleName,
         last_name: lastName,
         phone: values.phone,
-        role: role === "vendor" ? "vendor" : "customer",
+        role,
       });
 
       signIn(response.data.user, response.data.token);
       messageApi.success(
         response.data.message || "Account created successfully",
       );
-      navigate(role === "vendor" ? "/vendor/profile" : "/dashboard");
+      if (role === "vendor") {
+        navigate("/vendor/profile");
+      } else {
+        navigate("/dashboard");
+      }
     } catch (error) {
       const validationErrors = error.response?.data?.errors;
       const firstValidationError = validationErrors
@@ -233,26 +237,59 @@ const Signup = () => {
                     </div>
 
                     <div className="mb-6">
-                      <label className="mb-2 block text-sm font-semibold uppercase tracking-[0.18em] text-slate-600">
-                        {t.roleLabel}
-                      </label>
-                      <Segmented
-                        options={[
-                          {
-                            label: t.roleRenter,
-                            value: "renter",
-                          },
-                          {
-                            label: t.roleVendor,
-                            value: "vendor",
-                          },
-                        ]}
-                        value={role}
-                        onChange={setRole}
-                        className="w-full rounded-[18px] border border-slate-200"
-                      />
-                      <Text className="mt-2 block text-sm text-slate-400">
-                        {role === "renter" ? t.renterText : t.vendorText}
+                      <div className="mb-3 flex items-center justify-between gap-3">
+                        <label className="block text-sm font-semibold uppercase tracking-[0.18em] text-slate-600">
+                          {t.roleLabel}
+                        </label>
+                        <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-emerald-700">
+                          {role}
+                        </span>
+                      </div>
+
+                      <div className="rounded-[22px] border border-sky-200 bg-gradient-to-r from-sky-50 via-blue-50 to-indigo-50 p-2 shadow-inner shadow-sky-100/80">
+                        <Segmented
+                          size="large"
+                          options={[
+                            {
+                              label: (
+                                <span className="font-bold text-blue-700">
+                                  {t.roleRenter}
+                                </span>
+                              ),
+                              value: "customer",
+                            },
+                            {
+                              label: (
+                                <span className="font-bold text-blue-700">
+                                  {t.roleVendor}
+                                </span>
+                              ),
+                              value: "vendor",
+                            },
+                            {
+                              label: (
+                                <span className="font-bold text-blue-700">
+                                  {t.roleOperator}
+                                </span>
+                              ),
+                              value: "operator",
+                            },
+                          ]}
+                          value={role}
+                          onChange={setRole}
+                          className="w-full rounded-[18px]"
+                          style={{
+                            background: "transparent",
+                          }}
+                        />
+                      </div>
+
+                      <Text className="mt-3 block rounded-xl border border-sky-100 bg-sky-50 px-3 py-2 text-sm text-slate-600">
+                        {role === "customer"
+                          ? t.customerText
+                          : role === "vendor"
+                            ? t.vendorText
+                            : t.operatorText}
                       </Text>
                     </div>
 

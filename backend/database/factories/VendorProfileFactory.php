@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
 use App\Models\VendorProfile;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -17,7 +18,7 @@ class VendorProfileFactory extends Factory
         $businessName = fake()->company();
 
         return [
-            'user_id' => null,
+            'user_id' => User::factory()->create(['role' => 'vendor'])->id,
             'business_name' => $businessName,
             'business_name_am' => null,
             'business_type' => 'Rental Services',

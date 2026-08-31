@@ -15,8 +15,9 @@ return new class extends Migration
             $table->decimal('min_commission', 10, 2)->default(0);
             $table->decimal('max_commission', 10, 2)->default(0);
             $table->enum('applies_to', ['all', 'hourly', 'daily', 'weekly', 'monthly'])->default('all');
+            $table->string('currency', 3)->default('USD');
             $table->boolean('is_active')->default(true);
-            
+
             $table->timestamps();
         });
     }

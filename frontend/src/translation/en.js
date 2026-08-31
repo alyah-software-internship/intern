@@ -551,12 +551,18 @@ const en = {
     placeholderName: "Enter your full name",
     placeholderPhone: "0912345678",
     roleLabel: "Account role / category",
-    roleRenter: "Renter / Customer",
-    roleVendor: "Verified Vendor",
+    roleCustomer: "Customer",
+    roleRenter: "Renter",
+    roleVendor: "Vendor",
+    roleOperator: "Operator",
+    customerText:
+      "Rent machines, tractors, and equipment quickly with escrow protection.",
     renterText:
       "Rent machines, tractors, and equipment quickly with escrow protection.",
     vendorText:
       "Register as a verified equipment vendor with trusted checkout and bookings.",
+    operatorText:
+      "Register as an operator to support bookings, field work, and service delivery.",
     emailRequired: "Please enter your email address",
     passwordRequired: "Please enter your password",
     fullNameRequired: "Please enter your full name",
@@ -612,8 +618,9 @@ const en = {
   placeholderName: "Enter your full name",
   placeholderPhone: "0912345678",
   roleLabel: "Account role / category",
-  roleRenter: "Renter / Customer",
-  roleVendor: "Verified Vendor",
+  roleRenter: "Customer",
+  roleVendor: "Vendor",
+  roleOperator: "Operator",
   renterText:
     "Rent machines, tractors, and equipment quickly with escrow protection.",
   vendorText:

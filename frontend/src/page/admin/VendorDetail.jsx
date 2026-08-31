@@ -173,13 +173,18 @@ const VendorDetail = () => {
       case "verified":
         return "green";
       case "rejected":
+      case "suspended":
         return "red";
       case "pending":
+      case "under_review":
         return "gold";
       default:
         return "blue";
     }
   };
+
+  const vendorStatus = vendor.verification_status || "pending";
+  const isApprovedVendor = ["approved", "verified"].includes(vendorStatus);
 
   return (
     <div
@@ -261,7 +266,7 @@ const VendorDetail = () => {
           </Space>
         )}
 
-        {vendor.verification_status === "verified" && vendor.is_active && (
+        {isApprovedVendor && vendor.is_active && (
           <Button
             danger
             icon={<StopOutlined />}
@@ -273,6 +278,91 @@ const VendorDetail = () => {
             size="large"
           >
             Suspend Vendor
+          </Button>
+        )}
+
+        {!vendor.is_active && (
+          <Button
+            type="primary"
+            loading={actionLoading === "activate"}
+            onClick={async () => {
+              setActionLoading("activate");
+              try {
+                const response = await axios.post(
+                  `${backendUrl}/admin/vendors/${id}/activate`,
+                  {},
+                  authConfig(),
+                );
+                messageApi.success(response.data.message);
+                window.location.reload();
+              } catch (error) {
+                messageApi.error(
+                  error.response?.data?.message || "Unable to activate vendor.",
+                );
+              } finally {
+                setActionLoading(null);
+              }
+            }}
+            size="large"
+          >
+            Activate Vendor
+          </Button>
+        )}
+
+        {vendor.is_active && (
+          <Button
+            danger
+            loading={actionLoading === "deactivate"}
+            onClick={async () => {
+              setActionLoading("deactivate");
+              try {
+                const response = await axios.post(
+                  `${backendUrl}/admin/vendors/${id}/deactivate`,
+                  { reason: "Deactivated by administrator" },
+                  authConfig(),
+                );
+                messageApi.success(response.data.message);
+                window.location.reload();
+              } catch (error) {
+                messageApi.error(
+                  error.response?.data?.message ||
+                    "Unable to deactivate vendor.",
+                );
+              } finally {
+                setActionLoading(null);
+              }
+            }}
+            size="large"
+          >
+            Deactivate Vendor
+          </Button>
+        )}
+
+        {vendor.is_active && (
+          <Button
+            danger
+            loading={actionLoading === "block"}
+            onClick={async () => {
+              setActionLoading("block");
+              try {
+                const response = await axios.post(
+                  `${backendUrl}/admin/vendors/${id}/block`,
+                  { reason: "Blocked by administrator" },
+                  authConfig(),
+                );
+                messageApi.success(response.data.message);
+                window.location.reload();
+              } catch (error) {
+                messageApi.error(
+                  error.response?.data?.message || "Unable to block vendor.",
+                );
+              } finally {
+                setActionLoading(null);
+              }
+            }}
+            size="large"
+          >
+            Block Vendor
           </Button>
         )}
       </div>

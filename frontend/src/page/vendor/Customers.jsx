@@ -12,6 +12,7 @@ import {
   Tag,
   message,
 } from "antd";
+import { useNavigate } from "react-router-dom";
 import { useTheme } from "../../context/ThemeProvider.jsx";
 import { AppContext } from "../../context/AppContext.jsx";
 
@@ -21,6 +22,7 @@ const Customers = () => {
   const { theme } = useTheme();
   const { backendUrl } = useContext(AppContext);
   const isDark = theme === "dark";
+  const navigate = useNavigate();
   const [searchValue, setSearchValue] = useState("");
   const [bookingsList, setBookingsList] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -93,10 +95,16 @@ const Customers = () => {
         customer.bookings[0]?.startDate ||
         new Date().toLocaleDateString();
 
+      const firstBooking = customer.bookings[0] || {};
+      const productName = firstBooking.product?.name || "Rental Item";
+
       return {
         key: customer.id,
+        id: customer.id,
         customerName: customer.name,
         email: customer.email,
+        bookingId: firstBooking.id,
+        productName,
         bookingsDispatched: customer.bookings.length,
         totalRentalRevenue: `$${totalRevenue.toFixed(2)}`,
         lastActivity:
@@ -185,8 +193,21 @@ const Customers = () => {
     {
       title: "ACTIONS",
       key: "actions",
-      render: () => (
-        <Button type="primary" size="small">
+      render: (_, record) => (
+        <Button
+          type="primary"
+          size="small"
+          onClick={() =>
+            navigate("/vendor/messages", {
+              state: {
+                bookingId: record.bookingId,
+                customerId: record.id,
+                customerName: record.customerName,
+                productName: record.productName,
+              },
+            })
+          }
+        >
           Message
         </Button>
       ),

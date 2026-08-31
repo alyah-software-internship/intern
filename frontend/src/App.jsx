@@ -76,7 +76,10 @@ const ProtectedRoute = ({ children, roles }) => {
     location.pathname === "/notifications";
 
   if (roles && !roles.includes(userRole)) {
-    if (isCustomerBookingPath && (!userRole || userRole === "customer")) {
+    if (
+      isCustomerBookingPath &&
+      (!userRole || userRole === "customer" || userRole === "operator")
+    ) {
       return children;
     }
 
@@ -84,6 +87,7 @@ const ProtectedRoute = ({ children, roles }) => {
       admin: "/admin",
       vendor: "/vendor/dashboard",
       customer: "/dashboard",
+      operator: "/dashboard",
     }[userRole];
 
     return <Navigate to={roleHome || "/"} replace />;
@@ -126,7 +130,7 @@ const App = () => {
           <Route
             path="/dashboard"
             element={
-              <ProtectedRoute roles={["customer"]}>
+              <ProtectedRoute roles={["customer", "operator"]}>
                 <DashboardPage />
               </ProtectedRoute>
             }
@@ -134,7 +138,7 @@ const App = () => {
           <Route
             path="/settings"
             element={
-              <ProtectedRoute roles={["customer"]}>
+              <ProtectedRoute roles={["customer", "operator"]}>
                 <SettingPage />
               </ProtectedRoute>
             }
@@ -142,7 +146,7 @@ const App = () => {
           <Route
             path="/booking-details"
             element={
-              <ProtectedRoute roles={["customer"]}>
+              <ProtectedRoute roles={["customer", "operator"]}>
                 <BookingDetailsPage />
               </ProtectedRoute>
             }
@@ -150,7 +154,7 @@ const App = () => {
           <Route
             path="/bookings"
             element={
-              <ProtectedRoute roles={["customer"]}>
+              <ProtectedRoute roles={["customer", "operator"]}>
                 <BookingPage />
               </ProtectedRoute>
             }
@@ -159,7 +163,7 @@ const App = () => {
           <Route
             path="/booking-details/:bookingId"
             element={
-              <ProtectedRoute roles={["customer"]}>
+              <ProtectedRoute roles={["customer", "operator"]}>
                 <BookingDetailsPage />
               </ProtectedRoute>
             }
@@ -167,7 +171,7 @@ const App = () => {
           <Route
             path="/messages"
             element={
-              <ProtectedRoute roles={["customer"]}>
+              <ProtectedRoute roles={["customer", "operator"]}>
                 <Messagespage />
               </ProtectedRoute>
             }
@@ -175,7 +179,7 @@ const App = () => {
           <Route
             path="/wishlist"
             element={
-              <ProtectedRoute roles={["customer"]}>
+              <ProtectedRoute roles={["customer", "operator"]}>
                 <WishlistPage />
               </ProtectedRoute>
             }
@@ -183,7 +187,7 @@ const App = () => {
           <Route
             path="/notifications"
             element={
-              <ProtectedRoute roles={["customer"]}>
+              <ProtectedRoute roles={["customer", "operator"]}>
                 <NotificationPage />
               </ProtectedRoute>
             }

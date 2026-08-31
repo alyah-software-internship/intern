@@ -13,14 +13,22 @@ class Notification extends Model
         'user_id',
         'type',
         'title',
+        'title_am',
         'message',
+        'message_am',
         'link',
+        'priority',
+        'category',
         'is_read',
+        'is_archived',
+        'read_at',
     ];
 
     protected $casts = [
         'is_read' => 'boolean',
+        'is_archived' => 'boolean',
         'created_at' => 'datetime',
+        'read_at' => 'datetime',
     ];
 
     // ========== RELATIONSHIPS ==========

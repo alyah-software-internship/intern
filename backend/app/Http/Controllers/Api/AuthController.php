@@ -38,7 +38,7 @@ class AuthController extends Controller
             'middle_name' => 'required|string|max:100',
             'last_name' => 'required|string|max:100',
             'phone' => 'nullable|string|max:50',
-            'role' => 'nullable|in:customer,vendor',
+            'role' => 'nullable|in:customer,vendor,operator',
         ]);
 
         if ($validator->fails()) {
