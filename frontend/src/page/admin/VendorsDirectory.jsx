@@ -12,11 +12,7 @@ import {
   Typography,
   message,
 } from "antd";
-import {
-  EyeOutlined,
-  ReloadOutlined,
-  SearchOutlined,
-} from "@ant-design/icons";
+import { EyeOutlined, ReloadOutlined, SearchOutlined } from "@ant-design/icons";
 import { AppContext } from "../../context/AppContext.jsx";
 import { useTheme } from "../../context/ThemeProvider.jsx";
 
@@ -118,7 +114,9 @@ const VendorsDirectory = () => {
       dataIndex: "business_type",
       key: "business_type",
       render: (type) => (
-        <Tag color="blue">{type?.replaceAll("_", " ").toUpperCase() || "-"}</Tag>
+        <Tag color="blue">
+          {type?.replaceAll("_", " ").toUpperCase() || "-"}
+        </Tag>
       ),
     },
     {
@@ -177,17 +175,25 @@ const VendorsDirectory = () => {
           }}
         >
           <div>
-            <Text style={{ display: "block", letterSpacing: 1.2, fontSize: 12 }}>
+            <Text
+              style={{ display: "block", letterSpacing: 1.2, fontSize: 12 }}
+            >
               VENDOR DIRECTORY
             </Text>
             <Title level={2} style={{ margin: 0 }}>
               Approved Vendors
             </Title>
-            <Text type="secondary">View and manage approved vendor accounts.</Text>
+            <Text type="secondary">
+              View and manage approved vendor accounts.
+            </Text>
           </div>
 
           <Space>
-            <Button icon={<ReloadOutlined />} onClick={fetchVendors} loading={loading}>
+            <Button
+              icon={<ReloadOutlined />}
+              onClick={fetchVendors}
+              loading={loading}
+            >
               Refresh
             </Button>
             <Input
