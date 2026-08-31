@@ -1,4 +1,5 @@
 import { createContext, useState } from "react";
+import axios from "axios";
 
 export const AppContext = createContext({
   isSignedIn: false,
@@ -26,7 +27,24 @@ export const AppContextProvider = (props) => {
     setIsSignedIn(true);
   };
 
-  const signOut = () => {
+  const signOut = async () => {
+    const token = localStorage.getItem("authToken");
+
+    if (backendUrl && token) {
+      try {
+        await axios.post(
+          `${backendUrl}/logout`,
+          {},
+          { headers: { Authorization: `Bearer ${token}` } },
+        );
+      } catch (error) {
+        console.warn(
+          "Logout request failed, clearing local session anyway:",
+          error,
+        );
+      }
+    }
+
     localStorage.removeItem("authToken");
     localStorage.removeItem("authUser");
     setUser(null);

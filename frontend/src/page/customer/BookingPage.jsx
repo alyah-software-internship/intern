@@ -1,11 +1,22 @@
-import { useContext, useMemo } from "react";
-import { Button, Card, Col, Row, Tag, Typography } from "antd";
-import { useNavigate } from "react-router-dom";
-import { AppContext } from "../../context/AppContext.jsx";
+import { useContext, useEffect, useState, useMemo } from "react";
 import {
-  bookings as allBookings,
-  getProductById,
-} from "../../assets/dummyAssets.js";
+  Button,
+  Card,
+  Col,
+  Row,
+  Tag,
+  Typography,
+  Spin,
+  message,
+  Badge,
+  Pagination,
+  Divider,
+  Space,
+} from "antd";
+import { useNavigate } from "react-router-dom";
+import { EyeOutlined, MessageOutlined } from "@ant-design/icons";
+import axios from "axios";
+import { AppContext } from "../../context/AppContext.jsx";
 
 const { Title, Text } = Typography;
 
@@ -16,37 +27,169 @@ const formatDate = (dateValue) =>
     year: "numeric",
   });
 
+const formatTime = (dateValue) =>
+  new Date(dateValue).toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
 const BookingPage = () => {
   const navigate = useNavigate();
-  const { user } = useContext(AppContext);
+  const { user, backendUrl } = useContext(AppContext);
+  const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [messageApi, contextHolder] = message.useMessage();
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 5;
 
-  const bookings = useMemo(() => {
-    const authUser =
-      user ||
-      (() => {
-        try {
-          return JSON.parse(localStorage.getItem("authUser") || "null");
-        } catch {
-          return null;
+  useEffect(() => {
+    const fetchBookings = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem("authToken");
+        const authUser = localStorage.getItem("authUser");
+
+        console.log("Fetching bookings...");
+        console.log("Token:", token ? "✓ Present" : "✗ Missing");
+        console.log(
+          "Auth User:",
+          authUser ? JSON.parse(authUser) : "✗ Missing",
+        );
+        console.log("Backend URL:", backendUrl);
+
+        if (!token) {
+          messageApi.error("Not authenticated. Please sign in first.");
+          setLoading(false);
+          return;
         }
-      })();
 
-    const customerId =
-      authUser?.id ||
-      authUser?.user_id ||
-      authUser?.customer_id ||
-      authUser?._id ||
-      "user-1";
+        const response = await axios.get(`${backendUrl}/user/bookings`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-    return allBookings
-      .filter(
-        (booking) =>
-          booking.customerId === customerId ||
-          booking.userId === customerId ||
-          booking.customer_id === customerId,
-      )
-      .sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
-  }, [user]);
+        console.log("API Response:", response.data);
+
+        // Handle different response formats from backend
+        let bookingsData = [];
+        if (response.data.bookings) {
+          bookingsData = response.data.bookings;
+          console.log(
+            "✓ Found bookings in response.data.bookings:",
+            bookingsData.length,
+          );
+        } else if (response.data.data) {
+          bookingsData = response.data.data;
+          console.log(
+            "✓ Found bookings in response.data.data:",
+            bookingsData.length,
+          );
+        } else if (Array.isArray(response.data)) {
+          bookingsData = response.data;
+          console.log("✓ Response is array:", bookingsData.length);
+        }
+
+        console.log("Final bookings data:", bookingsData);
+        setBookings(Array.isArray(bookingsData) ? bookingsData : []);
+        setCurrentPage(1);
+      } catch (error) {
+        console.error("Error fetching bookings:", error);
+        console.error("Error details:", error.response?.data);
+        messageApi.error(
+          "Failed to load bookings: " +
+            (error.response?.data?.message || error.message),
+        );
+        setBookings([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (user) {
+      fetchBookings();
+    } else {
+      console.log("No user context available yet");
+    }
+  }, [user, backendUrl, messageApi]);
+
+  // Filter bookings based on selected status
+  const filteredBookings = useMemo(() => {
+    if (filterStatus === "all") {
+      return bookings;
+    }
+    return bookings.filter((b) => b.status === filterStatus);
+  }, [bookings, filterStatus]);
+
+  // Calculate booking counts
+  const bookingCounts = useMemo(() => {
+    return {
+      all: bookings.length,
+      upcoming: bookings.filter((b) => b.status === "upcoming").length,
+      ongoing: bookings.filter((b) => b.status === "ongoing").length,
+      completed: bookings.filter((b) => b.status === "completed").length,
+      cancelled: bookings.filter((b) => b.status === "cancelled").length,
+    };
+  }, [bookings]);
+
+  // Pagination
+  const paginatedBookings = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredBookings.slice(start, start + pageSize);
+  }, [filteredBookings, currentPage, pageSize]);
+
+  const statusColors = {
+    upcoming: "cyan",
+    ongoing: "orange",
+    completed: "green",
+    cancelled: "red",
+    pending: "gold",
+    confirmed: "blue",
+    paid: "green",
+    unpaid: "orange",
+  };
+
+  const handleManualRefresh = () => {
+    setLoading(true);
+    const token = localStorage.getItem("authToken");
+
+    axios
+      .get(`${backendUrl}/user/bookings`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => {
+        console.log("Manual refresh - API Response:", response.data);
+        let bookingsData = [];
+        if (response.data.bookings) {
+          bookingsData = response.data.bookings;
+        } else if (response.data.data) {
+          bookingsData = response.data.data;
+        } else if (Array.isArray(response.data)) {
+          bookingsData = response.data;
+        }
+        setBookings(Array.isArray(bookingsData) ? bookingsData : []);
+        messageApi.success("Bookings refreshed successfully");
+      })
+      .catch((error) => {
+        console.error("Manual refresh error:", error);
+        messageApi.error("Failed to refresh bookings");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+
+  // Define filter tabs
+  const filterTabs = [
+    { key: "all", label: "All Bookings", count: bookingCounts.all },
+    { key: "upcoming", label: "Upcoming", count: bookingCounts.upcoming },
+    { key: "ongoing", label: "Ongoing", count: bookingCounts.ongoing },
+    { key: "completed", label: "Completed", count: bookingCounts.completed },
+    { key: "cancelled", label: "Cancelled", count: bookingCounts.cancelled },
+  ];
 
   return (
     <div
@@ -56,187 +199,325 @@ const BookingPage = () => {
         padding: "40px 24px",
       }}
     >
-      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            gap: 12,
-            marginBottom: 24,
-            flexWrap: "wrap",
-          }}
-        >
-          <div>
-            <Text
-              style={{
-                display: "block",
-                fontSize: 12,
-                letterSpacing: "0.18em",
-                textTransform: "uppercase",
-                color: "#2563eb",
-                marginBottom: 8,
-              }}
-            >
-              Customer
-            </Text>
-            <Title level={2} style={{ margin: 0 }}>
-              My Bookings
-            </Title>
-          </div>
-
-          <Button type="primary" onClick={() => navigate("/rentals")}>
-            Browse Rentals
-          </Button>
+      {contextHolder}
+      <div style={{ maxWidth: 1400, margin: "0 auto" }}>
+        {/* Header */}
+        <div style={{ marginBottom: 32 }}>
+          <Text
+            style={{
+              display: "block",
+              fontSize: 12,
+              letterSpacing: "0.18em",
+              textTransform: "uppercase",
+              color: "#2563eb",
+              marginBottom: 8,
+            }}
+          >
+            Rentals
+          </Text>
+          <Title level={2} style={{ margin: "0 0 8px 0" }}>
+            My Bookings
+          </Title>
+          <Text type="secondary" style={{ fontSize: 14 }}>
+            View and manage your all bookings in one place.
+          </Text>
         </div>
 
-        {bookings.length === 0 ? (
-          <Card>
-            <Text>No bookings found yet.</Text>
-          </Card>
-        ) : (
-          <Row gutter={[20, 20]}>
-            {bookings.map((booking) => {
-              const product = getProductById(booking.productId) || {};
-              const durationDays = Math.max(
-                1,
-                Math.ceil(
-                  (new Date(booking.endDate) - new Date(booking.startDate)) /
-                    (1000 * 60 * 60 * 24),
-                ),
-              );
-
-              const statusColors = {
-                confirmed: "green",
-                pending: "gold",
-                completed: "blue",
-                cancelled: "red",
-              };
-
-              return (
-                <Col xs={24} md={12} key={booking.id}>
-                  <Card
-                    bordered={false}
-                    style={{
-                      borderRadius: 18,
-                      boxShadow: "0 18px 40px rgba(15, 23, 42, 0.06)",
+        <Row gutter={[24, 24]}>
+          {/* Main Content */}
+          <Col xs={24}>
+            {/* Filter Tabs */}
+            <div
+              style={{
+                display: "flex",
+                gap: 12,
+                marginBottom: 24,
+                flexWrap: "wrap",
+                alignItems: "center",
+              }}
+            >
+              {filterTabs.map((tab) => (
+                <Badge key={tab.key} count={tab.count} color="#1890ff">
+                  <Button
+                    type={filterStatus === tab.key ? "primary" : "default"}
+                    onClick={() => {
+                      setFilterStatus(tab.key);
+                      setCurrentPage(1);
                     }}
                   >
+                    {tab.label}
+                  </Button>
+                </Badge>
+              ))}
+              <Button onClick={handleManualRefresh} loading={loading}>
+                🔄 Refresh
+              </Button>
+            </div>
+
+            {/* Bookings List */}
+            {loading ? (
+              <Card style={{ textAlign: "center", padding: 60 }}>
+                <Spin size="large" />
+              </Card>
+            ) : filteredBookings.length === 0 ? (
+              <Card style={{ padding: 40 }}>
+                <div style={{ textAlign: "center" }}>
+                  <Text
+                    type="secondary"
+                    style={{ fontSize: 16, display: "block", marginBottom: 16 }}
+                  >
+                    No {filterStatus !== "all" ? filterStatus : ""} bookings
+                    found yet.
+                  </Text>
+                  <Text
+                    type="secondary"
+                    style={{ fontSize: 12, display: "block", marginBottom: 20 }}
+                  >
+                    Total bookings in system: {bookings.length}
+                  </Text>
+                  <Button
+                    type="primary"
+                    onClick={() => navigate("/rentals")}
+                    style={{ marginRight: 8 }}
+                  >
+                    Browse Rentals
+                  </Button>
+                  <Button onClick={handleManualRefresh}>
+                    Refresh Bookings
+                  </Button>
+                </div>
+              </Card>
+            ) : (
+              <>
+                {/* Table Header */}
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "2fr 2fr 1.2fr 1fr 1fr auto",
+                    gap: 16,
+                    padding: "16px 20px",
+                    background: "#fff",
+                    borderRadius: "8px 8px 0 0",
+                    fontWeight: 600,
+                    fontSize: 12,
+                    color: "#666",
+                    textTransform: "uppercase",
+                    borderBottom: "1px solid #e8e8e8",
+                  }}
+                >
+                  <div>Item</div>
+                  <div>Dates</div>
+                  <div>Status</div>
+                  <div>Payment</div>
+                  <div>Total</div>
+                  <div></div>
+                </div>
+
+                {/* Booking Rows */}
+                {paginatedBookings.map((booking) => {
+                  const product = booking.product || {};
+                  const startDate = booking.start_date || booking.startDate;
+                  const endDate = booking.end_date || booking.endDate;
+                  const durationDays = Math.max(
+                    1,
+                    Math.ceil(
+                      (new Date(endDate) - new Date(startDate)) /
+                        (1000 * 60 * 60 * 24),
+                    ),
+                  );
+
+                  return (
                     <div
+                      key={booking.id}
                       style={{
-                        display: "flex",
-                        justifyContent: "space-between",
+                        display: "grid",
+                        gridTemplateColumns: "2fr 2fr 1.2fr 1fr 1fr auto",
+                        gap: 16,
+                        padding: "16px 20px",
+                        background: "#fff",
+                        borderBottom: "1px solid #f0f0f0",
                         alignItems: "center",
-                        gap: 12,
-                        marginBottom: 16,
-                        flexWrap: "wrap",
                       }}
                     >
-                      <div>
-                        <Text type="secondary" style={{ fontSize: 12 }}>
-                          Booking ID
-                        </Text>
-                        <div style={{ fontWeight: 700 }}>{booking.id}</div>
-                      </div>
-
-                      <Tag color={statusColors[booking.status] || "default"}>
-                        {booking.status}
-                      </Tag>
-                    </div>
-
-                    <div
-                      style={{
-                        display: "flex",
-                        gap: 12,
-                        alignItems: "center",
-                        marginBottom: 14,
-                      }}
-                    >
+                      {/* Item */}
                       <div
                         style={{
-                          width: 60,
-                          height: 60,
-                          borderRadius: 12,
-                          background:
-                            "linear-gradient(135deg, #334155, #2563eb)",
                           display: "flex",
+                          gap: 12,
                           alignItems: "center",
-                          justifyContent: "center",
-                          color: "#fff",
-                          fontWeight: 700,
                         }}
                       >
-                        {(product.name || "Item").slice(0, 2).toUpperCase()}
+                        <div
+                          style={{
+                            width: 60,
+                            height: 60,
+                            borderRadius: 8,
+                            background:
+                              "linear-gradient(135deg, #334155, #2563eb)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            color: "#fff",
+                            fontWeight: 700,
+                            fontSize: 12,
+                            flexShrink: 0,
+                          }}
+                        >
+                          {(product.name || "Item").slice(0, 2).toUpperCase()}
+                        </div>
+                        <div>
+                          <Text
+                            strong
+                            style={{ display: "block", fontSize: 14 }}
+                          >
+                            {product.name || "Rental Item"}
+                          </Text>
+                          <Text type="secondary" style={{ fontSize: 12 }}>
+                            Rental, Addis Ababa
+                          </Text>
+                        </div>
                       </div>
 
+                      {/* Dates */}
                       <div>
-                        <Text strong style={{ display: "block", fontSize: 18 }}>
-                          {product.name || "Rental Item"}
+                        <Text style={{ display: "block", fontSize: 13 }}>
+                          {formatDate(startDate)}
                         </Text>
-                        <Text type="secondary">
-                          {booking.items || 1} item
-                          {booking.items > 1 ? "s" : ""}
+                        <Text type="secondary" style={{ fontSize: 12 }}>
+                          {formatTime(startDate)}
                         </Text>
-                      </div>
-                    </div>
-
-                    <div style={{ display: "grid", gap: 10 }}>
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                        }}
-                      >
-                        <Text type="secondary">Dates</Text>
-                        <Text>
-                          {formatDate(booking.startDate)} -{" "}
-                          {formatDate(booking.endDate)}
+                        <Text
+                          style={{
+                            display: "block",
+                            marginTop: 4,
+                            fontSize: 13,
+                          }}
+                        >
+                          {formatDate(endDate)}
                         </Text>
-                      </div>
-
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                        }}
-                      >
-                        <Text type="secondary">Duration</Text>
-                        <Text>
-                          {durationDays} day{durationDays > 1 ? "s" : ""}
+                        <Text type="secondary" style={{ fontSize: 12 }}>
+                          {formatTime(endDate)}
+                        </Text>
+                        <Text
+                          type="secondary"
+                          style={{
+                            display: "block",
+                            marginTop: 4,
+                            fontSize: 11,
+                          }}
+                        >
+                          ({durationDays} day{durationDays > 1 ? "s" : ""})
                         </Text>
                       </div>
 
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                        }}
-                      >
-                        <Text type="secondary">Payment</Text>
-                        <Text>{booking.paymentStatus || "paid"}</Text>
+                      {/* Status */}
+                      <div>
+                        <Tag color={statusColors[booking.status] || "default"}>
+                          {booking.status || "pending"}
+                        </Tag>
                       </div>
 
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                        }}
-                      >
-                        <Text type="secondary">Total</Text>
-                        <Text strong>
+                      {/* Payment */}
+                      <div>
+                        <Tag
+                          color={
+                            booking.payment_status === "paid" ||
+                            booking.paymentStatus === "paid"
+                              ? "green"
+                              : "orange"
+                          }
+                        >
+                          {booking.payment_status ||
+                            booking.paymentStatus ||
+                            "unpaid"}
+                        </Tag>
+                      </div>
+
+                      {/* Total */}
+                      <div style={{ textAlign: "right" }}>
+                        <Text strong style={{ fontSize: 14 }}>
                           $
-                          {booking.totalAmount ??
+                          {booking.total_amount ??
+                            booking.totalAmount ??
                             product.pricing?.daily?.amount ??
                             0}
                         </Text>
                       </div>
+
+                      {/* Action */}
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "flex-end",
+                          gap: 8,
+                          flexWrap: "wrap",
+                        }}
+                      >
+                        <Button
+                          type="default"
+                          size="small"
+                          icon={<MessageOutlined />}
+                          onClick={() =>
+                            navigate("/messages", {
+                              state: {
+                                vendorId:
+                                  booking.vendor_id ||
+                                  booking.vendorId ||
+                                  product.vendor_id ||
+                                  product.vendorId,
+                                vendorName:
+                                  product.vendor?.name ||
+                                  booking.vendor_name ||
+                                  product.vendor_name ||
+                                  "Vendor",
+                                bookingId: booking.id,
+                                productName: product.name || "Rental Item",
+                              },
+                            })
+                          }
+                        >
+                          Contact Vendor
+                        </Button>
+                        <Button
+                          type="primary"
+                          size="small"
+                          icon={<EyeOutlined />}
+                          onClick={() =>
+                            navigate(`/booking-details/${booking.id}`)
+                          }
+                        >
+                          View Details
+                        </Button>
+                      </div>
                     </div>
-                  </Card>
-                </Col>
-              );
-            })}
-          </Row>
-        )}
+                  );
+                })}
+
+                {/* Pagination */}
+                {filteredBookings.length > pageSize && (
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      padding: "20px",
+                      background: "#fff",
+                      borderRadius: "0 0 8px 8px",
+                      borderTop: "1px solid #f0f0f0",
+                    }}
+                  >
+                    <Pagination
+                      current={currentPage}
+                      pageSize={pageSize}
+                      total={filteredBookings.length}
+                      onChange={setCurrentPage}
+                      showSizeChanger={false}
+                    />
+                  </div>
+                )}
+              </>
+            )}
+          </Col>
+        </Row>
       </div>
     </div>
   );

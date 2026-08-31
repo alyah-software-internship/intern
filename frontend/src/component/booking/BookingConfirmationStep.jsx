@@ -38,6 +38,11 @@ const BookingConfirmationStep = ({
   const navigate = useNavigate();
   const item = { ...defaultBooking, ...booking };
 
+  const handleContactVendor = () => {
+    // Navigate to messages page or open vendor contact modal
+    navigate("/messages", { state: { vendorId: booking.vendorId } });
+  };
+
   const stepItems = [
     { title: "Booking Details" },
     { title: "Review & Confirm" },
@@ -268,6 +273,14 @@ const BookingConfirmationStep = ({
                 >
                   <Button type="default" icon={<CalendarOutlined />}>
                     View My Bookings
+                  </Button>
+                  <Button
+                    type="default"
+                    icon={<MessageOutlined />}
+                    onClick={handleContactVendor}
+                    style={{ borderColor: "#2563eb", color: "#2563eb" }}
+                  >
+                    Contact Vendor
                   </Button>
                   <Button
                     type="primary"

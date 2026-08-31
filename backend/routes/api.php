@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\WishlistController;
+use App\Http\Controllers\Api\ChatController;
 
 /*
 |--------------------------------------------------------------------------
@@ -118,6 +119,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/bookings/{id}/reject', [BookingController::class, 'reject']);
         Route::put('/bookings/{id}/complete', [BookingController::class, 'complete']);
         Route::get('/revenue', [VendorController::class, 'revenue']);
+        Route::get('/analytics', [DashboardController::class, 'vendorAnalytics']);
         Route::get('/payments/summary', [PaymentController::class, 'vendorSummary']);
         
         // Operators
@@ -159,6 +161,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/read-all', [NotificationController::class, 'markAllAsRead']);
         Route::delete('/{id}', [NotificationController::class, 'destroy']);
         Route::get('/unread-count', [NotificationController::class, 'unreadCount']);
+    });
+
+    // ========== CHAT ROUTES ==========
+    Route::prefix('bookings/{bookingId}/messages')->group(function () {
+        Route::get('/', [ChatController::class, 'index']);
+        Route::post('/', [ChatController::class, 'store']);
     });
     
     // ========== REVIEW ROUTES ==========

@@ -28,6 +28,7 @@ import Verify from "./page/vendor/Verify";
 import Products from "./page/vendor/Products";
 import Bookings from "./page/vendor/Bookings";
 import Customers from "./page/vendor/Customers";
+import VendorMessages from "./page/vendor/Messages";
 import Employees from "./page/vendor/Employees";
 import Analytics from "./page/vendor/Analytics";
 import Reports from "./page/vendor/Reports";
@@ -62,10 +63,19 @@ const ProtectedRoute = ({ children, roles }) => {
     return <Navigate to="/signin" replace />;
   }
 
-  const userRole = user?.role || "customer";
+  const userRole = (user?.role || "customer").toLowerCase();
+  const isCustomerBookingPath =
+    location.pathname === "/bookings" ||
+    location.pathname.startsWith("/booking-details") ||
+    location.pathname === "/dashboard" ||
+    location.pathname === "/profile" ||
+    location.pathname === "/settings" ||
+    location.pathname === "/messages" ||
+    location.pathname === "/wishlist" ||
+    location.pathname === "/notifications";
 
   if (roles && !roles.includes(userRole)) {
-    if (location.pathname === "/bookings") {
+    if (isCustomerBookingPath && (!userRole || userRole === "customer")) {
       return children;
     }
 
@@ -215,6 +225,7 @@ const App = () => {
             <Route path="products" element={<Products />} />
             <Route path="bookings" element={<Bookings />} />
             <Route path="customers" element={<Customers />} />
+            <Route path="messages" element={<VendorMessages />} />
             <Route path="employees" element={<Employees />} />
             <Route path="analytics" element={<Analytics />} />
             <Route path="reports" element={<Reports />} />

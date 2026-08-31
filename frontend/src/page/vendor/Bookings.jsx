@@ -1,4 +1,5 @@
-import React, { useMemo } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
+import axios from "axios";
 import {
   Row,
   Col,
@@ -9,9 +10,12 @@ import {
   Table,
   Image,
   Button,
+  message,
 } from "antd";
+import { MessageOutlined } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
 import { useTheme } from "../../context/ThemeProvider.jsx";
-import { bookings, rentalItems, vendors } from "../../assets/dummyAssets.js";
+import { AppContext } from "../../context/AppContext.jsx";
 
 const { Title, Text } = Typography;
 
@@ -24,28 +28,116 @@ const checkoutStatusColors = {
 
 const Bookings = () => {
   const { theme } = useTheme();
+  const { backendUrl } = useContext(AppContext);
   const isDark = theme === "dark";
+  const navigate = useNavigate();
+  const [bookingsList, setBookingsList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [messageApi, contextHolder] = message.useMessage();
+
+  const normalizeImageUrl = (value) => {
+    if (!value || typeof value !== "string") return null;
+
+    const trimmed = value.trim();
+    if (!trimmed) return null;
+
+    if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+      return trimmed;
+    }
+
+    if (trimmed.startsWith("data:image/")) {
+      return trimmed;
+    }
+
+    const cleanPath = trimmed.replace(/^\/+/, "");
+
+    if (cleanPath.startsWith("storage/")) {
+      return `${backendUrl || "http://127.0.0.1:8000"}/` + cleanPath;
+    }
+
+    if (backendUrl) {
+      return `${backendUrl}/storage/${cleanPath}`;
+    }
+
+    return `http://127.0.0.1:8000/storage/${cleanPath}`;
+  };
+
+  useEffect(() => {
+    let isCurrent = true;
+
+    axios
+      .get(`${backendUrl}/vendor/bookings`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+      })
+      .then((response) => {
+        if (!isCurrent) return;
+
+        const rows = response.data?.bookings || response.data?.data || [];
+        setBookingsList(Array.isArray(rows) ? rows : []);
+      })
+      .catch((error) => {
+        if (!isCurrent) return;
+        console.error("Failed to fetch vendor bookings:", error);
+        messageApi.error(
+          error.response?.data?.message || "Unable to load vendor bookings.",
+        );
+        setBookingsList([]);
+      })
+      .finally(() => {
+        if (isCurrent) setLoading(false);
+      });
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [backendUrl, messageApi]);
+
+  const pendingCount = useMemo(
+    () =>
+      bookingsList.filter(
+        (booking) => String(booking.status).toLowerCase() === "pending",
+      ).length,
+    [bookingsList],
+  );
 
   const activeRows = useMemo(
     () =>
-      bookings.slice(0, 1).map((booking) => {
-        const product =
-          rentalItems.find((item) => item.id === booking.productId) || {};
-        const customer =
-          vendors.find((item) => item.id === booking.vendorId) || {};
+      bookingsList.map((booking) => {
+        const product = booking.product || {};
+        const customer = booking.customer || {};
+        const startDate = booking.start_date || booking.startDate;
+        const endDate = booking.end_date || booking.endDate;
+        const productImageValue =
+          product.images?.find((image) => image?.is_primary)?.image_url ||
+          product.images?.[0]?.image_url ||
+          product.images?.[0]?.url ||
+          product.image_url ||
+          product.image;
+
+        const productImage =
+          normalizeImageUrl(productImageValue) || "/logo.png";
 
         return {
           key: booking.id,
-          productName: product.title || booking.productId,
-          productImage: product.images?.[0] || product.image,
-          customerName: customer.name || "Marcus Sterling",
-          startDate: booking.startDate,
-          endDate: booking.endDate,
-          checkoutStatus: "WORKING IN FIELD",
-          escrowHolding: "$900",
+          bookingId: booking.id,
+          customerId: customer.id || booking.customer_id || booking.user_id,
+          productName: product.name || "Rental Item",
+          productImage,
+          customerName:
+            customer.name ||
+            `${customer.first_name || ""} ${customer.last_name || ""}`.trim() ||
+            "Customer",
+          startDate: startDate ? new Date(startDate).toLocaleDateString() : "-",
+          endDate: endDate ? new Date(endDate).toLocaleDateString() : "-",
+          checkoutStatus: booking.status || "pending",
+          escrowHolding: booking.security_deposit_amount
+            ? `$${Number(booking.security_deposit_amount).toFixed(2)}`
+            : "$0.00",
         };
       }),
-    [],
+    [bookingsList, normalizeImageUrl],
   );
 
   const columns = [
@@ -58,8 +150,10 @@ const Bookings = () => {
           <Image
             width={42}
             height={42}
-            src={record.productImage}
+            src={record.productImage || "/logo.png"}
             preview={false}
+            loading="lazy"
+            fallback="/logo.png"
             style={{ borderRadius: 10, objectFit: "cover" }}
           />
           <Text strong style={{ color: isDark ? "#f8fafc" : "#111827" }}>
@@ -92,14 +186,32 @@ const Bookings = () => {
       title: "CHECKOUT STATUS",
       dataIndex: "checkoutStatus",
       key: "checkoutStatus",
-      render: (status) => (
-        <Tag
-          color={checkoutStatusColors.working_in_field || "green"}
-          style={{ borderRadius: 6, fontWeight: 700 }}
-        >
-          {status}
-        </Tag>
-      ),
+      render: (status) => {
+        const normalized = String(status || "pending").toLowerCase();
+        const tagColor =
+          normalized === "completed"
+            ? "green"
+            : normalized === "cancelled"
+              ? "red"
+              : normalized === "active"
+                ? "blue"
+                : normalized === "pending"
+                  ? "gold"
+                  : "default";
+
+        return (
+          <Tag
+            color={tagColor}
+            style={{
+              borderRadius: 6,
+              fontWeight: 700,
+              textTransform: "uppercase",
+            }}
+          >
+            {status}
+          </Tag>
+        );
+      },
     },
     {
       title: "ESCROW HOLDING",
@@ -115,8 +227,31 @@ const Bookings = () => {
       title: "HANDOVERS / DAMAGE LOG",
       dataIndex: "actions",
       key: "actions",
-      render: () => (
+      render: (_, record) => (
         <Space size={8} wrap>
+          <Button
+            type="text"
+            size="small"
+            icon={<MessageOutlined />}
+            title="Chat with customer"
+            style={{
+              color: "#2563eb",
+              border: "1px solid rgba(37, 99, 235, 0.2)",
+              background: isDark ? "rgba(59, 130, 246, 0.12)" : "#eff6ff",
+            }}
+            onClick={() =>
+              navigate("/vendor/messages", {
+                state: {
+                  bookingId: record.bookingId,
+                  customerId: record.customerId,
+                  customerName: record.customerName,
+                  productName: record.productName,
+                },
+              })
+            }
+          >
+            Message
+          </Button>
           <Button
             type="default"
             size="small"
@@ -140,6 +275,7 @@ const Bookings = () => {
         background: isDark ? "#060b17" : "#f4f8fd",
       }}
     >
+      {contextHolder}
       <Row gutter={[20, 20]}>
         <Col xs={24}>
           <Title
@@ -187,7 +323,9 @@ const Bookings = () => {
                 fontStyle: "italic",
               }}
             >
-              No pending customer requests at the moment.
+              {pendingCount > 0
+                ? `${pendingCount} customer request(s) pending approval.`
+                : "No pending customer requests at the moment."}
             </div>
           </Card>
         </Col>
@@ -210,9 +348,11 @@ const Bookings = () => {
               <Table
                 columns={columns}
                 dataSource={activeRows}
+                loading={loading}
                 pagination={false}
                 rowKey="key"
                 scroll={{ x: 900 }}
+                locale={{ emptyText: "No bookings found." }}
                 style={{ background: isDark ? "#0f172a" : "#ffffff" }}
               />
             </div>

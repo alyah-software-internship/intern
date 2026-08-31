@@ -5,6 +5,7 @@ import { Button, Card, Space, Tag, Typography } from "antd";
 import {
   BellOutlined,
   CheckCircleOutlined,
+  LogoutOutlined,
   MenuOutlined,
   PlusOutlined,
   WarningOutlined,
@@ -20,6 +21,7 @@ const navItems = [
   { key: "products", label: "Products", path: "/vendor/products" },
   { key: "bookings", label: "Bookings", path: "/vendor/bookings" },
   { key: "customers", label: "Customers", path: "/vendor/customers" },
+  { key: "messages", label: "Messages", path: "/vendor/messages" },
   { key: "employees", label: "Employees", path: "/vendor/employees" },
   { key: "analytics", label: "Analytics", path: "/vendor/analytics" },
   { key: "reports", label: "Reports", path: "/vendor/reports" },
@@ -35,6 +37,7 @@ const routeTitles = {
   "/vendor/products": "products",
   "/vendor/bookings": "bookings",
   "/vendor/customers": "customers",
+  "/vendor/messages": "messages",
   "/vendor/employees": "employees",
   "/vendor/analytics": "analytics",
   "/vendor/reports": "reports",
@@ -50,7 +53,7 @@ const vendorProfileCacheKey = "vendorProfile";
 const VendorLayout = () => {
   const { theme } = useTheme();
   const { translation: t } = useTranslation();
-  const { backendUrl } = useContext(AppContext);
+  const { backendUrl, signOut } = useContext(AppContext);
   const isDark = theme === "dark";
   const location = useLocation();
   const [isMobile, setIsMobile] = useState(false);
@@ -412,6 +415,18 @@ const VendorLayout = () => {
               onClick={() => navigate("/vendor/add-product")}
             >
               {t.vendor?.addProduct || "Add Product"}
+            </Button>
+            <Button
+              icon={<LogoutOutlined />}
+              danger
+              type="default"
+              style={{ borderRadius: 16 }}
+              onClick={async () => {
+                await signOut();
+                navigate("/");
+              }}
+            >
+              {t.nav?.logout || "Logout"}
             </Button>
           </Space>
         </div>

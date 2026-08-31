@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
+import axios from "axios";
 import {
   Row,
   Col,
@@ -9,46 +10,108 @@ import {
   Table,
   Button,
   Tag,
+  message,
 } from "antd";
 import { useTheme } from "../../context/ThemeProvider.jsx";
-import { bookings, users } from "../../assets/dummyAssets.js";
+import { AppContext } from "../../context/AppContext.jsx";
 
 const { Title, Text } = Typography;
 
 const Customers = () => {
   const { theme } = useTheme();
+  const { backendUrl } = useContext(AppContext);
   const isDark = theme === "dark";
   const [searchValue, setSearchValue] = useState("");
+  const [bookingsList, setBookingsList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [messageApi, contextHolder] = message.useMessage();
+
+  useEffect(() => {
+    let isCurrent = true;
+
+    axios
+      .get(`${backendUrl}/vendor/bookings`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+      })
+      .then((response) => {
+        if (!isCurrent) return;
+
+        const rows = response.data?.bookings || response.data?.data || [];
+        setBookingsList(Array.isArray(rows) ? rows : []);
+      })
+      .catch((error) => {
+        if (!isCurrent) return;
+        console.error("Failed to fetch vendor bookings:", error);
+        messageApi.error(
+          error.response?.data?.message || "Unable to load vendor customers.",
+        );
+        setBookingsList([]);
+      })
+      .finally(() => {
+        if (isCurrent) setLoading(false);
+      });
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [backendUrl, messageApi]);
 
   const customerRows = useMemo(() => {
-    return users
-      .filter((user) => user.role === "customer")
-      .map((user) => {
-        const userBookings = bookings.filter(
-          (booking) => booking.customerId === user.id,
-        );
-        const totalRevenue = userBookings.reduce(
-          (sum, booking) => sum + booking.totalAmount,
-          0,
-        );
-        const lastActivity = userBookings[0]?.startDate || user.joinDate;
+    // Group bookings by customer to avoid duplicates
+    const customerMap = new Map();
 
-        return {
-          key: user.id,
-          customerName: user.name,
-          email: user.email,
-          bookingsDispatched: userBookings.length,
-          totalRentalRevenue: `$${totalRevenue}`,
-          lastActivity,
-          initials: user.name
-            .split(" ")
-            .map((part) => part[0])
-            .slice(0, 2)
-            .join("")
-            .toUpperCase(),
-        };
-      });
-  }, []);
+    bookingsList.forEach((booking) => {
+      const customer = booking.customer || {};
+      const customerId = customer.id;
+
+      if (customerId) {
+        if (!customerMap.has(customerId)) {
+          customerMap.set(customerId, {
+            id: customerId,
+            name:
+              customer.name ||
+              `${customer.first_name || ""} ${customer.last_name || ""}`.trim() ||
+              "Customer",
+            email: customer.email || "No email",
+            bookings: [],
+          });
+        }
+        customerMap.get(customerId).bookings.push(booking);
+      }
+    });
+
+    // Convert map to array and format for table
+    return Array.from(customerMap.values()).map((customer) => {
+      const totalRevenue = customer.bookings.reduce((sum, booking) => {
+        return sum + Number(booking.total_amount || booking.totalAmount || 0);
+      }, 0);
+
+      const lastActivity =
+        customer.bookings[0]?.start_date ||
+        customer.bookings[0]?.startDate ||
+        new Date().toLocaleDateString();
+
+      return {
+        key: customer.id,
+        customerName: customer.name,
+        email: customer.email,
+        bookingsDispatched: customer.bookings.length,
+        totalRentalRevenue: `$${totalRevenue.toFixed(2)}`,
+        lastActivity:
+          typeof lastActivity === "string"
+            ? new Date(lastActivity).toLocaleDateString()
+            : lastActivity,
+        initials: customer.name
+          .split(" ")
+          .map((part) => part[0])
+          .slice(0, 2)
+          .join("")
+          .toUpperCase(),
+      };
+    });
+  }, [bookingsList]);
 
   const filteredRows = useMemo(() => {
     const term = searchValue.trim().toLowerCase();
@@ -138,6 +201,7 @@ const Customers = () => {
         background: isDark ? "#060b17" : "#f4f8fd",
       }}
     >
+      {contextHolder}
       <Row gutter={[16, 16]}>
         <Col xs={24}>
           <div
@@ -201,6 +265,7 @@ const Customers = () => {
               rowKey="key"
               scroll={{ x: 900 }}
               style={{ background: isDark ? "#0f172a" : "#ffffff" }}
+              loading={loading}
             />
           </Card>
         </Col>

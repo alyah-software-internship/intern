@@ -1,42 +1,88 @@
-import React, { useMemo, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
+import axios from "axios";
 import { Row, Col, Card, Typography, Space, Button, Progress } from "antd";
 import { useTheme } from "../../context/ThemeProvider.jsx";
+import { AppContext } from "../../context/AppContext.jsx";
 
 const { Title, Text } = Typography;
 
-const categoryData = [
+const defaultCategoryData = [
   {
-    label: "Agriculture & Tractors",
-    value: 14,
-    percentage: "14 bookings (85%)",
+    label: "No data yet",
+    value: 0,
+    percentage: "0 bookings (0%)",
     color: "#10b981",
-  },
-  {
-    label: "Construction & Loaders",
-    value: 8,
-    percentage: "8 bookings (55%)",
-    color: "#3b82f6",
-  },
-  {
-    label: "Lawn & Gardening",
-    value: 3,
-    percentage: "3 bookings (20%)",
-    color: "#f59e0b",
-  },
-  {
-    label: "Material Handling & Lifts",
-    value: 1,
-    percentage: "1 bookings (10%)",
-    color: "#8b5cf6",
   },
 ];
 
 const Analytics = () => {
   const { theme } = useTheme();
+  const { backendUrl } = useContext(AppContext);
   const isDark = theme === "dark";
   const [listingPrice] = useState(150);
   const [daysRented] = useState(18);
   const [commissionRate] = useState(0.03);
+  const [analytics, setAnalytics] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAnalytics = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(`${backendUrl}/vendor/analytics`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+        });
+
+        setAnalytics(response.data?.analytics || null);
+      } catch (error) {
+        console.error("Failed to load analytics:", error);
+        setAnalytics(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (backendUrl) {
+      fetchAnalytics();
+    }
+  }, [backendUrl]);
+
+  const categoryData = useMemo(() => {
+    if (
+      !analytics?.popular_products ||
+      analytics.popular_products.length === 0
+    ) {
+      return defaultCategoryData;
+    }
+
+    const maxViews = Math.max(
+      ...analytics.popular_products.map((item) =>
+        Number(item.views_count || 0),
+      ),
+    );
+
+    return analytics.popular_products.map((product, index) => {
+      const views = Number(product.views_count || 0);
+      const percent = maxViews > 0 ? Math.round((views / maxViews) * 100) : 0;
+      const colors = ["#10b981", "#3b82f6", "#f59e0b", "#8b5cf6", "#ec4899"];
+
+      return {
+        label: product.name || `Product ${index + 1}`,
+        value: views,
+        percentage: `${views} views (${percent}%)`,
+        color: colors[index % colors.length],
+      };
+    });
+  }, [analytics]);
+
+  const totalViews = Number(analytics?.total_views ?? 0);
+  const totalBookings = Number(analytics?.total_bookings ?? 0);
+  const averageRating = Number(analytics?.average_rating ?? 0);
+  const completionRate = Number(analytics?.completion_rate ?? 0);
+  const responseTime = Number(analytics?.response_time ?? 0);
+  const conversionRate = Number(analytics?.conversion_rate ?? 0);
 
   const estimatedProfit = useMemo(() => {
     const commission = listingPrice * daysRented * commissionRate;
@@ -96,36 +142,42 @@ const Analytics = () => {
               Asset Category Rental Frequency
             </Title>
 
-            <Space direction="vertical" size={18} style={{ width: "100%" }}>
-              {categoryData.map((item) => (
-                <div key={item.label}>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      marginBottom: 8,
-                    }}
-                  >
-                    <Text
-                      strong
-                      style={{ color: isDark ? "#f8fafc" : "#111827" }}
+            <Space orientation="vertical" size={18} style={{ width: "100%" }}>
+              {loading ? (
+                <Text style={{ color: isDark ? "#94a3b8" : "#64748b" }}>
+                  Loading analytics...
+                </Text>
+              ) : (
+                categoryData.map((item) => (
+                  <div key={item.label}>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        marginBottom: 8,
+                      }}
                     >
-                      {item.label}
-                    </Text>
-                    <Text style={{ color: isDark ? "#94a3b8" : "#64748b" }}>
-                      {item.percentage}
-                    </Text>
+                      <Text
+                        strong
+                        style={{ color: isDark ? "#f8fafc" : "#111827" }}
+                      >
+                        {item.label}
+                      </Text>
+                      <Text style={{ color: isDark ? "#94a3b8" : "#64748b" }}>
+                        {item.percentage}
+                      </Text>
+                    </div>
+                    <Progress
+                      percent={item.value === 0 ? 0 : Math.min(item.value, 100)}
+                      showInfo={false}
+                      strokeColor={item.color}
+                      trailColor={isDark ? "#1e293b" : "#dbeafe"}
+                      style={{ marginBottom: 2 }}
+                    />
                   </div>
-                  <Progress
-                    percent={item.value * 7}
-                    showInfo={false}
-                    strokeColor={item.color}
-                    trailColor={isDark ? "#1e293b" : "#dbeafe"}
-                    style={{ marginBottom: 2 }}
-                  />
-                </div>
-              ))}
+                ))
+              )}
             </Space>
           </Card>
         </Col>
@@ -164,10 +216,10 @@ const Analytics = () => {
                 }}
               >
                 <Text strong style={{ color: isDark ? "#f8fafc" : "#111827" }}>
-                  Avg. Listing Price:
+                  Total Views:
                 </Text>
                 <Text strong style={{ color: isDark ? "#f8fafc" : "#111827" }}>
-                  ${listingPrice} / day
+                  {totalViews}
                 </Text>
               </div>
 
@@ -179,10 +231,10 @@ const Analytics = () => {
                 }}
               >
                 <Text strong style={{ color: isDark ? "#f8fafc" : "#111827" }}>
-                  Days rented / month:
+                  Total Bookings:
                 </Text>
                 <Text strong style={{ color: isDark ? "#f8fafc" : "#111827" }}>
-                  {daysRented} Days
+                  {totalBookings}
                 </Text>
               </div>
 
@@ -194,10 +246,55 @@ const Analytics = () => {
                 }}
               >
                 <Text strong style={{ color: isDark ? "#f8fafc" : "#111827" }}>
-                  Commission fee (3%):
+                  Conversion Rate:
                 </Text>
-                <Text strong style={{ color: "#ef4444" }}>
-                  ${Math.round(listingPrice * daysRented * commissionRate)}
+                <Text strong style={{ color: "#10b981" }}>
+                  {conversionRate}%
+                </Text>
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  marginBottom: 12,
+                }}
+              >
+                <Text strong style={{ color: isDark ? "#f8fafc" : "#111827" }}>
+                  Avg. Rating:
+                </Text>
+                <Text strong style={{ color: isDark ? "#f8fafc" : "#111827" }}>
+                  {averageRating.toFixed(1)} / 5
+                </Text>
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  marginBottom: 12,
+                }}
+              >
+                <Text strong style={{ color: isDark ? "#f8fafc" : "#111827" }}>
+                  Completion Rate:
+                </Text>
+                <Text strong style={{ color: isDark ? "#f8fafc" : "#111827" }}>
+                  {completionRate}%
+                </Text>
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  marginBottom: 12,
+                }}
+              >
+                <Text strong style={{ color: isDark ? "#f8fafc" : "#111827" }}>
+                  Avg. Response Time:
+                </Text>
+                <Text strong style={{ color: isDark ? "#f8fafc" : "#111827" }}>
+                  {responseTime}h
                 </Text>
               </div>
 

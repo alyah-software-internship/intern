@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -63,7 +64,9 @@ return new class extends Migration
             $table->softDeletes();
             
             // Fulltext Indexes
-            $table->fullText(['name', 'description', 'name_am', 'description_am'], 'idx_search');
+            if (DB::connection()->getDriverName() !== 'sqlite') {
+                $table->fullText(['name', 'description', 'name_am', 'description_am'], 'idx_search');
+            }
             
             $table->index('vendor_id');
             $table->index('category_id');

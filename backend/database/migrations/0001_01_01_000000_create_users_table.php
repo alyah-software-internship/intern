@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -120,15 +121,17 @@ return new class extends Migration
             $table->index('city');
 
             // Full-text search
-            $table->fullText(
-                ['first_name', 'middle_name', 'last_name', 'bio'],
-                'idx_search_english'
-            );
+            if (DB::connection()->getDriverName() !== 'sqlite') {
+                $table->fullText(
+                    ['first_name', 'middle_name', 'last_name', 'bio'],
+                    'idx_search_english'
+                );
 
-            $table->fullText(
-                ['first_name_am', 'middle_name_am', 'last_name_am', 'bio_am'],
-                'idx_search_amharic'
-            );
+                $table->fullText(
+                    ['first_name_am', 'middle_name_am', 'last_name_am', 'bio_am'],
+                    'idx_search_amharic'
+                );
+            }
         });
 
         // Laravel infrastructure tables
