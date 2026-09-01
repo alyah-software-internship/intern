@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { Avatar, Badge, Button, Card, Space, Tag, Typography } from "antd";
 import {
@@ -9,13 +9,14 @@ import {
   CloseOutlined,
   DashboardOutlined,
   FileTextOutlined,
-  MenuOutlined,
+  LogoutOutlined,
   SafetyCertificateOutlined,
   SettingOutlined,
   ShopOutlined,
   TeamOutlined,
 } from "@ant-design/icons";
 import { useTheme } from "../../context/ThemeProvider.jsx";
+import { AppContext } from "../../context/AppContext.jsx";
 
 const { Title, Text } = Typography;
 
@@ -94,6 +95,7 @@ const navItems = [
 
 const AdminLayout = () => {
   const { theme } = useTheme();
+  const { signOut } = useContext(AppContext);
   const isDark = theme === "dark";
   const navigate = useNavigate();
   const location = useLocation();
@@ -415,6 +417,18 @@ const AdminLayout = () => {
                 }}
               >
                 Admin Node
+              </Button>
+
+              <Button
+                danger
+                type="default"
+                icon={<LogoutOutlined />}
+                onClick={async () => {
+                  await signOut();
+                  navigate("/");
+                }}
+              >
+                Log out
               </Button>
             </Space>
           </div>
