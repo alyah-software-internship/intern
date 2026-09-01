@@ -266,12 +266,6 @@ class BookingService
             'operator_status' => $booking->operator_id ? 'assigned' : 'pending',
         ]);
 
-        $this->walletService->releasePending(
-            $booking->vendor->user,
-            (float) $booking->vendor_payment,
-            ['booking_id' => $booking->id]
-        );
-
         // Notify customer
         $this->createNotification(
             $booking->customer_id,

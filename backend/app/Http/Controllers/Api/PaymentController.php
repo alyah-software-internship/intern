@@ -70,6 +70,13 @@ class PaymentController extends Controller
                 ], 400);
             }
 
+            if ($booking->status !== 'confirmed') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Payment is available only after the vendor approves your rental request.',
+                ], 409);
+            }
+
             $paymentData = [
                 'payment_method' => $request->payment_method,
                 'payment_data' => $request->payment_data,

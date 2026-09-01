@@ -34,6 +34,7 @@ const defaultBooking = {
 const BookingConfirmationStep = ({
   booking = defaultBooking,
   bookingId = "BK-2025-0602-7859",
+  pendingApproval = false,
 }) => {
   const navigate = useNavigate();
   const item = { ...defaultBooking, ...booking };
@@ -126,9 +127,15 @@ const BookingConfirmationStep = ({
                       boxShadow: "0 12px 28px rgba(24, 183, 107, 0.22)",
                     }}
                   >
-                    <CheckCircleOutlined
-                      style={{ fontSize: 36, color: "#fff" }}
-                    />
+                    {pendingApproval ? (
+                      <ClockCircleOutlined
+                        style={{ fontSize: 36, color: "#fff" }}
+                      />
+                    ) : (
+                      <CheckCircleOutlined
+                        style={{ fontSize: 36, color: "#fff" }}
+                      />
+                    )}
                   </div>
                 </div>
 
@@ -140,7 +147,9 @@ const BookingConfirmationStep = ({
                     color: "#0f172a",
                   }}
                 >
-                  Your booking is confirmed!
+                  {pendingApproval
+                    ? "Request sent to the vendor"
+                    : "Your booking is confirmed!"}
                 </Title>
 
                 <Text
@@ -151,7 +160,9 @@ const BookingConfirmationStep = ({
                     marginBottom: 18,
                   }}
                 >
-                  Thank you! Your booking has been successfully placed.
+                  {pendingApproval
+                    ? "The vendor will review your request and any questions you sent. You can pay securely through iShare after approval."
+                    : "Thank you! Your booking has been successfully placed."}
                 </Text>
 
                 <div

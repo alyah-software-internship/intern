@@ -26,6 +26,7 @@ const BookingDetailsPage = lazy(
 const Messagespage = lazy(() => import("./page/customer/Messagespage"));
 const WishlistPage = lazy(() => import("./page/customer/WishlistPage"));
 const NotificationPage = lazy(() => import("./page/customer/NotificationPage"));
+const PaymentPage = lazy(() => import("./page/customer/PaymentPage"));
 const VendorLayout = lazy(() => import("./component/vendor/VendorLayout"));
 const VendorPage = lazy(() => import("./page/vendor/VendorPage"));
 const Verify = lazy(() => import("./page/vendor/Verify"));
@@ -166,6 +167,14 @@ const App = () => {
               element={
                 <ProtectedRoute roles={["customer", "operator"]}>
                   <BookingDetailsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/payments/:bookingId"
+              element={
+                <ProtectedRoute roles={["customer"]}>
+                  <PaymentPage />
                 </ProtectedRoute>
               }
             />

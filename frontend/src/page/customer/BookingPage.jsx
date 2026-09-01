@@ -10,8 +10,6 @@ import {
   message,
   Badge,
   Pagination,
-  Divider,
-  Space,
 } from "antd";
 import { useNavigate } from "react-router-dom";
 import { EyeOutlined, MessageOutlined } from "@ant-design/icons";
@@ -488,6 +486,17 @@ const BookingPage = () => {
                         >
                           View Details
                         </Button>
+                        {booking.status === "confirmed" &&
+                          booking.payment_status !== "paid" && (
+                            <Button
+                              type="primary"
+                              onClick={() =>
+                                navigate(`/payments/${booking.id}`)
+                              }
+                            >
+                              Pay Now
+                            </Button>
+                          )}
                       </div>
                     </div>
                   );

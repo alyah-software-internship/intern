@@ -6,7 +6,6 @@ import {
   Row,
   Space,
   Steps,
-  Tag,
   Typography,
 } from "antd";
 import {
@@ -366,7 +365,7 @@ const BookingReviewStep = ({
                 </Button>
 
                 <Button type="primary" size="large" onClick={onContinue}>
-                  Continue to Payment →
+                  Send Request to Vendor →
                 </Button>
               </div>
             </Card>

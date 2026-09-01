@@ -14,6 +14,7 @@ const BookingDetailsPage = () => {
   const { backendUrl } = useContext(AppContext);
   const [currentStep, setCurrentStep] = useState(0);
   const [bookingId, setBookingId] = useState(null);
+  const [requestSubmitted, setRequestSubmitted] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
 
   const item = state?.item || {};
@@ -46,7 +47,7 @@ const BookingDetailsPage = () => {
     [endDate, item, startDate],
   );
 
-  const handlePaymentSubmit = async () => {
+  const handleBookingRequest = async () => {
     try {
       const token = localStorage.getItem("authToken");
 
@@ -90,7 +91,8 @@ const BookingDetailsPage = () => {
 
       if (response.data.booking?.id) {
         setBookingId(response.data.booking.id);
-        messageApi.success("Booking created successfully!");
+        setRequestSubmitted(true);
+        messageApi.success("Rental request sent to the vendor.");
       }
 
       setCurrentStep(3);
@@ -110,8 +112,10 @@ const BookingDetailsPage = () => {
       return (
         <BookingDetailsStep
           booking={booking}
-          onBack={() => navigate(-1)}
           onContinue={() => setCurrentStep(1)}
+          onAdditionalInfoChange={(additionalInfo) => {
+            booking.additionalInfo = additionalInfo;
+          }}
           onCouponApply={(couponCode) => {
             booking.couponCode = couponCode;
           }}
@@ -124,7 +128,7 @@ const BookingDetailsPage = () => {
         <BookingReviewStep
           booking={booking}
           onBack={() => setCurrentStep(0)}
-          onContinue={() => setCurrentStep(2)}
+          onContinue={handleBookingRequest}
         />
       );
     }
@@ -135,7 +139,7 @@ const BookingDetailsPage = () => {
           booking={booking}
           onBack={() => setCurrentStep(1)}
           onContinue={() => setCurrentStep(3)}
-          onPaymentSubmit={handlePaymentSubmit}
+          onPaymentSubmit={handleBookingRequest}
         />
       );
     }
@@ -146,6 +150,7 @@ const BookingDetailsPage = () => {
         <BookingConfirmationStep
           booking={booking}
           bookingId={bookingId || "BK-2025-0602-7859"}
+          pendingApproval={requestSubmitted}
           onBack={() => navigate("/bookings")}
           onContinue={() => navigate("/bookings")}
         />

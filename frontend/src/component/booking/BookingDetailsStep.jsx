@@ -8,7 +8,6 @@ import {
   Row,
   Space,
   Steps,
-  Tag,
   Typography,
 } from "antd";
 import {
@@ -22,7 +21,7 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 
-const { Title, Text, Paragraph } = Typography;
+const { Title, Text } = Typography;
 
 const defaultBooking = {
   productName: "test",
@@ -44,9 +43,9 @@ const defaultBooking = {
 
 const BookingDetailsStep = ({
   booking = defaultBooking,
-  onBack = () => {},
   onContinue = () => {},
   onCouponApply = () => {},
+  onAdditionalInfoChange = () => {},
 }) => {
   const [checkInDate, setCheckInDate] = useState(booking.checkInDate || "");
   const [checkOutDate, setCheckOutDate] = useState(booking.checkOutDate || "");
@@ -282,6 +281,10 @@ const BookingDetailsStep = ({
                 <Input.TextArea
                   rows={3}
                   placeholder="e.g. I will use this for a photo shoot."
+                  value={booking.additionalInfo || ""}
+                  onChange={(event) =>
+                    onAdditionalInfoChange(event.target.value)
+                  }
                   style={{ borderRadius: 10 }}
                 />
               </div>
