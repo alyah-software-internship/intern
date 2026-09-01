@@ -57,7 +57,8 @@ const Rental = () => {
     () => searchParams.get("vendor") || "all",
   );
   const [availability, setAvailability] = useState("all");
-  const [priceRange, setPriceRange] = useState([30, 500]);
+  const [pricePeriod, setPricePeriod] = useState("daily");
+  const [priceRange, setPriceRange] = useState([0, null]);
   const [sortBy, setSortBy] = useState("relevance");
   const cachedProducts = readCache(rentalProductsCacheKey);
   const cachedCategories = readCache(rentalCategoriesCacheKey);
@@ -131,7 +132,12 @@ const Rental = () => {
           : product.availability_status?.toUpperCase() || "AVAILABLE",
         image: imageUrl(product),
         description: product.description || "No description available.",
-        price: Number(product.price_daily || product.price || 0),
+        prices: {
+          hourly: Number(product.price_hourly || 0),
+          daily: Number(product.price_daily || product.price || 0),
+          weekly: Number(product.price_weekly || 0),
+          monthly: Number(product.price_monthly || 0),
+        },
         location: [product.vendor?.city, product.vendor?.country]
           .filter(Boolean)
           .join(", "),
@@ -139,6 +145,37 @@ const Rental = () => {
         actionLabel: t.common?.rent || "Rent Now",
       })),
     [products, imageUrl, t.common?.rent],
+  );
+
+  const periodLabels = {
+    hourly: "hour",
+    daily: "day",
+    weekly: "week",
+    monthly: "month",
+  };
+  const periodItems = useMemo(
+    () =>
+      rentalItems.map((item) => ({
+        ...item,
+        price: item.prices[pricePeriod],
+      })),
+    [rentalItems, pricePeriod],
+  );
+
+  const maxPrice = useMemo(
+    () =>
+      Math.max(
+        1,
+        Math.ceil(Math.max(...periodItems.map((item) => item.price), 0)),
+      ),
+    [periodItems],
+  );
+  const selectedPriceRange = useMemo(
+    () => [
+      Math.min(priceRange[0], maxPrice),
+      Math.min(priceRange[1] ?? maxPrice, maxPrice),
+    ],
+    [priceRange, maxPrice],
   );
 
   const categories = useMemo(
@@ -210,10 +247,8 @@ const Rental = () => {
     [productStrings.sortOptions],
   );
 
-  const localizedRentalItems = rentalItems;
-
   const filteredItems = useMemo(() => {
-    const filtered = localizedRentalItems.filter((item) => {
+    const filtered = periodItems.filter((item) => {
       const matchesSearch =
         search.length === 0 ||
         item.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -228,7 +263,8 @@ const Rental = () => {
         (availability === "available" && item.available) ||
         (availability === "unavailable" && !item.available);
       const matchesPrice =
-        item.price >= priceRange[0] && item.price <= priceRange[1];
+        item.price >= selectedPriceRange[0] &&
+        item.price <= selectedPriceRange[1];
 
       return (
         matchesSearch &&
@@ -253,12 +289,12 @@ const Rental = () => {
     }
     return filtered;
   }, [
-    localizedRentalItems,
+    periodItems,
     search,
     category,
     vendor,
     availability,
-    priceRange,
+    selectedPriceRange,
     sortBy,
   ]);
 
@@ -406,11 +442,25 @@ const Rental = () => {
                   <Text strong>
                     {productStrings.filterByPrice || "Price Range"}
                   </Text>
+                  <Select
+                    value={pricePeriod}
+                    onChange={(nextPeriod) => {
+                      setPricePeriod(nextPeriod);
+                      setPriceRange([0, null]);
+                    }}
+                    options={Object.entries(periodLabels).map(
+                      ([value, label]) => ({
+                        value,
+                        label: `Per ${label}`,
+                      }),
+                    )}
+                    style={{ marginTop: 12, width: "100%" }}
+                  />
                   <Slider
                     range
-                    min={30}
-                    max={500}
-                    value={priceRange}
+                    min={0}
+                    max={maxPrice}
+                    value={selectedPriceRange}
                     onChange={setPriceRange}
                     style={{ marginTop: 16 }}
                   />
@@ -423,8 +473,14 @@ const Rental = () => {
                       fontSize: 12,
                     }}
                   >
-                    <Text>$ {priceRange[0]}/day</Text>
-                    <Text>$ {priceRange[1]}/day</Text>
+                    <Text>
+                      ETB {selectedPriceRange[0].toLocaleString()}/
+                      {periodLabels[pricePeriod]}
+                    </Text>
+                    <Text>
+                      ETB {selectedPriceRange[1].toLocaleString()}/
+                      {periodLabels[pricePeriod]}
+                    </Text>
                   </div>
                 </div>
 
@@ -461,7 +517,8 @@ const Rental = () => {
                       setCategory("all");
                       setVendor("all");
                       setAvailability("all");
-                      setPriceRange([30, 500]);
+                      setPricePeriod("daily");
+                      setPriceRange([0, null]);
                       setSortBy("relevance");
                     }}
                   >
