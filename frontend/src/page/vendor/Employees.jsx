@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import {
   Row,
@@ -36,6 +36,7 @@ const Employees = () => {
   const isDark = theme === "dark";
   const [form] = Form.useForm();
   const [operators, setOperators] = useState([]);
+  const [candidates, setCandidates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -67,9 +68,24 @@ const Employees = () => {
     }
   };
 
+  const fetchCandidates = async () => {
+    try {
+      const response = await axios.get(
+        `${backendUrl}/vendor/operators/candidates`,
+        {
+          headers: authHeaders,
+        },
+      );
+      setCandidates(response.data?.candidates || []);
+    } catch (error) {
+      console.error("Failed to load operator candidates:", error);
+    }
+  };
+
   useEffect(() => {
     if (backendUrl) {
       fetchOperators();
+      fetchCandidates();
     }
   }, [backendUrl]);
 
@@ -106,6 +122,25 @@ const Employees = () => {
       );
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleHireCandidate = async (userId) => {
+    try {
+      await axios.post(
+        `${backendUrl}/vendor/operators/candidates/${userId}/hire`,
+        {},
+        {
+          headers: authHeaders,
+        },
+      );
+      messageApi.success("Operator added to your team.");
+      fetchOperators();
+      fetchCandidates();
+    } catch (error) {
+      messageApi.error(
+        error.response?.data?.message || "Unable to hire operator.",
+      );
     }
   };
 
@@ -148,6 +183,7 @@ const Employees = () => {
           role: operator.specialization || "General Operator",
           phone: operator.phone || "No phone number",
           email: operator.email || "No email",
+          cvUrl: operator.user?.cv_url || null,
           status: meta.label,
           statusColor: meta.color,
           statusBg: meta.bg,
@@ -219,6 +255,53 @@ const Employees = () => {
             </Button>
           </div>
         </Col>
+
+        {candidates.length > 0 && (
+          <Col xs={24}>
+            <Card title="Operator applications" style={{ borderRadius: 18 }}>
+              <Row gutter={[16, 16]}>
+                {candidates.map((candidate) => (
+                  <Col xs={24} md={12} xl={8} key={candidate.id}>
+                    <Card
+                      size="small"
+                      title={`${candidate.first_name} ${candidate.last_name}`}
+                    >
+                      <Space
+                        direction="vertical"
+                        size={6}
+                        style={{ width: "100%" }}
+                      >
+                        <Text>{candidate.professional_title}</Text>
+                        <Text type="secondary">
+                          {candidate.experience_years || 0} years experience
+                        </Text>
+                        <Text type="secondary">{candidate.skills}</Text>
+                        <Space>
+                          <Button
+                            type="link"
+                            href={candidate.cv_url}
+                            target="_blank"
+                            rel="noreferrer"
+                            style={{ paddingLeft: 0 }}
+                          >
+                            View CV
+                          </Button>
+                          <Button
+                            type="primary"
+                            size="small"
+                            onClick={() => handleHireCandidate(candidate.id)}
+                          >
+                            Hire operator
+                          </Button>
+                        </Space>
+                      </Space>
+                    </Card>
+                  </Col>
+                ))}
+              </Row>
+            </Card>
+          </Col>
+        )}
 
         {loading ? (
           <Col xs={24}>
@@ -325,6 +408,18 @@ const Employees = () => {
                       {operator.email}
                     </Text>
                   </Space>
+
+                  {operator.cvUrl && (
+                    <Button
+                      type="link"
+                      href={operator.cvUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{ padding: 0, alignSelf: "flex-start" }}
+                    >
+                      View CV
+                    </Button>
+                  )}
 
                   <div
                     style={{

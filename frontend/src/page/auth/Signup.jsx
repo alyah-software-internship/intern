@@ -63,6 +63,8 @@ const Signup = () => {
       );
       if (role === "vendor") {
         navigate("/vendor/profile");
+      } else if (role === "operator") {
+        navigate("/operator");
       } else {
         navigate("/dashboard");
       }

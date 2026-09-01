@@ -7,6 +7,7 @@ use App\Models\Operator;
 use App\Models\OperatorAvailability;
 use App\Models\Product;
 use App\Models\VendorProfile;
+use App\Models\User;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -52,6 +53,45 @@ class OperatorController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+    public function candidates(Request $request)
+    {
+        $candidates = User::where('role', 'operator')
+            ->whereNotNull('professional_title')
+            ->whereNotNull('cv_url')
+            ->latest('updated_at')
+            ->get([
+                'id', 'first_name', 'middle_name', 'last_name', 'email', 'phone',
+                'professional_title', 'experience_years', 'professional_bio', 'skills', 'cv_url',
+            ]);
+
+        return response()->json(['success' => true, 'candidates' => $candidates]);
+    }
+
+    public function hireCandidate(Request $request, $userId)
+    {
+        $vendor = $request->user()->vendorProfile;
+        $candidate = User::where('id', $userId)->where('role', 'operator')->firstOrFail();
+
+        $operator = Operator::updateOrCreate(
+            ['user_id' => $candidate->id],
+            [
+                'vendor_id' => $vendor->id,
+                'full_name' => $candidate->full_name,
+                'phone' => $candidate->phone,
+                'email' => $candidate->email,
+                'specialization' => $candidate->professional_title,
+                'experience_years' => $candidate->experience_years,
+                'bio' => $candidate->professional_bio,
+                'certification_url' => $candidate->cv_url,
+                'is_active' => true,
+                'verification_status' => 'pending',
+                'available_status' => 'available',
+            ]
+        );
+
+        return response()->json(['success' => true, 'message' => 'Operator added to your team.', 'operator' => $operator], 201);
     }
 
     /**

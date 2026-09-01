@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import { useContext } from "react";
 import { Navigate, Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { useTheme } from "./context/ThemeProvider.jsx";
@@ -55,6 +55,9 @@ import TranslationReviewPage from "./page/admin/TranslationReview.jsx";
 import Notifications from "./page/admin/Notifications";
 import DetailPage from "./page/public/DetailPage";
 import Footer from "./component/Footer.jsx";
+import OperatorLayout from "./page/operator/OperatorLayout.jsx";
+import OperatorDashboard from "./page/operator/OperatorDashboard.jsx";
+import OperatorProfile from "./page/operator/OperatorProfile.jsx";
 
 const ProtectedRoute = ({ children, roles }) => {
   const location = useLocation();
@@ -87,7 +90,7 @@ const ProtectedRoute = ({ children, roles }) => {
       admin: "/admin",
       vendor: "/vendor/dashboard",
       customer: "/dashboard",
-      operator: "/dashboard",
+      operator: "/operator",
     }[userRole];
 
     return <Navigate to={roleHome || "/"} replace />;
@@ -102,7 +105,8 @@ const App = () => {
 
   const hideMainHeader =
     location.pathname.startsWith("/vendor") ||
-    location.pathname.startsWith("/admin");
+    location.pathname.startsWith("/admin") ||
+    location.pathname.startsWith("/operator");
 
   return (
     <div className={theme === "dark" ? "app-root app-root--dark" : "app-root"}>
@@ -240,6 +244,20 @@ const App = () => {
             <Route path="settings" element={<VendorSettings />} />
             <Route path="alerts" element={<VendorAlerts />} />
             <Route path="add-product" element={<AddItem />} />
+          </Route>
+          <Route
+            path="/operator"
+            element={
+              <ProtectedRoute roles={["operator"]}>
+                <OperatorLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<OperatorDashboard />} />
+            <Route path="bookings" element={<BookingPage />} />
+            <Route path="messages" element={<Messagespage />} />
+            <Route path="profile" element={<OperatorProfile />} />
+            <Route path="settings" element={<SettingPage />} />
           </Route>
         </Routes>
       </AnimatePresence>

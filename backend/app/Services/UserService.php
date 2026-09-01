@@ -15,6 +15,7 @@ class UserService
     {
         return User::with([
             'vendorProfile',
+            'operator',
             'bookings' => function ($query) {
                 $query->latest()->limit(10);
             },
@@ -35,6 +36,12 @@ class UserService
             $data['avatar_url'] = $this->uploadAvatar($data['avatar'], $user);
         }
 
+        if (isset($data['cv'])) {
+            $data['cv_url'] = $this->uploadCv($data['cv'], $user);
+        }
+
+        unset($data['avatar'], $data['cv']);
+
         $user->update($data);
         return $user;
     }
@@ -51,6 +58,16 @@ class UserService
 
         $path = $file->store('public/avatars');
         return Storage::url($path);
+    }
+
+    public function uploadCv($file, $user)
+    {
+        if ($user->cv_url) {
+            Storage::delete('public/cvs/' . basename($user->cv_url));
+        }
+
+        $path = $file->store('public/cvs');
+        return asset('storage/' . str_replace('public/', '', $path));
     }
 
     /**

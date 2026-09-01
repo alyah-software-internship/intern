@@ -43,11 +43,17 @@ const Login = () => {
       signIn(response.data.user, response.data.token);
       messageApi.success(response.data.message || "Login successful");
 
-      const role = response.data.user?.role || response.data.role;
+      const role = (
+        response.data.user?.role ||
+        response.data.role ||
+        "customer"
+      ).toLowerCase();
       if (role === "admin") {
         navigate("/admin");
       } else if (role === "vendor") {
         navigate("/vendor/dashboard");
+      } else if (role === "operator") {
+        navigate("/operator");
       } else {
         navigate("/dashboard");
       }

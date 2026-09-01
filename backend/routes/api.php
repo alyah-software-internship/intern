@@ -82,6 +82,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // ========== USER ROUTES ==========
     Route::prefix('user')->group(function () {
         Route::get('/profile', [UserController::class, 'profile']);
+        Route::post('/profile', [UserController::class, 'updateProfile']);
         Route::put('/profile', [UserController::class, 'updateProfile']);
         Route::get('/stats', [UserController::class, 'stats']);
         Route::get('/notifications', [UserController::class, 'notifications']);
@@ -124,6 +125,8 @@ Route::middleware('auth:sanctum')->group(function () {
         
         // Operators
         Route::prefix('operators')->group(function () {
+            Route::get('/candidates', [OperatorController::class, 'candidates']);
+            Route::post('/candidates/{userId}/hire', [OperatorController::class, 'hireCandidate']);
             Route::get('/', [OperatorController::class, 'index']);
             Route::get('/available', [OperatorController::class, 'available']);
             Route::post('/', [OperatorController::class, 'store']);
