@@ -10,9 +10,16 @@ import {
   Table,
   Image,
   Button,
+  Modal,
+  Form,
+  Input,
   message,
 } from "antd";
-import { CheckOutlined, MessageOutlined } from "@ant-design/icons";
+import {
+  CheckOutlined,
+  FileProtectOutlined,
+  MessageOutlined,
+} from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../../context/ThemeProvider.jsx";
 import { AppContext } from "../../context/AppContext.jsx";
@@ -34,7 +41,11 @@ const Bookings = () => {
   const [bookingsList, setBookingsList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [approvingBookingId, setApprovingBookingId] = useState(null);
+  const [returningBookingId, setReturningBookingId] = useState(null);
+  const [damageBooking, setDamageBooking] = useState(null);
+  const [damageSubmitting, setDamageSubmitting] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
+  const [damageForm] = Form.useForm();
 
   const normalizeImageUrl = (value) => {
     if (!value || typeof value !== "string") return null;
@@ -136,6 +147,78 @@ const Bookings = () => {
       );
     } finally {
       setApprovingBookingId(null);
+    }
+  };
+
+  const handleReturnedClean = async (bookingId) => {
+    if (returningBookingId) return;
+
+    setReturningBookingId(bookingId);
+    try {
+      await axios.put(
+        `${backendUrl}/vendor/bookings/${bookingId}/complete`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+        },
+      );
+      setBookingsList((currentBookings) =>
+        currentBookings.map((booking) =>
+          booking.id === bookingId
+            ? {
+                ...booking,
+                status: "completed",
+                completed_at: new Date().toISOString(),
+              }
+            : booking,
+        ),
+      );
+      messageApi.success("Return recorded as clean.");
+    } catch (error) {
+      messageApi.error(
+        error.response?.data?.error ||
+          error.response?.data?.message ||
+          "Unable to record the clean return.",
+      );
+    } finally {
+      setReturningBookingId(null);
+    }
+  };
+
+  const handleDamageSubmit = async (values) => {
+    if (!damageBooking) return;
+
+    setDamageSubmitting(true);
+    try {
+      await axios.post(
+        `${backendUrl}/vendor/bookings/${damageBooking.bookingId}/damage`,
+        values,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+        },
+      );
+      setBookingsList((currentBookings) =>
+        currentBookings.map((booking) =>
+          booking.id === damageBooking.bookingId
+            ? { ...booking, status: "completed" }
+            : booking,
+        ),
+      );
+      messageApi.success("Damage report logged successfully.");
+      setDamageBooking(null);
+      damageForm.resetFields();
+    } catch (error) {
+      messageApi.error(
+        error.response?.data?.error ||
+          error.response?.data?.message ||
+          "Unable to log damage report.",
+      );
+    } finally {
+      setDamageSubmitting(false);
     }
   };
 
@@ -305,10 +388,19 @@ const Bookings = () => {
             type="default"
             size="small"
             style={{ borderColor: "#60a5fa" }}
+            loading={returningBookingId === record.bookingId}
+            disabled={Boolean(approvingBookingId || returningBookingId)}
+            onClick={() => handleReturnedClean(record.bookingId)}
           >
             Returned Clean
           </Button>
-          <Button danger size="small">
+          <Button
+            danger
+            size="small"
+            icon={<FileProtectOutlined />}
+            disabled={Boolean(approvingBookingId || returningBookingId)}
+            onClick={() => setDamageBooking(record)}
+          >
             Log Damages
           </Button>
         </Space>
@@ -408,6 +500,31 @@ const Bookings = () => {
           </Card>
         </Col>
       </Row>
+      <Modal
+        title={`Log damage for ${damageBooking?.productName || "booking"}`}
+        open={Boolean(damageBooking)}
+        okText="Submit Damage Report"
+        confirmLoading={damageSubmitting}
+        onOk={() => damageForm.submit()}
+        onCancel={() => {
+          setDamageBooking(null);
+          damageForm.resetFields();
+        }}
+        destroyOnHidden
+      >
+        <Form form={damageForm} layout="vertical" onFinish={handleDamageSubmit}>
+          <Form.Item
+            name="description"
+            label="Damage description"
+            rules={[{ required: true, message: "Describe the damage found." }]}
+          >
+            <Input.TextArea
+              rows={5}
+              placeholder="Describe the damage, affected parts, and any evidence."
+            />
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 };

@@ -8,6 +8,7 @@ import {
   Table,
   Empty,
   Spin,
+  Space,
   Tabs,
   Button,
   message,
@@ -34,7 +35,10 @@ const VendorWalletPage = () => {
   const [withdrawals, setWithdrawals] = useState([]);
   const [paymentMethods, setPaymentMethods] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isMethodModalVisible, setIsMethodModalVisible] = useState(false);
+  const [savingMethod, setSavingMethod] = useState(false);
   const [form] = Form.useForm();
+  const [methodForm] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
 
   useEffect(() => {
@@ -44,31 +48,69 @@ const VendorWalletPage = () => {
   const fetchWalletData = async () => {
     try {
       setLoading(true);
-      const [walletRes, transactionsRes, withdrawalsRes] = await Promise.all([
-        axios.get(`${backendUrl}/vendor/wallet`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-          },
-        }),
-        axios.get(`${backendUrl}/vendor/wallet/transactions`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-          },
-        }),
-        axios.get(`${backendUrl}/vendor/withdrawals`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-          },
-        }),
-      ]);
+      const [walletRes, transactionsRes, withdrawalsRes, profileRes] =
+        await Promise.all([
+          axios.get(`${backendUrl}/vendor/wallet`, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            },
+          }),
+          axios.get(`${backendUrl}/vendor/wallet/transactions`, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            },
+          }),
+          axios.get(`${backendUrl}/vendor/withdrawals`, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            },
+          }),
+          axios.get(`${backendUrl}/vendor/profile`, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            },
+          }),
+        ]);
 
       setWallet(walletRes.data.wallet);
       setTransactions(transactionsRes.data.transactions?.data || []);
       setWithdrawals(withdrawalsRes.data.withdrawals?.data || []);
+      setPaymentMethods(
+        profileRes.data.vendor?.payment_methods ||
+          profileRes.data.vendor?.paymentMethods ||
+          [],
+      );
     } catch (err) {
       messageApi.error("Failed to load wallet data");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleAddPaymentMethod = async (values) => {
+    try {
+      setSavingMethod(true);
+      const response = await axios.post(
+        `${backendUrl}/vendor/payment-methods`,
+        { ...values, is_active: true, is_primary: paymentMethods.length === 0 },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+        },
+      );
+      const method = response.data.payment_method;
+      setPaymentMethods((current) => [...current, method]);
+      form.setFieldValue("payment_method_id", method.id);
+      setIsMethodModalVisible(false);
+      methodForm.resetFields();
+      messageApi.success("Withdrawal method added successfully.");
+    } catch (err) {
+      messageApi.error(
+        err.response?.data?.message || "Failed to add withdrawal method",
+      );
+    } finally {
+      setSavingMethod(false);
     }
   };
 
@@ -224,7 +266,7 @@ const VendorWalletPage = () => {
               title="Available Balance"
               value={wallet?.available_balance || 0}
               prefix="ETB "
-              valueStyle={{ color: "#22c55e" }}
+              styles={{ content: { color: "#22c55e" } }}
               prefix={<DollarOutlined />}
             />
           </Card>
@@ -235,7 +277,7 @@ const VendorWalletPage = () => {
               title="Pending Balance"
               value={wallet?.pending_balance || 0}
               prefix="ETB "
-              valueStyle={{ color: "#f59e0b" }}
+              styles={{ content: { color: "#f59e0b" } }}
             />
           </Card>
         </Col>
@@ -245,7 +287,7 @@ const VendorWalletPage = () => {
               title="Total Earnings"
               value={wallet?.total_earnings || 0}
               prefix="ETB "
-              valueStyle={{ color: "#0066cc" }}
+              styles={{ content: { color: "#0066cc" } }}
             />
           </Card>
         </Col>
@@ -255,7 +297,7 @@ const VendorWalletPage = () => {
               title="Total Withdrawn"
               value={wallet?.total_withdrawn || 0}
               prefix="ETB "
-              valueStyle={{ color: "#6366f1" }}
+              styles={{ content: { color: "#6366f1" } }}
             />
           </Card>
         </Col>
@@ -277,7 +319,7 @@ const VendorWalletPage = () => {
       {/* Withdrawal Modal */}
       <Modal
         title="Request Withdrawal"
-        visible={isModalVisible}
+        open={isModalVisible}
         onCancel={() => {
           setIsModalVisible(false);
           form.resetFields();
@@ -307,13 +349,15 @@ const VendorWalletPage = () => {
               },
             ]}
           >
-            <InputNumber
-              min={1}
-              max={wallet?.available_balance || 0}
-              step={10}
-              style={{ width: "100%" }}
-              addonAfter="ETB"
-            />
+            <Space.Compact style={{ width: "100%" }}>
+              <InputNumber
+                min={1}
+                max={wallet?.available_balance || 0}
+                step={10}
+                style={{ width: "100%" }}
+              />
+              <Input disabled value="ETB" style={{ width: 58 }} />
+            </Space.Compact>
           </Form.Item>
 
           <Form.Item
@@ -321,8 +365,32 @@ const VendorWalletPage = () => {
             label="Payment Method"
             rules={[{ required: true, message: "Please select a method" }]}
           >
-            <Select placeholder="Select payment method" />
+            <Select
+              placeholder="Select payment method"
+              options={paymentMethods
+                .filter(
+                  (method) =>
+                    method.is_active !== false &&
+                    method.verification_status === "verified",
+                )
+                .map((method) => ({
+                  value: method.id,
+                  label: `${method.account_name} - ${method.payment_type_label || method.payment_type}`,
+                }))}
+              notFoundContent="No withdrawal methods added"
+            />
           </Form.Item>
+          {paymentMethods.some(
+            (method) => method.verification_status !== "verified",
+          ) && (
+            <div style={{ color: "#b45309", marginBottom: 12 }}>
+              Some methods are waiting for verification and cannot receive
+              withdrawals yet.
+            </div>
+          )}
+          <Button type="link" onClick={() => setIsMethodModalVisible(true)}>
+            + Add withdrawal method
+          </Button>
 
           <Form.Item name="notes" label="Additional Notes (optional)">
             <Input.TextArea rows={3} />
@@ -331,6 +399,56 @@ const VendorWalletPage = () => {
           <Button type="primary" htmlType="submit" block loading={submitting}>
             Submit Withdrawal Request
           </Button>
+        </Form>
+      </Modal>
+
+      <Modal
+        title="Add Withdrawal Method"
+        open={isMethodModalVisible}
+        onCancel={() => setIsMethodModalVisible(false)}
+        onOk={() => methodForm.submit()}
+        confirmLoading={savingMethod}
+        destroyOnHidden
+      >
+        <Form
+          form={methodForm}
+          layout="vertical"
+          onFinish={handleAddPaymentMethod}
+        >
+          <Form.Item
+            name="payment_type"
+            label="Method type"
+            rules={[{ required: true }]}
+          >
+            <Select
+              options={[
+                { value: "bank_transfer", label: "Bank transfer" },
+                { value: "mobile_money", label: "Mobile money" },
+                { value: "telebirr", label: "Telebirr" },
+                { value: "chapa", label: "Chapa" },
+              ]}
+            />
+          </Form.Item>
+          <Form.Item
+            name="account_name"
+            label="Account name"
+            rules={[{ required: true }]}
+          >
+            <Input placeholder="Account holder name" />
+          </Form.Item>
+          <Form.Item
+            name="account_number"
+            label="Account number"
+            rules={[{ required: true }]}
+          >
+            <Input placeholder="Bank or mobile account number" />
+          </Form.Item>
+          <Form.Item name="bank_name" label="Bank name">
+            <Input placeholder="Optional for mobile money" />
+          </Form.Item>
+          <Form.Item name="mobile_provider" label="Mobile provider">
+            <Input placeholder="Optional" />
+          </Form.Item>
         </Form>
       </Modal>
 

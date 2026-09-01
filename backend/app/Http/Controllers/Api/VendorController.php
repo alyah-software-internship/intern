@@ -314,6 +314,10 @@ class VendorController extends Controller
             $vendor->paymentMethods()->update(['is_primary' => false]);
         }
 
+        // Vendor-owned payout methods are verified when they are added.
+        // Admin verification is handled separately for vendor onboarding.
+        $data['verification_status'] = 'verified';
+        $data['verified_at'] = now();
         $paymentMethod = $vendor->paymentMethods()->create($data);
 
         return response()->json([
@@ -381,17 +385,42 @@ class VendorController extends Controller
                 ], 404);
             }
 
+            $bookings = $vendor->bookings();
+            $wallet = $request->user()->wallet;
+            $completedBookings = (clone $bookings)
+                ->where('status', 'completed')
+                ->where('payment_status', 'paid');
+            $monthlyRevenue = (clone $bookings)
+                ->where('status', 'completed')
+                ->where('payment_status', 'paid')
+                ->where('completed_at', '>=', now()->subMonths(5)->startOfMonth())
+                ->selectRaw("DATE_FORMAT(completed_at, '%Y-%m') as month, SUM(vendor_payment) as amount")
+                ->groupBy('month')
+                ->orderBy('month')
+                ->pluck('amount', 'month');
+
+            $revenueByMonth = collect(range(5, 0))->map(function ($monthsAgo) use ($monthlyRevenue) {
+                $month = now()->subMonths($monthsAgo);
+                $key = $month->format('Y-m');
+
+                return [
+                    'month' => $month->format('M'),
+                    'amount' => (float) ($monthlyRevenue[$key] ?? 0),
+                ];
+            })->values();
+
             $stats = [
                 'total_products' => $vendor->products()->count(),
                 'active_products' => $vendor->products()->where('status', 'active')->count(),
-                'total_bookings' => $vendor->bookings()->count(),
-                'pending_bookings' => $vendor->bookings()->where('status', 'pending')->count(),
-                'active_bookings' => $vendor->bookings()->where('status', 'active')->count(),
-                'completed_bookings' => $vendor->bookings()->where('status', 'completed')->count(),
-                'total_revenue' => $vendor->total_revenue ?? 0,
-                'pending_payouts' => $vendor->pending_payouts ?? 0,
+                'total_bookings' => (clone $bookings)->count(),
+                'pending_bookings' => (clone $bookings)->where('status', 'pending')->count(),
+                'active_bookings' => (clone $bookings)->whereIn('status', ['confirmed', 'active'])->count(),
+                'completed_bookings' => (clone $completedBookings)->count(),
+                'total_revenue' => (float) $completedBookings->sum('vendor_payment'),
+                'pending_payouts' => (float) ($wallet?->pending_balance ?? 0),
+                'revenue_by_month' => $revenueByMonth,
                 'rating' => $vendor->rating ?? 0,
-                'total_reviews' => $vendor->total_reviews ?? 0,
+                'total_reviews' => $vendor->reviews()->count(),
             ];
 
             return response()->json([
@@ -406,6 +435,46 @@ class VendorController extends Controller
                 'message' => 'Failed to get vendor dashboard',
                 'error' => $e->getMessage()
             ], 500);
+        }
+    }
+
+    public function subscription(Request $request)
+    {
+        $vendor = $request->user()->vendorProfile;
+
+        if (!$vendor) {
+            return response()->json(['success' => false, 'message' => 'Vendor profile not found'], 404);
+        }
+
+        if ($vendor->subscription_status === 'active' && $vendor->subscription_expires_at?->isPast()) {
+            $vendor->update(['subscription_status' => 'expired']);
+        }
+
+        return response()->json(['success' => true, 'subscription' => $vendor->fresh()->only([
+            'subscription_plan', 'subscription_status', 'subscription_expires_at',
+        ])]);
+    }
+
+    public function subscribe(Request $request)
+    {
+        $request->validate(['plan' => 'required|in:basic,premium,enterprise']);
+        $vendor = $request->user()->vendorProfile;
+
+        if (!$vendor) {
+            return response()->json(['success' => false, 'message' => 'Vendor profile not found'], 404);
+        }
+
+        $prices = ['basic' => 2900, 'premium' => 9900, 'enterprise' => 24900];
+        try {
+            $payment = app(\App\Services\PaymentService::class)->initiateSubscriptionPayment(
+                $vendor,
+                $request->plan,
+                $prices[$request->plan],
+                $request->input('provider', 'mock')
+            );
+            return response()->json($payment);
+        } catch (\Throwable $exception) {
+            return response()->json(['success' => false, 'message' => 'Unable to initiate subscription payment', 'error' => $exception->getMessage()], 500);
         }
     }
 

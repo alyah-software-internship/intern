@@ -312,7 +312,11 @@ const Rental = () => {
   }, [searchParams]);
 
   const handleRentNow = (item) => {
-    console.log("Rent now clicked for", item.title);
+    if (!item.available) {
+      return;
+    }
+
+    navigate(`/rentals/${item.id}`);
   };
 
   const handleSelectItem = (item) => {

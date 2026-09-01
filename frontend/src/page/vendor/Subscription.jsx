@@ -1,18 +1,118 @@
-import React, { useMemo, useState } from "react";
-import { Button, Card, Col, Row, Space, Tag, Typography } from "antd";
+import React, { useContext, useEffect, useMemo, useState } from "react";
+import { Button, Card, Col, Row, Space, Tag, Typography, message } from "antd";
+import axios from "axios";
 import { CheckCircleOutlined } from "@ant-design/icons";
 import { useTheme } from "../../context/ThemeProvider.jsx";
 import { useTranslation } from "../../component/LanguageProvider.jsx";
+import { AppContext } from "../../context/AppContext.jsx";
+import { useNavigate } from "react-router-dom";
 
 const { Title, Text } = Typography;
 
 const Subscription = () => {
   const { theme } = useTheme();
   const { translation: t } = useTranslation();
+  const { backendUrl } = useContext(AppContext);
+  const navigate = useNavigate();
   const [activePlan, setActivePlan] = useState("premium");
+  const [selectedPlan, setSelectedPlan] = useState("premium");
+  const [saving, setSaving] = useState(false);
+  const [paymentId, setPaymentId] = useState(null);
+  const [paymentUrl, setPaymentUrl] = useState("");
+  const [messageApi, contextHolder] = message.useMessage();
 
   const isDark = theme === "dark";
   const subscriptionText = t?.subscriptionPage || {};
+
+  useEffect(() => {
+    axios
+      .get(`${backendUrl}/vendor/subscription`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+      })
+      .then((response) => {
+        const plan = response.data.subscription?.subscription_plan;
+        if (plan) setActivePlan(plan);
+      })
+      .catch(() => {});
+  }, [backendUrl]);
+
+  const handleSubscribe = async () => {
+    try {
+      setSaving(true);
+      const response = await axios.post(
+        `${backendUrl}/vendor/subscription`,
+        { plan: selectedPlan },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+        },
+      );
+      setPaymentId(response.data.payment_id);
+      setPaymentUrl(response.data.payment_url || "");
+      messageApi.info("Subscription payment started. Confirming payment...");
+      navigate(`/payments/subscription/${response.data.payment_id}`, {
+        state: {
+          plan: selectedPlan,
+          amount: selectedPackage?.price,
+        },
+      });
+    } catch (error) {
+      messageApi.error(
+        error.response?.data?.message || "Unable to activate subscription.",
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!paymentId) return undefined;
+
+    const verifySubscriptionPayment = async () => {
+      try {
+        const response = await axios.get(
+          `${backendUrl}/payments/${paymentId}/verify`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            },
+          },
+        );
+        if (response.data.payment?.payment_status === "paid") {
+          const subscription = await axios.get(
+            `${backendUrl}/vendor/subscription`,
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+              },
+            },
+          );
+          setActivePlan(
+            subscription.data.subscription?.subscription_plan || activePlan,
+          );
+          setPaymentId(null);
+          setPaymentUrl("");
+          messageApi.success(
+            "Subscription paid and activated. You can now post items.",
+          );
+        }
+      } catch (error) {
+        messageApi.error(
+          error.response?.data?.message ||
+            "Unable to verify subscription payment.",
+        );
+        setPaymentId(null);
+        setPaymentUrl("");
+      }
+    };
+
+    verifySubscriptionPayment();
+    const interval = setInterval(verifySubscriptionPayment, 3000);
+    return () => clearInterval(interval);
+  }, [backendUrl, paymentId]);
 
   const packageOptions = useMemo(
     () => [
@@ -20,7 +120,7 @@ const Subscription = () => {
         key: "basic",
         label: subscriptionText.basicLabel || "STARTER SHOP",
         name: subscriptionText.basicPlan || "Basic Fleet Plan",
-        price: subscriptionText.basicPrice || "$29",
+        price: subscriptionText.basicPrice || "ETB 2,900",
         duration: subscriptionText.monthSuffix || "/month",
         features: subscriptionText.basicFeatures || [
           "Up to 3 product listings",
@@ -34,7 +134,7 @@ const Subscription = () => {
         key: "premium",
         label: subscriptionText.premiumLabel || "STANDARD GROWTH",
         name: subscriptionText.premiumPlan || "Pro Premium Builder",
-        price: subscriptionText.premiumPrice || "$99",
+        price: subscriptionText.premiumPrice || "ETB 9,900",
         duration: subscriptionText.monthSuffix || "/month",
         features: subscriptionText.premiumFeatures || [
           "Up to 25 product listings",
@@ -50,7 +150,7 @@ const Subscription = () => {
         key: "enterprise",
         label: subscriptionText.enterpriseLabel || "CORPORATE DEALERSHIPS",
         name: subscriptionText.enterprisePlan || "Enterprise Network",
-        price: subscriptionText.enterprisePrice || "$249",
+        price: subscriptionText.enterprisePrice || "ETB 24,900",
         duration: subscriptionText.monthSuffix || "/month",
         features: subscriptionText.enterpriseFeatures || [
           "Unlimited product listings",
@@ -70,6 +170,9 @@ const Subscription = () => {
       packageOptions[1],
     [activePlan, packageOptions],
   );
+  const selectedPackage =
+    packageOptions.find((item) => item.key === selectedPlan) ||
+    packageOptions[0];
 
   return (
     <div
@@ -80,6 +183,7 @@ const Subscription = () => {
         color: isDark ? "#f8fafc" : "#0f172a",
       }}
     >
+      {contextHolder}
       <div style={{ maxWidth: 1280, margin: "0 auto" }}>
         <Card
           style={{
@@ -136,9 +240,49 @@ const Subscription = () => {
             "Scale your fleet count and unlock custom API integrations and CRM logs"}
         </Text>
 
+        {paymentId && (
+          <Card
+            size="small"
+            style={{ marginBottom: 24, borderColor: "#16a34a" }}
+          >
+            <Space wrap>
+              <Text strong>
+                Complete the subscription payment to unlock item posting.
+              </Text>
+              {paymentUrl && (
+                <Button
+                  type="primary"
+                  href={paymentUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Open Payment Page
+                </Button>
+              )}
+            </Space>
+          </Card>
+        )}
+
+        {!paymentId && (
+          <Card
+            size="small"
+            style={{ marginBottom: 24, borderColor: "#16a34a" }}
+          >
+            <Space wrap>
+              <Text strong>
+                Selected: {selectedPackage.name} ({selectedPackage.price}/month)
+              </Text>
+              <Button type="primary" loading={saving} onClick={handleSubscribe}>
+                Pay for Selected Plan
+              </Button>
+            </Space>
+          </Card>
+        )}
+
         <Row gutter={[24, 24]} align="stretch">
           {packageOptions.map((plan) => {
             const isActive = activePlan === plan.key;
+            const isSelected = selectedPlan === plan.key;
 
             return (
               <Col xs={24} lg={8} key={plan.key}>
@@ -146,10 +290,10 @@ const Subscription = () => {
                   style={{
                     height: "100%",
                     borderRadius: 18,
-                    border: isActive
+                    border: isSelected
                       ? "2px solid #10b981"
                       : "1px solid #dbe4f0",
-                    boxShadow: isActive
+                    boxShadow: isSelected
                       ? "0 0 0 4px rgba(16, 185, 129, 0.08)"
                       : "none",
                     background: isDark ? "#071321" : "#ffffff",
@@ -252,9 +396,11 @@ const Subscription = () => {
                           ? "#0f172a"
                           : "#dbe4f0",
                     }}
-                    onClick={() => setActivePlan(plan.key)}
+                    onClick={() => setSelectedPlan(plan.key)}
+                    loading={false}
+                    disabled={Boolean(paymentId)}
                   >
-                    {plan.cta}
+                    {isSelected ? "Selected" : "Select Plan"}
                   </Button>
                 </Card>
               </Col>

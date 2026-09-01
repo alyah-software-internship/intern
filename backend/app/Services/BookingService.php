@@ -166,10 +166,10 @@ class BookingService
             return false;
         }
 
-        // Check for overlapping bookings
+        // Only paid bookings reserve the product. Pending or failed bookings
+        // must not prevent another customer from booking the same dates.
         $overlapping = Booking::where('product_id', $product->id)
-            ->where('status', '!=', 'cancelled')
-            ->where('status', '!=', 'rejected')
+            ->where('payment_status', 'paid')
             ->where(function ($query) use ($startDate, $endDate) {
                 $query->whereBetween('start_date', [$startDate, $endDate])
                       ->orWhereBetween('end_date', [$startDate, $endDate])
@@ -351,7 +351,7 @@ class BookingService
     {
         $booking = Booking::where('id', $bookingId)
             ->where('vendor_id', $vendorId)
-            ->where('status', 'active')
+            ->whereIn('status', ['confirmed', 'active'])
             ->first();
 
         if (!$booking) {
@@ -362,6 +362,16 @@ class BookingService
             'status' => 'completed',
             'completed_at' => now(),
         ]);
+
+        // Release the vendor's earning when the paid rental is returned clean.
+        if ($booking->payment_status === 'paid' && (float) $booking->vendor_payment > 0) {
+            $this->walletService->releasePending(
+                $booking->vendor->user,
+                (float) $booking->vendor_payment,
+                ['booking_id' => $booking->id]
+            );
+            $booking->vendor->decrement('pending_payouts', (float) $booking->vendor_payment);
+        }
 
         // Update vendor stats
         $vendor = $booking->vendor;

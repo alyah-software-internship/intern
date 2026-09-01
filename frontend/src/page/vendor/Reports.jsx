@@ -211,7 +211,7 @@ const Reports = () => {
               padding: 8,
             }}
           >
-            <Space direction="vertical" size={20} style={{ width: "100%" }}>
+            <Space orientation="vertical" size={20} style={{ width: "100%" }}>
               <div>
                 <Text strong style={{ color: isDark ? "#f8fafc" : "#111827" }}>
                   Select Reporting Statement Cycle

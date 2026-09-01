@@ -77,7 +77,7 @@ const Settings = () => {
               style={{ borderRadius: 24 }}
               bodyStyle={{ padding: 24 }}
             >
-              <Space direction="vertical" size={24} style={{ width: "100%" }}>
+              <Space orientation="vertical" size={24} style={{ width: "100%" }}>
                 <div>
                   <Text strong>{t.language || "Language"}</Text>
                   <Select
@@ -146,7 +146,7 @@ const Settings = () => {
                 {t.settingsPage?.notificationsDesc ||
                   "Escrow alerts and dispatch invoices"}
               </Text>
-              <Space direction="vertical" size={24} style={{ width: "100%" }}>
+              <Space orientation="vertical" size={24} style={{ width: "100%" }}>
                 <div>
                   <Text strong>
                     {t.settingsPage?.emailNotifications ||
@@ -215,7 +215,7 @@ const Settings = () => {
                 {t.settingsPage?.securitySubtitle ||
                   "Secure transaction escrow approval pin"}
               </Text>
-              <Space direction="vertical" size={24} style={{ width: "100%" }}>
+              <Space orientation="vertical" size={24} style={{ width: "100%" }}>
                 <div>
                   <Text strong>
                     {t.settingsPage?.twoFactorTitle ||

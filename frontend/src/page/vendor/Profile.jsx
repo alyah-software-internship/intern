@@ -370,7 +370,7 @@ const VendorProfile = () => {
         {loading ? (
           <Card loading className="vendor-profile-card" />
         ) : (
-          <Space direction="vertical" size={20} style={{ width: "100%" }}>
+          <Space orientation="vertical" size={20} style={{ width: "100%" }}>
             <Card
               className="vendor-profile-card"
               title={
@@ -643,7 +643,7 @@ const PaymentRow = ({ item, onEdit, onDelete }) => (
         </Space>
       }
       description={
-        <Space direction="vertical" size={2}>
+        <Space orientation="vertical" size={2}>
           <Text>
             {item.account_name} · {maskNumber(item.account_number)}
           </Text>
@@ -688,6 +688,7 @@ const BusinessModal = ({ open, form, saving, isNew, onCancel, onSubmit }) => (
     onCancel={onCancel}
     footer={null}
     width={820}
+    forceRender
     destroyOnHidden
   >
     <Form
@@ -727,6 +728,7 @@ const PaymentModal = ({ open, form, saving, editing, onCancel, onSubmit }) => (
     onCancel={onCancel}
     footer={null}
     width={680}
+    forceRender
     destroyOnHidden
   >
     <Form

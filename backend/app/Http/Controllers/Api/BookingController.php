@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Dispute;
 use App\Services\BookingService;
 use App\Services\ProductService;
 use App\Services\NotificationService;
@@ -331,6 +332,76 @@ class BookingController extends Controller
                 'success' => false,
                 'message' => 'Failed to complete booking',
                 'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Log damage found when a rental is returned (Vendor only).
+     */
+    public function reportDamage($id, Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'description' => 'required|string|max:5000',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        try {
+            $vendor = $request->user()->vendorProfile;
+
+            if (!$vendor) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You are not registered as a vendor',
+                ], 403);
+            }
+
+            $booking = \App\Models\Booking::where('id', $id)
+                ->where('vendor_id', $vendor->id)
+                ->whereIn('status', ['confirmed', 'active'])
+                ->first();
+
+            if (!$booking) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Booking not found or not ready for return inspection',
+                ], 404);
+            }
+
+            $dispute = Dispute::create([
+                'booking_id' => $booking->id,
+                'security_deposit_id' => $booking->securityDeposit?->id,
+                'complainant_id' => $vendor->user_id,
+                'respondent_id' => $booking->customer_id,
+                'title' => 'Damage reported for booking ' . $booking->booking_reference,
+                'description' => $request->description,
+                'reason' => 'damage',
+                'status' => 'open',
+            ]);
+
+            $booking->update(['status' => 'completed', 'completed_at' => now()]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Damage report logged successfully',
+                'dispute' => $dispute,
+            ], 201);
+        } catch (\Exception $e) {
+            Log::error('Damage report creation failed', [
+                'booking_id' => $id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to log damage report',
+                'error' => $e->getMessage(),
             ], 500);
         }
     }

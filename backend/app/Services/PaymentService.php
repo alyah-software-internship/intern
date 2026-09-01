@@ -10,6 +10,7 @@ use App\Models\VendorProfile;
 use App\Models\VendorPayout;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class PaymentService
 {
@@ -625,6 +626,16 @@ class PaymentService
                     'completed_at' => now(),
                 ]);
 
+                if ($payment->payment_type === 'subscription') {
+                    $this->activateSubscriptionFromPayment($payment->fresh());
+
+                    return [
+                        'success' => true,
+                        'message' => 'Subscription payment verified and activated',
+                        'payment_id' => $payment->id,
+                    ];
+                }
+
                 // Update booking status
                 $booking = $payment->booking;
                 $booking->update([
@@ -654,13 +665,14 @@ class PaymentService
                     ]
                 );
 
-                $this->notificationService->vendorEarningReceived(
+                $this->notificationService->createNotification(
                     $vendor->user_id,
-                    [
-                        'amount' => $booking->vendor_payment,
-                        'reference' => $booking->booking_reference,
-                        'link' => "/vendor/bookings/{$booking->id}",
-                    ]
+                    'vendor_earning_received',
+                    'Vendor earning received',
+                    "Earnings of {$booking->vendor_payment} have been added for booking #{$booking->booking_reference}.",
+                    "/vendor/bookings/{$booking->id}",
+                    'medium',
+                    'payment'
                 );
 
                 return [
@@ -687,12 +699,14 @@ class PaymentService
                 ]);
 
                 // Send notification
-                $this->notificationService->paymentFailed(
+                $this->notificationService->createNotification(
                     $booking->customer_id,
-                    [
-                        'reference' => $booking->booking_reference,
-                        'link' => "/customer/bookings/{$booking->id}",
-                    ]
+                    'payment_failed',
+                    'Payment failed',
+                    "Payment for booking #{$booking->booking_reference} could not be completed.",
+                    "/customer/bookings/{$booking->id}",
+                    'high',
+                    'payment'
                 );
 
                 return [
@@ -788,6 +802,60 @@ class PaymentService
                 'message' => $e->getMessage(),
                 'payment_id' => $payment->id,
             ];
+        }
+    }
+
+    public function initiateSubscriptionPayment(VendorProfile $vendor, string $plan, float $amount, string $provider = 'mock'): array
+    {
+        $paymentProvider = \App\Services\PaymentProviders\PaymentProviderFactory::make($provider);
+        $reference = 'SUB-' . strtoupper(Str::random(16));
+        $payment = Payment::create([
+            'booking_id' => null,
+            'user_id' => $vendor->user_id,
+            'vendor_id' => $vendor->id,
+            'amount' => $amount,
+            'payment_type' => 'subscription',
+            'payment_method' => $provider,
+            'transaction_id' => $this->generateTransactionId(),
+            'status' => 'pending',
+            'payment_status' => 'pending',
+            'idempotency_key' => Str::uuid(),
+            'payment_data' => ['plan' => $plan, 'reference' => $reference],
+        ]);
+
+        try {
+            $result = $paymentProvider->initiate(
+                $reference,
+                $amount,
+                'ETB',
+                "Vendor subscription: {$plan}",
+                ['email' => $vendor->user->email, 'name' => $vendor->user->name, 'phone' => $vendor->user->phone ?? ''],
+                ['payment_id' => $payment->id, 'vendor_id' => $vendor->id, 'plan' => $plan]
+            );
+            $payment->update([
+                'provider_reference' => $result['provider_reference'] ?? null,
+                'status' => 'processing',
+                'payment_status' => 'processing',
+                'payment_data' => array_merge($payment->payment_data ?? [], $result),
+            ]);
+
+            return ['success' => true, 'payment_id' => $payment->id, 'payment_url' => $result['payment_url'] ?? null, 'provider_reference' => $result['provider_reference'] ?? null];
+        } catch (\Throwable $exception) {
+            $payment->update(['status' => 'failed', 'payment_status' => 'failed', 'failed_at' => now()]);
+            throw $exception;
+        }
+    }
+
+    public function activateSubscriptionFromPayment(Payment $payment): void
+    {
+        $plan = $payment->payment_data['plan'] ?? null;
+        $vendor = VendorProfile::find($payment->vendor_id);
+        if ($vendor && $payment->payment_type === 'subscription' && $plan) {
+            $vendor->update([
+                'subscription_plan' => $plan,
+                'subscription_status' => 'active',
+                'subscription_expires_at' => now()->addMonth(),
+            ]);
         }
     }
 

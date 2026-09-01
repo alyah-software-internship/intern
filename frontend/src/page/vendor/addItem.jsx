@@ -179,6 +179,12 @@ const AddItem = () => {
           error.response?.data?.message ||
           "Unable to save product. Please try again.",
       );
+      if (
+        error.response?.status === 403 &&
+        error.response?.data?.message?.includes("subscription")
+      ) {
+        navigate("/vendor/subscription");
+      }
     } finally {
       setLoading(false);
     }

@@ -119,6 +119,13 @@ class ProductController extends Controller
                 ], 403);
             }
 
+            if ($vendor->subscription_status !== 'active' || !$vendor->subscription_expires_at?->isFuture()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'An active subscription is required before posting products.',
+                ], 403);
+            }
+
             $product = $this->productService->createProduct(
                 $vendor->id,
                 $request->all()

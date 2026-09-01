@@ -331,9 +331,12 @@ class FinancialDashboardController extends Controller
 
             // Filter by vendor
             if ($request->vendor_id) {
-                $query->whereHas('wallet', function ($q) use ($request) {
-                    $q->whereHas('user', function ($u) {
-                        $u->where('vendor_profiles.id', $request->vendor_id);
+                $vendorId = $request->vendor_id;
+                $query->whereHas('wallet', function ($q) use ($vendorId) {
+                    $q->whereHas('user', function ($u) use ($vendorId) {
+                        $u->whereHas('vendorProfile', function ($vendorQuery) use ($vendorId) {
+                            $vendorQuery->where('id', $vendorId);
+                        });
                     });
                 });
             }

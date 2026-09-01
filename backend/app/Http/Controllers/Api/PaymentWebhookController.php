@@ -305,6 +305,15 @@ class PaymentWebhookController extends Controller
                 ], 403);
             }
 
+            if ($payment->payment_type === 'subscription' && $payment->payment_status !== 'paid') {
+                $provider = \App\Services\PaymentProviders\PaymentProviderFactory::make($payment->payment_method);
+                $result = $provider->checkStatus($payment->provider_reference);
+                if (($result['status'] ?? null) === 'paid') {
+                    $payment->update(['status' => 'completed', 'payment_status' => 'paid', 'paid_at' => now(), 'completed_at' => now(), 'webhook_verified' => true]);
+                    $this->paymentService->activateSubscriptionFromPayment($payment->fresh());
+                }
+            }
+
             return response()->json([
                 'success' => true,
                 'payment' => [

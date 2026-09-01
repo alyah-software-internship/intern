@@ -267,7 +267,7 @@ const Employees = () => {
                       title={`${candidate.first_name} ${candidate.last_name}`}
                     >
                       <Space
-                        direction="vertical"
+                        orientation="vertical"
                         size={6}
                         style={{ width: "100%" }}
                       >
@@ -351,7 +351,11 @@ const Employees = () => {
                 }}
                 bodyStyle={{ padding: 20 }}
               >
-                <Space direction="vertical" size={16} style={{ width: "100%" }}>
+                <Space
+                  orientation="vertical"
+                  size={16}
+                  style={{ width: "100%" }}
+                >
                   <Space align="center" size={12}>
                     <div
                       style={{
@@ -398,7 +402,7 @@ const Employees = () => {
                     </Text>
                   </div>
 
-                  <Space direction="vertical" size={6}>
+                  <Space orientation="vertical" size={6}>
                     <Text style={{ color: isDark ? "#cbd5e1" : "#374151" }}>
                       <PhoneOutlined style={{ marginRight: 6 }} />
                       {operator.phone}

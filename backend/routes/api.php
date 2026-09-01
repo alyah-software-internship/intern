@@ -102,6 +102,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/vendor/register', [VendorController::class, 'register']);
     Route::get('/vendor/profile', [VendorController::class, 'profile']);
     Route::put('/vendor/profile', [VendorController::class, 'updateProfile']);
+    Route::get('/vendor/subscription', [VendorController::class, 'subscription']);
+    Route::post('/vendor/subscription', [VendorController::class, 'subscribe']);
     Route::post('/vendor/verification', [VendorController::class, 'submitVerification']);
     Route::post('/vendor/payment-methods', [VendorController::class, 'addPaymentMethod']);
     Route::put('/vendor/payment-methods/{id}', [VendorController::class, 'updatePaymentMethod']);
@@ -127,6 +129,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/bookings/{id}/approve', [BookingController::class, 'approve']);
         Route::put('/bookings/{id}/reject', [BookingController::class, 'reject']);
         Route::put('/bookings/{id}/complete', [BookingController::class, 'complete']);
+        Route::post('/bookings/{id}/damage', [BookingController::class, 'reportDamage']);
         Route::get('/revenue', [VendorController::class, 'revenue']);
         Route::get('/analytics', [DashboardController::class, 'vendorAnalytics']);
         Route::get('/payments/summary', [PaymentController::class, 'vendorSummary']);

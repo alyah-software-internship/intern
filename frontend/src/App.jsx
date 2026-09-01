@@ -192,6 +192,14 @@ const App = () => {
               }
             />
             <Route
+              path="/payments/subscription/:paymentId"
+              element={
+                <ProtectedRoute roles={["vendor"]}>
+                  <PaymentPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/payment-flow/:bookingId"
               element={
                 <ProtectedRoute roles={["customer"]}>
@@ -281,7 +289,7 @@ const App = () => {
               <Route path="settings" element={<VendorSettings />} />
               <Route path="alerts" element={<VendorAlerts />} />
               <Route path="add-product" element={<AddItem />} />
-              <Route path="wallet" element={<VendorWallet />} />
+              <Route path="wallet" element={<VendorWalletPage />} />
               <Route path="my-wallet" element={<VendorWalletPage />} />
               <Route path="withdrawals" element={<VendorWithdrawalsPage />} />
             </Route>

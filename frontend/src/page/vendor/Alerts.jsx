@@ -1,6 +1,10 @@
 ﻿import React from "react";
-import { Card, List, Typography } from "antd";
-import { ClockCircleOutlined, WarningOutlined, CheckCircleOutlined } from "@ant-design/icons";
+import { Card, Empty, Space, Typography } from "antd";
+import {
+  ClockCircleOutlined,
+  WarningOutlined,
+  CheckCircleOutlined,
+} from "@ant-design/icons";
 import { useTheme } from "../../context/ThemeProvider.jsx";
 import { useTranslation } from "../../component/LanguageProvider.jsx";
 
@@ -41,7 +45,9 @@ const VendorAlerts = () => {
   const isDark = theme === "dark";
 
   return (
-    <div style={{ minHeight: "100vh", background: isDark ? "#060b17" : "#f3f7fb" }}>
+    <div
+      style={{ minHeight: "100vh", background: isDark ? "#060b17" : "#f3f7fb" }}
+    >
       <Card
         style={{
           minHeight: "72vh",
@@ -57,36 +63,51 @@ const VendorAlerts = () => {
           {t.vendor?.recentAlertsTitle || "Recent Alerts & Requests"}
         </Text>
 
-        <List
-          style={{ marginTop: 24 }}
-          itemLayout="vertical"
-          dataSource={createAlerts(t)}
-          renderItem={(item) => (
-            <List.Item
+        <Space
+          orientation="vertical"
+          size={16}
+          style={{ width: "100%", marginTop: 24 }}
+        >
+          {createAlerts(t).map((item) => (
+            <div
+              key={`${item.title}-${item.time}`}
               style={{
                 borderRadius: 20,
-                marginBottom: 16,
+                padding: 24,
                 background: isDark ? "#071323" : "#f8fafc",
-                border: isDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(15,23,42,0.08)",
+                border: isDark
+                  ? "1px solid rgba(255,255,255,0.08)"
+                  : "1px solid rgba(15,23,42,0.08)",
               }}
             >
-              <List.Item.Meta
-                avatar={item.icon}
-                title={
-                  <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <span style={{ color: isDark ? "#f8fafc" : "#0f172a" }}>{item.title}</span>
+              <Space align="start" size={16} style={{ width: "100%" }}>
+                {item.icon}
+                <div style={{ flex: 1 }}>
+                  <div
+                    style={{ display: "flex", justifyContent: "space-between" }}
+                  >
+                    <Text
+                      strong
+                      style={{ color: isDark ? "#f8fafc" : "#0f172a" }}
+                    >
+                      {item.title}
+                    </Text>
                     <Text type="secondary">{item.time}</Text>
                   </div>
-                }
-                description={
-                  <Text style={{ color: isDark ? "#cbd5e1" : "#475569" }}>
+                  <Text
+                    style={{
+                      display: "block",
+                      marginTop: 8,
+                      color: isDark ? "#cbd5e1" : "#475569",
+                    }}
+                  >
                     {item.description}
                   </Text>
-                }
-              />
-            </List.Item>
-          )}
-        />
+                </div>
+              </Space>
+            </div>
+          ))}
+        </Space>
       </Card>
     </div>
   );

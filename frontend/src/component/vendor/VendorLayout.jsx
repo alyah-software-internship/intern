@@ -28,7 +28,7 @@ const navItems = [
   { key: "profile", label: "Profile", path: "/vendor/profile" },
   { key: "subscription", label: "Subscription", path: "/vendor/subscription" },
   { key: "settings", label: "Settings", path: "/vendor/settings" },
-  { key: "wallet", label: "Wallet", path: "/vendor/wallet" },
+  { key: "wallet", label: "Wallet", path: "/vendor/my-wallet" },
 ];
 
 const routeTitles = {
@@ -45,6 +45,8 @@ const routeTitles = {
   "/vendor/profile": "profile",
   "/vendor/subscription": "subscription",
   "/vendor/settings": "settings",
+  "/vendor/wallet": "wallet",
+  "/vendor/my-wallet": "wallet",
   "/vendor/alerts": "alerts",
   "/vendor/add-product": "addProduct",
 };

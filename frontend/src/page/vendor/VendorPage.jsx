@@ -19,7 +19,7 @@ const authConfig = () => ({
   headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` },
 });
 
-const formatCurrency = (value, currencyCode = "USD") =>
+const formatCurrency = (value, currencyCode = "ETB") =>
   new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: currencyCode,
@@ -49,14 +49,14 @@ const createAlerts = (t) => [
     title: t.vendor?.alertWeeklyPayoutCompleted || "Weekly Payout Completed",
     description:
       t.vendor?.alertWeeklyPayoutDesc ||
-      "Your vendor payout of $1,250.00 has been initiated.",
+      "Your vendor payout of ETB 1,250.00 has been initiated.",
     time: t.vendor?.alertTime3 || "12:15 PM",
     icon: <CheckCircleOutlined style={{ color: "#059669" }} />,
   },
 ];
 
 const VendorPage = () => {
-  const { backendUrl, currency } = useContext(AppContext);
+  const { backendUrl } = useContext(AppContext);
   const { theme } = useTheme();
   const { translation: t } = useTranslation();
   const isDark = theme === "dark";
@@ -86,6 +86,13 @@ const VendorPage = () => {
   const activeBookings = Number(stats.active_bookings || 0);
   const rating = Number(stats.rating || 0);
   const completedRevenue = Number(stats.total_revenue || 0);
+  const revenueByMonth = Array.isArray(stats.revenue_by_month)
+    ? stats.revenue_by_month
+    : [];
+  const maxMonthlyRevenue = Math.max(
+    ...revenueByMonth.map((entry) => Number(entry.amount || 0)),
+    1,
+  );
   const utilization =
     totalBookings > 0
       ? Math.min(100, (activeBookings / totalBookings) * 100)
@@ -141,7 +148,7 @@ const VendorPage = () => {
                 level={2}
                 style={{ margin: 0, color: isDark ? "#f8fafc" : "#0f172a" }}
               >
-                {formatCurrency(completedRevenue, currency)}
+                {formatCurrency(completedRevenue, "ETB")}
               </Title>
               <Tag
                 style={{
@@ -153,7 +160,7 @@ const VendorPage = () => {
                 }}
               >
                 {stats.pending_payouts
-                  ? `Pending payout: ${formatCurrency(stats.pending_payouts, currency)}`
+                  ? `Pending payout: ${formatCurrency(stats.pending_payouts, "ETB")}`
                   : "No pending payout"}
               </Tag>
             </Card>
@@ -279,17 +286,69 @@ const VendorPage = () => {
               <div
                 style={{
                   width: "100%",
-                  height: 280,
+                  minHeight: 280,
                   borderRadius: 20,
                   background: isDark ? "#071323" : "#f0f6ff",
-                  display: "grid",
-                  placeItems: "center",
-                  color: isDark ? "#f8fafc" : "#0f172a",
-                  fontSize: 16,
-                  fontWeight: 600,
+                  padding: "24px 20px 18px",
+                  display: "flex",
+                  alignItems: "stretch",
+                  gap: 14,
                 }}
               >
-                Chart placeholder
+                {revenueByMonth.map((entry) => {
+                  const amount = Number(entry.amount || 0);
+                  const height = Math.max(
+                    8,
+                    (amount / maxMonthlyRevenue) * 190,
+                  );
+
+                  return (
+                    <div
+                      key={entry.month}
+                      style={{
+                        flex: 1,
+                        minWidth: 34,
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "flex-end",
+                        alignItems: "center",
+                        gap: 10,
+                      }}
+                    >
+                      <Text
+                        style={{
+                          color: isDark ? "#cbd5e1" : "#475569",
+                          fontSize: 11,
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {formatCurrency(amount, "ETB")}
+                      </Text>
+                      <div
+                        title={`${entry.month}: ${formatCurrency(amount, "ETB")}`}
+                        style={{
+                          width: "min(44px, 100%)",
+                          height,
+                          minHeight: 8,
+                          borderRadius: "10px 10px 4px 4px",
+                          background:
+                            amount > 0
+                              ? "linear-gradient(180deg, #16a34a, #0f766e)"
+                              : isDark
+                                ? "#1e293b"
+                                : "#cbd5e1",
+                          transition: "height 0.4s ease",
+                        }}
+                      />
+                      <Text
+                        strong
+                        style={{ color: isDark ? "#f8fafc" : "#0f172a" }}
+                      >
+                        {entry.month}
+                      </Text>
+                    </div>
+                  );
+                })}
               </div>
             </Card>
           </Col>
