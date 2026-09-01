@@ -131,6 +131,36 @@ class OperatorController extends Controller
         }
     }
 
+    public function assignments(Request $request)
+    {
+        if ($request->user()->role !== 'operator') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Operator access required.',
+            ], 403);
+        }
+
+        $operator = $request->user()->operator;
+
+        if (!$operator) {
+            return response()->json([
+                'success' => true,
+                'assignments' => [],
+                'message' => 'No operator profile has been connected to this account yet.',
+            ]);
+        }
+
+        $assignments = $operator->bookings()
+            ->with(['product', 'customer', 'vendor'])
+            ->orderBy('start_date')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'assignments' => $assignments,
+        ]);
+    }
+
     /**
      * Create a new operator
      */

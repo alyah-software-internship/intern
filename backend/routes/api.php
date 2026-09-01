@@ -102,6 +102,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/vendor/payment-methods', [VendorController::class, 'addPaymentMethod']);
     Route::put('/vendor/payment-methods/{id}', [VendorController::class, 'updatePaymentMethod']);
     Route::delete('/vendor/payment-methods/{id}', [VendorController::class, 'deletePaymentMethod']);
+
+    Route::prefix('operator')->group(function () {
+        Route::get('/assignments', [OperatorController::class, 'assignments']);
+    });
     
     // ============================================================
     // VENDOR ROUTES (Requires vendor role) 
