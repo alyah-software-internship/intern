@@ -8,9 +8,14 @@ use App\Models\SecurityDeposit;
 use App\Models\Notification;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use App\Services\WalletService;
 
 class BookingService
 {
+    public function __construct(private WalletService $walletService)
+    {
+    }
+
     /**
      * Get bookings for a user.
      */
@@ -260,6 +265,12 @@ class BookingService
             'status' => 'confirmed',
             'operator_status' => $booking->operator_id ? 'assigned' : 'pending',
         ]);
+
+        $this->walletService->releasePending(
+            $booking->vendor->user,
+            (float) $booking->vendor_payment,
+            ['booking_id' => $booking->id]
+        );
 
         // Notify customer
         $this->createNotification(

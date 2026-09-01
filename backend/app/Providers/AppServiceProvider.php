@@ -11,6 +11,7 @@ use App\Services\PaymentService;
 use App\Services\NotificationService;
 use App\Services\DashboardService;
 use App\Services\ReportService;
+use App\Services\WalletService;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -41,13 +42,18 @@ class AppServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(BookingService::class, function ($app) {
-            return new BookingService();
+            return new BookingService($app->make(WalletService::class));
         });
 
         $this->app->singleton(PaymentService::class, function ($app) {
             return new PaymentService(
-                $app->make(NotificationService::class)
+                $app->make(NotificationService::class),
+                $app->make(WalletService::class)
             );
+        });
+
+        $this->app->singleton(WalletService::class, function ($app) {
+            return new WalletService();
         });
 
         $this->app->singleton(NotificationService::class, function ($app) {

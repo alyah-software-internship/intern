@@ -151,7 +151,7 @@ class OperatorController extends Controller
         }
 
         $assignments = $operator->bookings()
-            ->with(['product', 'customer', 'vendor'])
+            ->with(['product', 'customer', 'vendor', 'securityDeposit'])
             ->orderBy('start_date')
             ->get();
 

@@ -261,7 +261,7 @@ body {
 
 .operator-assignment-details {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 18px;
   padding: 18px 0;
   border-top: 1px solid rgba(75, 101, 82, 0.14);

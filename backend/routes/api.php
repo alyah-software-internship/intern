@@ -21,6 +21,7 @@ use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\WishlistController;
 use App\Http\Controllers\Api\ChatController;
+use App\Http\Controllers\Api\WalletController;
 
 /*
 |--------------------------------------------------------------------------
@@ -126,6 +127,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/revenue', [VendorController::class, 'revenue']);
         Route::get('/analytics', [DashboardController::class, 'vendorAnalytics']);
         Route::get('/payments/summary', [PaymentController::class, 'vendorSummary']);
+        Route::get('/wallet', [WalletController::class, 'show']);
+        Route::get('/wallet/transactions', [WalletController::class, 'transactions']);
+        Route::get('/payouts', [WalletController::class, 'payouts']);
+        Route::post('/payouts', [WalletController::class, 'requestPayout']);
         
         // Operators
         Route::prefix('operators')->group(function () {

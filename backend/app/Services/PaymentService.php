@@ -13,10 +13,12 @@ use Illuminate\Support\Facades\Log;
 class PaymentService
 {
     protected $notificationService;
+    protected $walletService;
 
-    public function __construct(NotificationService $notificationService)
+    public function __construct(NotificationService $notificationService, WalletService $walletService)
     {
         $this->notificationService = $notificationService;
+        $this->walletService = $walletService;
     }
 
     // ========== EXISTING METHODS ==========
@@ -102,8 +104,11 @@ class PaymentService
             $vendor->increment('total_bookings');
             $vendor->increment('pending_payouts', $vendorAmount);
 
-            // Create vendor payout record
-            $this->createVendorPayout($booking, $vendorAmount);
+            // Keep vendor earnings pending until the booking is completed and released.
+            $this->walletService->addPendingEarning($vendor->user, (float) $vendorAmount, [
+                'booking_id' => $booking->id,
+                'payment_id' => $payment->id,
+            ]);
 
             // Send notifications
             $this->notificationService->paymentReceived(

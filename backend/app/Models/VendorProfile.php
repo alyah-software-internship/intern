@@ -105,6 +105,18 @@ class VendorProfile extends Model
         return $this->hasMany(VendorPayout::class);
     }
 
+    public function wallet()
+    {
+        return $this->hasOneThrough(
+            Wallet::class,
+            User::class,
+            'id',
+            'user_id',
+            'user_id',
+            'id'
+        );
+    }
+
     public function reviews()
     {
         return $this->hasMany(Review::class, 'vendor_id');

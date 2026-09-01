@@ -155,6 +155,23 @@ class User extends Authenticatable
         return $this->hasOne(Operator::class, 'user_id');
     }
 
+    public function wallet()
+    {
+        return $this->hasOne(Wallet::class, 'user_id');
+    }
+
+    public function vendorPayouts()
+    {
+        return $this->hasManyThrough(
+            VendorPayout::class,
+            VendorProfile::class,
+            'user_id',
+            'vendor_id',
+            'id',
+            'id'
+        );
+    }
+
     public function bookings()
     {
         return $this->hasMany(Booking::class, 'customer_id');

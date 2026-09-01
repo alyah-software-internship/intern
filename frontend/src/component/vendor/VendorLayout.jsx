@@ -28,6 +28,7 @@ const navItems = [
   { key: "profile", label: "Profile", path: "/vendor/profile" },
   { key: "subscription", label: "Subscription", path: "/vendor/subscription" },
   { key: "settings", label: "Settings", path: "/vendor/settings" },
+  { key: "wallet", label: "Wallet", path: "/vendor/wallet" },
 ];
 
 const routeTitles = {

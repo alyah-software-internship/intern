@@ -59,7 +59,9 @@ const OperatorAssignments = () => {
   };
 
   useEffect(() => {
-    if (backendUrl) loadAssignments();
+    if (backendUrl) {
+      Promise.resolve().then(loadAssignments);
+    }
   }, [backendUrl]);
 
   return (
@@ -142,6 +144,30 @@ const OperatorAssignments = () => {
                       {assignment.delivery_address ||
                         "Location to be confirmed"}
                     </Text>
+                  </div>
+                  <div>
+                    <Text type="secondary">Payment</Text>
+                    <Tag
+                      color={
+                        assignment.payment_status === "paid" ? "green" : "gold"
+                      }
+                    >
+                      {assignment.payment_status || "pending"}
+                    </Tag>
+                  </div>
+                  <div>
+                    <Text type="secondary">Security deposit</Text>
+                    <Tag
+                      color={
+                        assignment.security_deposit_status === "held"
+                          ? "blue"
+                          : "default"
+                      }
+                    >
+                      {assignment.security_deposit_status ||
+                        assignment.securityDeposit?.status ||
+                        "pending"}
+                    </Tag>
                   </div>
                 </div>
                 <div className="operator-assignment-card-footer">

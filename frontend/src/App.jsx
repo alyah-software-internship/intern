@@ -41,6 +41,7 @@ const Subscription = lazy(() => import("./page/vendor/Subscription"));
 const VendorSettings = lazy(() => import("./page/vendor/Settings"));
 const AddItem = lazy(() => import("./page/vendor/addItem"));
 const VendorAlerts = lazy(() => import("./page/vendor/Alerts"));
+const VendorWallet = lazy(() => import("./page/vendor/Wallet"));
 const AdminLayout = lazy(() => import("./page/admin/adminLayout.jsx"));
 const ControlPannel = lazy(() => import("./page/admin/ControlPannel"));
 const Users = lazy(() => import("./page/admin/Users"));
@@ -243,6 +244,7 @@ const App = () => {
               <Route path="settings" element={<VendorSettings />} />
               <Route path="alerts" element={<VendorAlerts />} />
               <Route path="add-product" element={<AddItem />} />
+              <Route path="wallet" element={<VendorWallet />} />
             </Route>
             <Route
               path="/operator"
