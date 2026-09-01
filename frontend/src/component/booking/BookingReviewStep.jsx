@@ -44,6 +44,7 @@ const BookingReviewStep = ({
   booking = defaultBooking,
   onBack,
   onContinue,
+  isSubmitting = false,
 }) => {
   const item = {
     ...defaultBooking,
@@ -364,7 +365,13 @@ const BookingReviewStep = ({
                   Back to Edit
                 </Button>
 
-                <Button type="primary" size="large" onClick={onContinue}>
+                <Button
+                  type="primary"
+                  size="large"
+                  onClick={onContinue}
+                  loading={isSubmitting}
+                  disabled={isSubmitting}
+                >
                   Send Request to Vendor →
                 </Button>
               </div>

@@ -12,7 +12,7 @@ import {
   Button,
   message,
 } from "antd";
-import { MessageOutlined } from "@ant-design/icons";
+import { CheckOutlined, MessageOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../../context/ThemeProvider.jsx";
 import { AppContext } from "../../context/AppContext.jsx";
@@ -33,6 +33,7 @@ const Bookings = () => {
   const navigate = useNavigate();
   const [bookingsList, setBookingsList] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [approvingBookingId, setApprovingBookingId] = useState(null);
   const [messageApi, contextHolder] = message.useMessage();
 
   const normalizeImageUrl = (value) => {
@@ -101,6 +102,42 @@ const Bookings = () => {
       ).length,
     [bookingsList],
   );
+
+  const handleApprove = async (bookingId) => {
+    if (approvingBookingId) return;
+
+    setApprovingBookingId(bookingId);
+
+    try {
+      await axios.put(
+        `${backendUrl}/vendor/bookings/${bookingId}/approve`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+        },
+      );
+
+      setBookingsList((currentBookings) =>
+        currentBookings.map((booking) =>
+          booking.id === bookingId
+            ? { ...booking, status: "confirmed" }
+            : booking,
+        ),
+      );
+      messageApi.success("Booking approved successfully.");
+    } catch (error) {
+      console.error("Failed to approve booking:", error);
+      messageApi.error(
+        error.response?.data?.error ||
+          error.response?.data?.message ||
+          "Unable to approve booking.",
+      );
+    } finally {
+      setApprovingBookingId(null);
+    }
+  };
 
   const activeRows = useMemo(
     () =>
@@ -229,6 +266,18 @@ const Bookings = () => {
       key: "actions",
       render: (_, record) => (
         <Space size={8} wrap>
+          {String(record.checkoutStatus).toLowerCase() === "pending" && (
+            <Button
+              type="primary"
+              size="small"
+              icon={<CheckOutlined />}
+              loading={approvingBookingId === record.bookingId}
+              disabled={Boolean(approvingBookingId)}
+              onClick={() => handleApprove(record.bookingId)}
+            >
+              Approve
+            </Button>
+          )}
           <Button
             type="text"
             size="small"

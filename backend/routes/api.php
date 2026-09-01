@@ -22,6 +22,9 @@ use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\WishlistController;
 use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\Api\WalletController;
+use App\Http\Controllers\Api\PaymentWebhookController;
+use App\Http\Controllers\Api\WithdrawalController;
+use App\Http\Controllers\Api\FinancialDashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -132,6 +135,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/payouts', [WalletController::class, 'payouts']);
         Route::post('/payouts', [WalletController::class, 'requestPayout']);
         
+        // ========== WITHDRAWALS (VENDOR) ==========
+        Route::prefix('withdrawals')->group(function () {
+            Route::get('/', [WithdrawalController::class, 'index']);
+            Route::get('/{id}', [WithdrawalController::class, 'show']);
+            Route::post('/', [WithdrawalController::class, 'store']);
+            Route::delete('/{id}', [WithdrawalController::class, 'cancel']);
+        });
+        
         // Operators
         Route::prefix('operators')->group(function () {
             Route::get('/candidates', [OperatorController::class, 'candidates']);
@@ -164,6 +175,17 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('payments')->group(function () {
         Route::get('/', [PaymentController::class, 'index']);
         Route::get('/{id}', [PaymentController::class, 'show']);
+    });
+    
+    // ========== PAYMENT WEBHOOK & INITIATION (NO AUTH) ==========
+    Route::prefix('payments')->withoutMiddleware('auth:sanctum')->group(function () {
+        Route::post('/webhook', [PaymentWebhookController::class, 'handleWebhook']);
+    });
+    
+    // ========== PAYMENT INITIATION & VERIFICATION (WITH AUTH) ==========
+    Route::prefix('payments')->middleware('auth:sanctum')->group(function () {
+        Route::post('/initiate', [PaymentWebhookController::class, 'initiatePayment']);
+        Route::get('/{id}/verify', [PaymentWebhookController::class, 'verifyPayment']);
     });
     
     // ========== NOTIFICATION ROUTES ==========
@@ -251,6 +273,38 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     // Operators
     Route::get('/operators/performance', [OperatorController::class, 'performance']);
     Route::post('/operators/{id}/verify', [OperatorController::class, 'verify']);
+    
+    // ========== FINANCIAL MANAGEMENT ==========
+    Route::prefix('financial')->group(function () {
+        Route::get('/dashboard', [FinancialDashboardController::class, 'index']);
+        Route::get('/payments/analytics', [FinancialDashboardController::class, 'paymentAnalytics']);
+        Route::get('/withdrawals/analytics', [FinancialDashboardController::class, 'withdrawalAnalytics']);
+        Route::get('/refunds/analytics', [FinancialDashboardController::class, 'refundAnalytics']);
+        Route::get('/vendors/{vendorId}/summary', [FinancialDashboardController::class, 'vendorSummary']);
+        Route::get('/wallet-transactions', [FinancialDashboardController::class, 'walletTransactions']);
+    });
+    
+    // ========== WITHDRAWAL MANAGEMENT ==========
+    Route::prefix('withdrawals')->group(function () {
+        Route::get('/', [WithdrawalController::class, 'adminIndex']);
+        Route::post('/{id}/approve', [WithdrawalController::class, 'approve']);
+        Route::post('/{id}/reject', [WithdrawalController::class, 'reject']);
+        Route::post('/{id}/processing', [WithdrawalController::class, 'markProcessing']);
+        Route::post('/{id}/complete', [WithdrawalController::class, 'markCompleted']);
+    });
+    
+    // ========== PAYMENT MANAGEMENT ==========
+    Route::prefix('payments')->group(function () {
+        Route::get('/', [PaymentController::class, 'adminIndex']);
+        Route::get('/{id}', [PaymentController::class, 'adminShow']);
+        Route::post('/{id}/refund', [PaymentController::class, 'adminRefund']);
+    });
+    
+    // ========== REFUND MANAGEMENT ==========
+    Route::prefix('refunds')->group(function () {
+        Route::get('/', [PaymentController::class, 'adminRefunds']);
+        Route::get('/{id}', [PaymentController::class, 'adminRefundShow']);
+    });
     
     // Reports
     Route::get('/reports', [AdminController::class, 'reports']);

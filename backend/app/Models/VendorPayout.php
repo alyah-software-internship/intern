@@ -17,13 +17,20 @@ class VendorPayout extends Model
         'platform_commission',
         'net_amount',
         'status',
+        'payout_status',
         'transaction_id',
         'reference_number',
         'processing_fee',
         'notes',
+        'admin_note',
         'processed_by',
         'processed_at',
         'completed_at',
+        'approved_by',
+        'approved_at',
+        'rejected_by',
+        'rejected_at',
+        'rejection_reason',
     ];
 
     protected $casts = [
@@ -33,6 +40,8 @@ class VendorPayout extends Model
         'processing_fee' => 'decimal:2',
         'processed_at' => 'datetime',
         'completed_at' => 'datetime',
+        'approved_at' => 'datetime',
+        'rejected_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -56,6 +65,16 @@ class VendorPayout extends Model
     public function processedBy()
     {
         return $this->belongsTo(User::class, 'processed_by');
+    }
+
+    public function approvedBy()
+    {
+        return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    public function rejectedBy()
+    {
+        return $this->belongsTo(User::class, 'rejected_by');
     }
 
     // ========== SCOPES ==========

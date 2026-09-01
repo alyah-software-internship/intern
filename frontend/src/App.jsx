@@ -27,6 +27,7 @@ const Messagespage = lazy(() => import("./page/customer/Messagespage"));
 const WishlistPage = lazy(() => import("./page/customer/WishlistPage"));
 const NotificationPage = lazy(() => import("./page/customer/NotificationPage"));
 const PaymentPage = lazy(() => import("./page/customer/PaymentPage"));
+const PaymentFlowPage = lazy(() => import("./page/customer/PaymentFlowPage"));
 const VendorLayout = lazy(() => import("./component/vendor/VendorLayout"));
 const VendorPage = lazy(() => import("./page/vendor/VendorPage"));
 const Verify = lazy(() => import("./page/vendor/Verify"));
@@ -43,6 +44,10 @@ const VendorSettings = lazy(() => import("./page/vendor/Settings"));
 const AddItem = lazy(() => import("./page/vendor/addItem"));
 const VendorAlerts = lazy(() => import("./page/vendor/Alerts"));
 const VendorWallet = lazy(() => import("./page/vendor/Wallet"));
+const VendorWalletPage = lazy(() => import("./page/vendor/VendorWalletPage"));
+const VendorWithdrawalsPage = lazy(
+  () => import("./page/vendor/VendorWithdrawalsPage"),
+);
 const AdminLayout = lazy(() => import("./page/admin/adminLayout.jsx"));
 const ControlPannel = lazy(() => import("./page/admin/ControlPannel"));
 const Users = lazy(() => import("./page/admin/Users"));
@@ -61,6 +66,14 @@ const TranslationReviewPage = lazy(
   () => import("./page/admin/TranslationReview.jsx"),
 );
 const Notifications = lazy(() => import("./page/admin/Notifications"));
+const AdminFinancialDashboard = lazy(
+  () => import("./page/admin/AdminFinancialDashboard"),
+);
+const AdminPaymentsPage = lazy(() => import("./page/admin/AdminPaymentsPage"));
+const AdminWithdrawalsPage = lazy(
+  () => import("./page/admin/AdminWithdrawalsPage"),
+);
+const AdminRefundsPage = lazy(() => import("./page/admin/AdminRefundsPage"));
 const DetailPage = lazy(() => import("./page/public/DetailPage"));
 const OperatorLayout = lazy(() => import("./page/operator/OperatorLayout.jsx"));
 const OperatorDashboard = lazy(
@@ -179,6 +192,14 @@ const App = () => {
               }
             />
             <Route
+              path="/payment-flow/:bookingId"
+              element={
+                <ProtectedRoute roles={["customer"]}>
+                  <PaymentFlowPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/messages"
               element={
                 <ProtectedRoute roles={["customer", "operator"]}>
@@ -229,6 +250,13 @@ const App = () => {
               <Route path="platform-settings" element={<PlatformSettings />} />
               <Route path="notifications" element={<Notifications />} />
               <Route path="translations" element={<TranslationReviewPage />} />
+              <Route
+                path="financial/dashboard"
+                element={<AdminFinancialDashboard />}
+              />
+              <Route path="payments" element={<AdminPaymentsPage />} />
+              <Route path="withdrawals" element={<AdminWithdrawalsPage />} />
+              <Route path="refunds" element={<AdminRefundsPage />} />
             </Route>
             <Route
               path="/vendor"
@@ -254,6 +282,8 @@ const App = () => {
               <Route path="alerts" element={<VendorAlerts />} />
               <Route path="add-product" element={<AddItem />} />
               <Route path="wallet" element={<VendorWallet />} />
+              <Route path="my-wallet" element={<VendorWalletPage />} />
+              <Route path="withdrawals" element={<VendorWithdrawalsPage />} />
             </Route>
             <Route
               path="/operator"

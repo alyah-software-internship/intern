@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Payment;
 use App\Models\Booking;
+use App\Models\Refund;
 use App\Models\SecurityDeposit;
 use App\Models\VendorProfile;
 use App\Models\VendorPayout;
@@ -366,6 +367,49 @@ class PaymentService
     }
 
     /**
+     * Initiate refund for a payment (creates Refund record)
+     */
+    public function initiateRefund(Payment $payment, float $amount, string $reason, int $adminUserId): Refund
+    {
+        return DB::transaction(function () use ($payment, $amount, $reason, $adminUserId) {
+            if ($payment->payment_status !== 'paid') {
+                throw new \Exception('Only paid payments can be refunded');
+            }
+
+            // Create refund record
+            $refund = Refund::create([
+                'payment_id' => $payment->id,
+                'booking_id' => $payment->booking_id,
+                'customer_id' => $payment->customer_id,
+                'vendor_id' => $payment->vendor_id,
+                'amount' => $amount,
+                'reason' => $reason,
+                'status' => 'pending',
+                'initiated_by' => $adminUserId,
+            ]);
+
+            Log::info('Refund initiated by admin', [
+                'refund_id' => $refund->id,
+                'payment_id' => $payment->id,
+                'amount' => $amount,
+            ]);
+
+            // Create notification for customer
+            $this->notificationService->createNotification(
+                $payment->customer_id,
+                'refund_initiated',
+                'Refund Initiated',
+                "A refund of ETB {$amount} has been initiated for your booking. Reason: {$reason}",
+                "/payments/{$payment->id}",
+                'medium',
+                'payment'
+            );
+
+            return $refund;
+        });
+    }
+
+    /**
      * Get payment summary for vendor
      */
     public function getVendorPaymentSummary(int $vendorId): array
@@ -522,6 +566,248 @@ class PaymentService
             'completed_at' => $status === 'completed' ? now() : null,
         ]);
         return $payment;
+    }
+
+    /**
+     * Handle payment webhook verification
+     * This is called by the payment provider webhook
+     */
+    public function handlePaymentWebhook(array $webhookData): array
+    {
+        return DB::transaction(function () use ($webhookData) {
+            $providerReference = $webhookData['provider_reference'] ?? null;
+            $reference = $webhookData['reference'] ?? null;
+            $status = $webhookData['status'] ?? null;
+            $transactionId = $webhookData['transaction_id'] ?? null;
+
+            // Find existing payment by provider reference
+            $payment = Payment::where('provider_reference', $providerReference)->first();
+
+            // Prevent duplicate webhook processing
+            if ($payment && $payment->webhook_verified) {
+                return [
+                    'success' => false,
+                    'message' => 'Payment already verified',
+                    'payment_id' => $payment->id,
+                ];
+            }
+
+            if (!$payment) {
+                // Create new payment record if not found
+                $booking = Booking::where('booking_reference', $reference)->first();
+                if (!$booking) {
+                    throw new \Exception("Booking not found for reference: {$reference}");
+                }
+
+                $payment = Payment::create([
+                    'booking_id' => $booking->id,
+                    'user_id' => $booking->customer_id,
+                    'vendor_id' => $booking->vendor_id,
+                    'amount' => $webhookData['amount'] ?? $booking->total_amount,
+                    'payment_type' => 'rental',
+                    'payment_method' => $webhookData['payment_method'] ?? 'online',
+                    'transaction_id' => $transactionId ?? $this->generateTransactionId(),
+                    'provider_reference' => $providerReference,
+                    'status' => 'processing',
+                    'payment_status' => 'processing',
+                ]);
+            }
+
+            // Verify payment status
+            if ($status === 'paid' || $status === 'success') {
+                $payment->update([
+                    'status' => 'completed',
+                    'payment_status' => 'paid',
+                    'provider_reference' => $providerReference,
+                    'webhook_verified' => true,
+                    'webhook_verified_at' => now(),
+                    'paid_at' => now(),
+                    'completed_at' => now(),
+                ]);
+
+                // Update booking status
+                $booking = $payment->booking;
+                $booking->update([
+                    'payment_status' => 'paid',
+                    'status' => 'confirmed',
+                    'transaction_id' => $transactionId ?? $payment->transaction_id,
+                ]);
+
+                // Add vendor earnings to pending balance
+                $vendor = VendorProfile::find($booking->vendor_id);
+                $vendor->increment('total_bookings');
+                $vendor->increment('pending_payouts', $booking->vendor_payment);
+
+                // Record wallet transaction
+                $this->walletService->addPendingEarning($vendor->user, (float) $booking->vendor_payment, [
+                    'booking_id' => $booking->id,
+                    'payment_id' => $payment->id,
+                ]);
+
+                // Send notifications
+                $this->notificationService->paymentReceived(
+                    $booking->customer_id,
+                    [
+                        'amount' => $payment->amount,
+                        'reference' => $booking->booking_reference,
+                        'link' => "/customer/bookings/{$booking->id}",
+                    ]
+                );
+
+                $this->notificationService->vendorEarningReceived(
+                    $vendor->user_id,
+                    [
+                        'amount' => $booking->vendor_payment,
+                        'reference' => $booking->booking_reference,
+                        'link' => "/vendor/bookings/{$booking->id}",
+                    ]
+                );
+
+                return [
+                    'success' => true,
+                    'message' => 'Payment verified and confirmed',
+                    'payment_id' => $payment->id,
+                    'booking_id' => $booking->id,
+                ];
+            } else {
+                // Payment failed
+                $payment->update([
+                    'status' => 'failed',
+                    'payment_status' => 'failed',
+                    'webhook_verified' => true,
+                    'webhook_verified_at' => now(),
+                    'failed_at' => now(),
+                ]);
+
+                // Update booking status
+                $booking = $payment->booking;
+                $booking->update([
+                    'payment_status' => 'failed',
+                    'status' => 'pending',
+                ]);
+
+                // Send notification
+                $this->notificationService->paymentFailed(
+                    $booking->customer_id,
+                    [
+                        'reference' => $booking->booking_reference,
+                        'link' => "/customer/bookings/{$booking->id}",
+                    ]
+                );
+
+                return [
+                    'success' => false,
+                    'message' => 'Payment verification failed',
+                    'payment_id' => $payment->id,
+                ];
+            }
+        });
+    }
+
+    /**
+     * Initiate payment via payment provider
+     */
+    public function initiatePaymentViaProvider(Booking $booking, string $provider = null): array
+    {
+        $paymentProvider = \App\Services\PaymentProviders\PaymentProviderFactory::make($provider);
+
+        // Create initial payment record
+        $payment = Payment::create([
+            'booking_id' => $booking->id,
+            'user_id' => $booking->customer_id,
+            'vendor_id' => $booking->vendor_id,
+            'amount' => $booking->total_amount,
+            'payment_type' => 'rental',
+            'payment_method' => $provider ?? 'online',
+            'transaction_id' => $this->generateTransactionId(),
+            'status' => 'pending',
+            'payment_status' => 'pending',
+            'idempotency_key' => \Illuminate\Support\Str::uuid(),
+        ]);
+
+        // Initiate payment with provider
+        try {
+            $result = $paymentProvider->initiate(
+                $booking->booking_reference,
+                $booking->total_amount,
+                'ETB',
+                "Booking #{$booking->booking_reference}",
+                [
+                    'email' => $booking->customer->email,
+                    'name' => $booking->customer->name,
+                    'phone' => $booking->customer->phone ?? '',
+                ],
+                [
+                    'booking_id' => $booking->id,
+                    'customer_id' => $booking->customer_id,
+                    'vendor_id' => $booking->vendor_id,
+                ]
+            );
+
+            if ($result['success']) {
+                $payment->update([
+                    'provider_reference' => $result['provider_reference'] ?? null,
+                    'status' => 'processing',
+                    'payment_status' => 'processing',
+                    'payment_data' => $result,
+                ]);
+
+                return [
+                    'success' => true,
+                    'payment_id' => $payment->id,
+                    'payment_url' => $result['payment_url'] ?? $result['redirect_url'] ?? null,
+                    'provider_reference' => $result['provider_reference'] ?? null,
+                ];
+            } else {
+                $payment->update([
+                    'status' => 'failed',
+                    'payment_status' => 'failed',
+                    'failed_at' => now(),
+                ]);
+
+                return [
+                    'success' => false,
+                    'message' => 'Failed to initiate payment',
+                    'payment_id' => $payment->id,
+                ];
+            }
+        } catch (\Exception $e) {
+            $payment->update([
+                'status' => 'failed',
+                'payment_status' => 'failed',
+                'failed_at' => now(),
+            ]);
+
+            Log::error('Payment initiation failed', [
+                'booking_id' => $booking->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return [
+                'success' => false,
+                'message' => $e->getMessage(),
+                'payment_id' => $payment->id,
+            ];
+        }
+    }
+
+    /**
+     * Check for duplicate payments
+     */
+    public function isDuplicatePayment(string $reference, float $amount): bool
+    {
+        return Payment::where('provider_reference', $reference)
+            ->where('amount', $amount)
+            ->where('status', 'completed')
+            ->exists();
+    }
+
+    /**
+     * Get payment by provider reference
+     */
+    public function getPaymentByProviderReference(string $providerReference): ?Payment
+    {
+        return Payment::where('provider_reference', $providerReference)->first();
     }
 
     /**

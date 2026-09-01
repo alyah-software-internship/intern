@@ -15,6 +15,7 @@ const BookingDetailsPage = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [bookingId, setBookingId] = useState(null);
   const [requestSubmitted, setRequestSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
 
   const item = state?.item || {};
@@ -48,7 +49,12 @@ const BookingDetailsPage = () => {
   );
 
   const handleBookingRequest = async () => {
+    if (isSubmitting) {
+      return;
+    }
+
     try {
+      setIsSubmitting(true);
       const token = localStorage.getItem("authToken");
 
       if (!token) {
@@ -99,11 +105,13 @@ const BookingDetailsPage = () => {
     } catch (error) {
       console.error("Booking creation error:", error);
       const errorMessage =
-        error.response?.data?.message ||
         error.response?.data?.error ||
+        error.response?.data?.message ||
         error.message ||
         "Failed to create booking";
       messageApi.error(errorMessage);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -129,6 +137,7 @@ const BookingDetailsPage = () => {
           booking={booking}
           onBack={() => setCurrentStep(0)}
           onContinue={handleBookingRequest}
+          isSubmitting={isSubmitting}
         />
       );
     }
@@ -146,7 +155,6 @@ const BookingDetailsPage = () => {
 
     return (
       <>
-        {contextHolder}
         <BookingConfirmationStep
           booking={booking}
           bookingId={bookingId || "BK-2025-0602-7859"}
@@ -158,7 +166,12 @@ const BookingDetailsPage = () => {
     );
   };
 
-  return renderStep();
+  return (
+    <>
+      {contextHolder}
+      {renderStep()}
+    </>
+  );
 };
 
 export default BookingDetailsPage;

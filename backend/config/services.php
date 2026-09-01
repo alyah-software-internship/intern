@@ -35,4 +35,29 @@ return [
         ],
     ],
 
+    // ========== PAYMENT CONFIGURATION ==========
+    'payment' => [
+        'default' => env('PAYMENT_PROVIDER', 'mock'),
+        
+        'mock' => [
+            'base_url' => env('MOCK_PAYMENT_BASE_URL', 'https://mock-payment.local'),
+            'api_key' => env('MOCK_PAYMENT_API_KEY', 'mock-api-key'),
+        ],
+        
+        'stripe' => [
+            'api_key' => env('STRIPE_API_KEY'),
+            'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
+        ],
+        
+        'chapa' => [
+            'api_key' => env('CHAPA_API_KEY'),
+            'webhook_key' => env('CHAPA_WEBHOOK_KEY'),
+        ],
+        
+        'telebirr' => [
+            'api_key' => env('TELEBIRR_API_KEY'),
+            'merchant_id' => env('TELEBIRR_MERCHANT_ID'),
+        ],
+    ],
+
 ];

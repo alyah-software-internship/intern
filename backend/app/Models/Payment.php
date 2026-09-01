@@ -17,7 +17,10 @@ class Payment extends Model
         'payment_type',
         'payment_method',
         'transaction_id',
+        'provider_reference',
+        'idempotency_key',
         'status',
+        'payment_status',
         'payment_data',
         'payment_proof_path',
         'payment_proof_type',
@@ -28,14 +31,26 @@ class Payment extends Model
         'refund_amount',
         'refund_transaction_id',
         'completed_at',
+        'failed_at',
+        'paid_at',
+        'platform_fee',
+        'vendor_amount',
+        'webhook_verified',
+        'webhook_verified_at',
     ];
 
     protected $casts = [
         'amount' => 'decimal:2',
         'refund_amount' => 'decimal:2',
+        'platform_fee' => 'decimal:2',
+        'vendor_amount' => 'decimal:2',
         'payment_data' => 'array',
         'completed_at' => 'datetime',
+        'failed_at' => 'datetime',
+        'paid_at' => 'datetime',
         'verified_at' => 'datetime',
+        'webhook_verified_at' => 'datetime',
+        'webhook_verified' => 'boolean',
     ];
 
     // ========== RELATIONSHIPS ==========
@@ -57,6 +72,11 @@ class Payment extends Model
     public function verifiedBy()
     {
         return $this->belongsTo(User::class, 'verified_by');
+    }
+
+    public function refunds()
+    {
+        return $this->hasMany(Refund::class);
     }
 
     // ========== HELPERS ==========

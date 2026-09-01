@@ -7,6 +7,7 @@ use App\Services\PaymentService;
 use App\Services\BookingService;
 use App\Services\NotificationService;
 use App\Models\Payment;
+use App\Models\Refund;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
@@ -218,6 +219,176 @@ class PaymentController extends Controller
                 'message' => 'Failed to get payment summary',
                 'error' => $e->getMessage()
             ], 500);
+        }
+    }
+
+    /**
+     * Get all payments (Admin only)
+     */
+    public function adminIndex(Request $request)
+    {
+        try {
+            $query = Payment::with(['customer', 'vendor', 'booking'])
+                ->orderBy('created_at', 'desc');
+            
+            if ($request->has('status')) {
+                $query->where('payment_status', $request->status);
+            }
+            
+            if ($request->has('start_date')) {
+                $query->whereDate('created_at', '>=', $request->start_date);
+            }
+            
+            if ($request->has('end_date')) {
+                $query->whereDate('created_at', '<=', $request->end_date);
+            }
+            
+            $payments = $query->paginate($request->get('per_page', 15));
+
+            return response()->json([
+                'success' => true,
+                'payments' => $payments,
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to get payments',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get payment details (Admin only)
+     */
+    public function adminShow($id, Request $request)
+    {
+        try {
+            $payment = Payment::with(['customer', 'vendor', 'booking'])
+                ->findOrFail($id);
+
+            return response()->json([
+                'success' => true,
+                'payment' => $payment,
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Payment not found',
+                'error' => $e->getMessage()
+            ], 404);
+        }
+    }
+
+    /**
+     * Initiate refund (Admin only)
+     */
+    public function adminRefund($id, Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'reason' => 'required|string|max:500',
+            'amount' => 'nullable|numeric|min:0',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $payment = Payment::findOrFail($id);
+            
+            if ($payment->payment_status !== 'paid') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Only paid payments can be refunded'
+                ], 400);
+            }
+
+            $refund = $this->paymentService->initiateRefund(
+                $payment,
+                $request->get('amount', $payment->amount),
+                $request->reason,
+                $request->user()->id
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Refund initiated successfully',
+                'refund' => $refund,
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to initiate refund',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get all refunds (Admin only)
+     */
+    public function adminRefunds(Request $request)
+    {
+        try {
+            $query = Refund::with(['payment', 'booking', 'customer', 'vendor', 'initiatedByUser', 'processedByUser'])
+                ->orderBy('created_at', 'desc');
+            
+            if ($request->has('status')) {
+                $query->where('status', $request->status);
+            }
+            
+            if ($request->has('start_date')) {
+                $query->whereDate('created_at', '>=', $request->start_date);
+            }
+            
+            if ($request->has('end_date')) {
+                $query->whereDate('created_at', '<=', $request->end_date);
+            }
+            
+            $refunds = $query->paginate($request->get('per_page', 15));
+
+            return response()->json([
+                'success' => true,
+                'refunds' => $refunds,
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to get refunds',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get refund details (Admin only)
+     */
+    public function adminRefundShow($id, Request $request)
+    {
+        try {
+            $refund = Refund::with(['payment', 'booking', 'customer', 'vendor', 'initiatedByUser', 'processedByUser'])
+                ->findOrFail($id);
+
+            return response()->json([
+                'success' => true,
+                'refund' => $refund,
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Refund not found',
+                'error' => $e->getMessage()
+            ], 404);
         }
     }
 }
