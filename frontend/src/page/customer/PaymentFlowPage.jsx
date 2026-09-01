@@ -144,7 +144,7 @@ const PaymentFlowPage = () => {
           messageApi.success("Payment confirmed successfully!");
 
           setTimeout(() => {
-            navigate(`/booking-details/${bookingId}`);
+            navigate("/bookings");
           }, 2000);
         }
       }
