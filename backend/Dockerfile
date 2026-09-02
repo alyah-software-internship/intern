@@ -64,5 +64,3 @@ ENV PORT=10000
 EXPOSE 10000
 
 ENTRYPOINT ["/entrypoint.sh"]
-
-CMD ["sh", "-c", "php artisan serve --host=0.0.0.0 --port=${PORT:-10000}"]

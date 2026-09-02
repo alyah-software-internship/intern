@@ -4,9 +4,6 @@ set -e
 
 echo "Starting Laravel application..."
 
-# Generate nginx configuration using Render's PORT
-envsubst '${PORT}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf
-
 # Make sure Laravel directories are writable
 chown -R www-data:www-data /var/www/html/storage
 chown -R www-data:www-data /var/www/html/bootstrap/cache
@@ -21,4 +18,4 @@ php artisan view:clear || true
 
 echo "Laravel application ready."
 
-exec "$@"
+exec php artisan serve --host=0.0.0.0 --port="${PORT:-10000}"
