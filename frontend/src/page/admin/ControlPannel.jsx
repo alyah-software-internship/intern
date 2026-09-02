@@ -35,10 +35,18 @@ const ControlPanel = () => {
   const [dashboard, setDashboard] = useState(null);
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
+
+  useEffect(() => {
+    if (loadError) {
+      messageApi.error("Failed to load dashboard data");
+    }
+  }, [loadError, messageApi]);
 
   const fetchDashboard = async () => {
     setLoading(true);
+    setLoadError(false);
     try {
       const response = await axios.get(
         `${backendUrl}/admin/dashboard`,
@@ -47,7 +55,7 @@ const ControlPanel = () => {
       setDashboard(response.data?.dashboard || response.data?.stats || {});
       setActivities(response.data?.recent_activities || []);
     } catch (error) {
-      messageApi.error("Failed to load dashboard data");
+      setLoadError(true);
     } finally {
       setLoading(false);
     }

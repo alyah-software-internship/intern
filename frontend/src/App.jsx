@@ -116,7 +116,8 @@ const App = () => {
   const hideMainHeader =
     location.pathname.startsWith("/vendor") ||
     location.pathname.startsWith("/admin") ||
-    location.pathname.startsWith("/operator");
+    location.pathname.startsWith("/operator") ||
+    location.pathname.startsWith("/payments/subscription");
 
   return (
     <div className={theme === "dark" ? "app-root app-root--dark" : "app-root"}>
@@ -195,10 +196,12 @@ const App = () => {
               path="/payments/subscription/:paymentId"
               element={
                 <ProtectedRoute roles={["vendor"]}>
-                  <PaymentPage />
+                  <VendorLayout />
                 </ProtectedRoute>
               }
-            />
+            >
+              <Route index element={<PaymentPage />} />
+            </Route>
             <Route
               path="/payment-flow/:bookingId"
               element={

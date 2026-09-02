@@ -170,9 +170,13 @@ const Subscription = () => {
       packageOptions[1],
     [activePlan, packageOptions],
   );
-  const selectedPackage =
-    packageOptions.find((item) => item.key === selectedPlan) ||
-    packageOptions[0];
+
+  const selectedPackage = useMemo(
+    () =>
+      packageOptions.find((item) => item.key === selectedPlan) ||
+      packageOptions[0],
+    [selectedPlan, packageOptions],
+  );
 
   return (
     <div

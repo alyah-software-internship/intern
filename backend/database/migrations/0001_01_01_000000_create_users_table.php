@@ -120,18 +120,6 @@ return new class extends Migration
             $table->index('preferred_language');
             $table->index('city');
 
-            // Full-text search
-            if (DB::connection()->getDriverName() !== 'sqlite') {
-                $table->fullText(
-                    ['first_name', 'middle_name', 'last_name', 'bio'],
-                    'idx_search_english'
-                );
-
-                $table->fullText(
-                    ['first_name_am', 'middle_name_am', 'last_name_am', 'bio_am'],
-                    'idx_search_amharic'
-                );
-            }
         });
 
         // Laravel infrastructure tables

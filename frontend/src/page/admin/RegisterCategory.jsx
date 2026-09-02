@@ -126,7 +126,7 @@ const RegisterCategory = () => {
   return (
     <div className="admin-category-register">
       {contextHolder}
-      <Space direction="vertical" size={4}>
+      <Space orientation="vertical" size={4}>
         <Title level={2}>
           {editing ? "Edit Category" : "Register Category"}
         </Title>

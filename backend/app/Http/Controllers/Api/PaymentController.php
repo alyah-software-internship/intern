@@ -391,4 +391,87 @@ class PaymentController extends Controller
             ], 404);
         }
     }
+
+    /**
+     * Submit manual payment proof for subscription payments
+     */
+    public function submitManualProof(Request $request, $paymentId)
+    {
+        $validator = Validator::make($request->all(), [
+            'payment_method' => 'required|in:cbe,telebirr',
+            'proof_file_name' => 'nullable|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $payment = Payment::findOrFail($paymentId);
+
+            // Check authorization
+            if ($payment->user_id !== $request->user()->id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You are not authorized to submit proof for this payment'
+                ], 403);
+            }
+
+            // Check payment type
+            if ($payment->payment_type !== 'subscription') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Manual proof is only for subscription payments'
+                ], 400);
+            }
+
+            // Check payment status
+            if ($payment->payment_status === 'paid') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'This payment is already confirmed as paid'
+                ], 400);
+            }
+
+            // Update payment with proof submission
+            $proofData = [
+                'proof_submitted_at' => now(),
+                'proof_file_name' => $request->proof_file_name,
+            ];
+
+            if ($payment->payment_data) {
+                $paymentData = is_array($payment->payment_data) ? $payment->payment_data : json_decode($payment->payment_data, true);
+                $paymentData = array_merge($paymentData, $proofData);
+            } else {
+                $paymentData = $proofData;
+            }
+
+            $payment->update([
+                'payment_data' => json_encode($paymentData),
+                'payment_method' => $request->payment_method,
+                'status' => 'pending_verification',
+                'payment_status' => 'pending',
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Payment proof submitted successfully. Awaiting verification.',
+                'payment' => [
+                    'id' => $payment->id,
+                    'payment_status' => $payment->payment_status,
+                    'status' => $payment->status,
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to submit payment proof',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }

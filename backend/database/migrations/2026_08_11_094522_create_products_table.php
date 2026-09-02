@@ -63,11 +63,6 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
             
-            // Fulltext Indexes
-            if (DB::connection()->getDriverName() !== 'sqlite') {
-                $table->fullText(['name', 'description', 'name_am', 'description_am'], 'idx_search');
-            }
-            
             $table->index('vendor_id');
             $table->index('category_id');
             $table->index('status');

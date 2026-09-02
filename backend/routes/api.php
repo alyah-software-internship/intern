@@ -189,6 +189,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('payments')->middleware('auth:sanctum')->group(function () {
         Route::post('/initiate', [PaymentWebhookController::class, 'initiatePayment']);
         Route::get('/{id}/verify', [PaymentWebhookController::class, 'verifyPayment']);
+        Route::post('/{paymentId}/submit-manual-proof', [PaymentController::class, 'submitManualProof']);
     });
     
     // ========== NOTIFICATION ROUTES ==========

@@ -173,7 +173,7 @@ const PaymentFlowPage = () => {
     return (
       <div style={{ padding: 32, maxWidth: 720, margin: "0 auto" }}>
         {contextHolder}
-        <Alert type="error" showIcon message={error} />
+        <Alert type="error" showIcon title={error} />
       </div>
     );
   }

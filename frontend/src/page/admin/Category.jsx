@@ -31,10 +31,18 @@ const Category = () => {
   const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
   const [messageApi, contextHolder] = message.useMessage();
+
+  useEffect(() => {
+    if (loadError) {
+      messageApi.error(loadError);
+    }
+  }, [loadError, messageApi]);
 
   const loadCategories = useCallback(async () => {
     setLoading(true);
+    setLoadError(null);
     try {
       const response = await axios.get(
         `${backendUrl}/categories`,
@@ -42,7 +50,7 @@ const Category = () => {
       );
       setCategories(response.data.categories || []);
     } catch (error) {
-      messageApi.error(
+      setLoadError(
         error.response?.data?.message || "Unable to load categories.",
       );
     } finally {
