@@ -65,4 +65,4 @@ EXPOSE 10000
 
 ENTRYPOINT ["/entrypoint.sh"]
 
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+CMD ["sh", "-c", "php artisan serve --host=0.0.0.0 --port=${PORT:-10000}"]
