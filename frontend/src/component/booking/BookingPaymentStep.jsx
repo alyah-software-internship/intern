@@ -1,18 +1,16 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import {
   Button,
   Card,
   Col,
   Divider,
   Row,
-  Space,
   Steps,
   Tag,
   Typography,
   Radio,
   Upload,
   message,
-  Spin,
   Alert,
   Modal,
 } from "antd";
@@ -24,7 +22,6 @@ import {
   UserOutlined,
   InboxOutlined,
   FileImageOutlined,
-  CheckOutlined,
 } from "@ant-design/icons";
 
 const { Title, Text } = Typography;
@@ -32,12 +29,9 @@ const { Title, Text } = Typography;
 const BookingPaymentStep = ({
   booking = {},
   onBack = () => {},
-  onContinue = () => {},
   onPaymentSubmit = () => {},
 }) => {
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(
-    "credit_card"
-  );
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("cbe");
   const [screenshotFile, setScreenshotFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [previewVisible, setPreviewVisible] = useState(false);
@@ -51,38 +45,6 @@ const BookingPaymentStep = ({
   ];
 
   const paymentMethods = [
-    {
-      id: "credit_card",
-      name: "Credit / Debit Card",
-      description: "Visa, Mastercard, etc.",
-      icon: "💳",
-      requiresScreenshot: false,
-      instructions: "Your payment will be processed securely.",
-    },
-    {
-      id: "paypal",
-      name: "PayPal",
-      description: "Pay with your PayPal account",
-      icon: "🅿",
-      requiresScreenshot: false,
-      instructions: "You will be redirected to PayPal.",
-    },
-    {
-      id: "apple_pay",
-      name: "Apple Pay",
-      description: "Fast and secure payment",
-      icon: "🍎",
-      requiresScreenshot: false,
-      instructions: "Use your Apple Pay wallet.",
-    },
-    {
-      id: "bank_transfer",
-      name: "Bank Transfer",
-      description: "Direct bank transfer",
-      icon: "🏦",
-      requiresScreenshot: false,
-      instructions: "Transfer instructions will be provided.",
-    },
     {
       id: "cbe",
       name: "CBE (Commercial Bank of Ethiopia)",
@@ -109,19 +71,9 @@ const BookingPaymentStep = ({
     },
   ];
 
-  const selectedMethod = useMemo(
-    () => paymentMethods.find((m) => m.id === selectedPaymentMethod),
-    [selectedPaymentMethod]
+  const selectedMethod = paymentMethods.find(
+    (method) => method.id === selectedPaymentMethod,
   );
-
-  const handleScreenshotUpload = (info) => {
-    if (info.file.status === "done") {
-      setScreenshotFile(info.file);
-      message.success(`${info.file.name} uploaded successfully.`);
-    } else if (info.file.status === "error") {
-      message.error(`${info.file.name} upload failed.`);
-    }
-  };
 
   const handlePreview = (file) => {
     const reader = new FileReader();
@@ -279,7 +231,10 @@ const BookingPaymentStep = ({
                     <Divider style={{ margin: "20px 0 16px" }} />
 
                     <div style={{ marginBottom: 20 }}>
-                      <Text strong style={{ display: "block", marginBottom: 8 }}>
+                      <Text
+                        strong
+                        style={{ display: "block", marginBottom: 8 }}
+                      >
                         Payment Instructions
                       </Text>
 
@@ -298,7 +253,10 @@ const BookingPaymentStep = ({
                             marginBottom: 12,
                           }}
                         >
-                          <Text strong style={{ display: "block", marginBottom: 8 }}>
+                          <Text
+                            strong
+                            style={{ display: "block", marginBottom: 8 }}
+                          >
                             Bank Details:
                           </Text>
                           <div
@@ -311,27 +269,19 @@ const BookingPaymentStep = ({
                             <div>
                               <Text type="secondary">Bank Name: </Text>
                               <Text>
-                                {
-                                  selectedMethod.accountDetails.bankName
-                                }
+                                {selectedMethod.accountDetails.bankName}
                               </Text>
                             </div>
                             <div>
                               <Text type="secondary">Account Number: </Text>
                               <Text code>
-                                {
-                                  selectedMethod.accountDetails
-                                    .accountNumber
-                                }
+                                {selectedMethod.accountDetails.accountNumber}
                               </Text>
                             </div>
                             <div>
                               <Text type="secondary">Account Holder: </Text>
                               <Text>
-                                {
-                                  selectedMethod.accountDetails
-                                    .accountHolder
-                                }
+                                {selectedMethod.accountDetails.accountHolder}
                               </Text>
                             </div>
                           </div>
@@ -346,7 +296,10 @@ const BookingPaymentStep = ({
                             marginBottom: 12,
                           }}
                         >
-                          <Text strong style={{ display: "block", marginBottom: 8 }}>
+                          <Text
+                            strong
+                            style={{ display: "block", marginBottom: 8 }}
+                          >
                             Telebirr Phone:
                           </Text>
                           <Text code>{selectedMethod.phoneNumber}</Text>
@@ -357,7 +310,10 @@ const BookingPaymentStep = ({
                     {selectedMethod.requiresScreenshot && (
                       <div>
                         <Divider style={{ margin: "16px 0" }} />
-                        <Text strong style={{ display: "block", marginBottom: 12 }}>
+                        <Text
+                          strong
+                          style={{ display: "block", marginBottom: 12 }}
+                        >
                           2. Upload Payment Proof
                         </Text>
 
@@ -395,9 +351,7 @@ const BookingPaymentStep = ({
                                 <Button
                                   type="link"
                                   size="small"
-                                  onClick={() =>
-                                    handlePreview(screenshotFile)
-                                  }
+                                  onClick={() => handlePreview(screenshotFile)}
                                 >
                                   Preview
                                 </Button>
@@ -419,7 +373,7 @@ const BookingPaymentStep = ({
                               beforeUpload={(file) => {
                                 if (file.size > 5 * 1024 * 1024) {
                                   message.error(
-                                    "File size must be less than 5MB"
+                                    "File size must be less than 5MB",
                                   );
                                   return Upload.LIST_IGNORE;
                                 }
@@ -712,11 +666,7 @@ const BookingPaymentStep = ({
         footer={null}
         width={600}
       >
-        <img
-          alt="Preview"
-          style={{ width: "100%" }}
-          src={previewImage}
-        />
+        <img alt="Preview" style={{ width: "100%" }} src={previewImage} />
       </Modal>
     </div>
   );

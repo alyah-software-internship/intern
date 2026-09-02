@@ -34,7 +34,7 @@ class PaymentController extends Controller
     public function processPayment(Request $request, $bookingId)
     {
         $validator = Validator::make($request->all(), [
-            'payment_method' => 'required|in:credit_card,paypal,apple_pay,bank_transfer,cbe,telebirr',
+            'payment_method' => 'required|in:cbe,telebirr',
             'payment_data' => 'nullable|array',
         ]);
 

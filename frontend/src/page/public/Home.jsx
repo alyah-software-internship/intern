@@ -1,13 +1,18 @@
+import { lazy } from "react";
 import DashboardShortcut from "../../component/home/DashboardShortcut.jsx";
 import Hero from "../../component/home/Hero.jsx";
 import BrowseCategories from "../../component/home/BrowseCategories.jsx";
-import HandPicked from "../../component/home/HandPicked.jsx";
-import { Row, Col } from "antd";
-import MarketPlaceJourny from "../../component/home/MarketPlaceJourny.jsx";
-import TrustedBy from "../../component/home/TrustedBy.jsx";
-import UserReview from "../../component/home/UserReview.jsx";
-import Subscribe from "../../component/home/Subscribe.jsx";
-import Footer from "../../component/Footer.jsx";
+import DeferredSection from "../../component/DeferredSection.jsx";
+
+const HandPicked = lazy(() => import("../../component/home/HandPicked.jsx"));
+const MarketPlaceJourny = lazy(
+  () => import("../../component/home/MarketPlaceJourny.jsx"),
+);
+const TrustedBy = lazy(() => import("../../component/home/TrustedBy.jsx"));
+const UserReview = lazy(() => import("../../component/home/UserReview.jsx"));
+const Subscribe = lazy(() => import("../../component/home/Subscribe.jsx"));
+
+const deferredFallback = <div style={{ minHeight: 180 }} />;
 
 function Home() {
   return (
@@ -18,20 +23,29 @@ function Home() {
       <div style={{ marginTop: 24 }}>
         <BrowseCategories />
         <div style={{ marginTop: 24 }}>
-          <HandPicked />
+          <DeferredSection fallback={deferredFallback}>
+            <HandPicked />
+          </DeferredSection>
         </div>
 
         <div style={{ marginTop: 24 }}>
-          <MarketPlaceJourny />
+          <DeferredSection fallback={deferredFallback}>
+            <MarketPlaceJourny />
+          </DeferredSection>
         </div>
-        <TrustedBy />
+        <DeferredSection fallback={deferredFallback}>
+          <TrustedBy />
+        </DeferredSection>
         <div style={{ marginTop: 24 }}>
-          <UserReview />
+          <DeferredSection fallback={deferredFallback}>
+            <UserReview />
+          </DeferredSection>
         </div>
         <div style={{ marginTop: 24 }}>
-          <Subscribe />
+          <DeferredSection fallback={deferredFallback}>
+            <Subscribe />
+          </DeferredSection>
         </div>
-       
       </div>
     </div>
   );

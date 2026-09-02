@@ -13,11 +13,7 @@ import {
   Tag,
 } from "antd";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import {
-  ArrowLeftOutlined,
-  InboxOutlined,
-  FileImageOutlined,
-} from "@ant-design/icons";
+import { InboxOutlined, FileImageOutlined } from "@ant-design/icons";
 import BookingPaymentStep from "../../component/booking/BookingPaymentStep";
 import { AppContext } from "../../context/AppContext.jsx";
 
@@ -29,15 +25,21 @@ const PaymentPage = () => {
   const { backendUrl } = useContext(AppContext);
   const navigate = useNavigate();
   const [booking, setBooking] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => !paymentId);
   const [error, setError] = useState("");
   const [messageApi, contextHolder] = message.useMessage();
-  const [subscriptionPayment, setSubscriptionPayment] = useState(null);
+  const [subscriptionPayment, setSubscriptionPayment] = useState(() =>
+    paymentId
+      ? {
+          id: paymentId,
+          amount: location.state?.amount || "",
+          payment_status: "processing",
+        }
+      : null,
+  );
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("cbe");
   const [screenshotFile, setScreenshotFile] = useState(null);
   const [uploading, setUploading] = useState(false);
-  const [previewVisible, setPreviewVisible] = useState(false);
-  const [previewImage, setPreviewImage] = useState("");
   const isSubscriptionPayment = Boolean(paymentId);
 
   const paymentMethods = [
@@ -102,12 +104,7 @@ const PaymentPage = () => {
   };
 
   const handlePreview = (file) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setPreviewImage(e.target.result);
-      setPreviewVisible(true);
-    };
-    reader.readAsDataURL(file.originFileObj || file);
+    window.open(URL.createObjectURL(file.originFileObj || file), "_blank");
   };
 
   const handleSubscriptionPaymentSubmit = async () => {
@@ -148,12 +145,6 @@ const PaymentPage = () => {
 
   useEffect(() => {
     if (isSubscriptionPayment) {
-      setLoading(false);
-      setSubscriptionPayment({
-        id: paymentId,
-        amount: location.state?.amount || "",
-        payment_status: "processing",
-      });
       return;
     }
 
@@ -529,7 +520,7 @@ const PaymentPage = () => {
       },
     );
     messageApi.success("Payment received by iShare.");
-    navigate(`/booking-details/${bookingId}`);
+    navigate("/bookings");
   };
 
   if (loading)
