@@ -1,10 +1,7 @@
-FROM php:8.2-fpm
+FROM php:8.2-cli
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
-    nginx \
-    supervisor \
-    gettext \
     git \
     unzip \
     libzip-dev \
@@ -30,37 +27,41 @@ RUN apt-get update && apt-get install -y \
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
+# Laravel working directory
 WORKDIR /var/www/html
 
-# Copy Laravel project
+# Copy Laravel application
 COPY . .
 
-# Install Laravel dependencies
+# Install PHP/Laravel dependencies
 RUN composer install \
     --no-dev \
     --no-interaction \
     --prefer-dist \
     --optimize-autoloader
 
-# Laravel permissions
-RUN mkdir -p storage/framework/cache \
+# Create Laravel required directories
+RUN mkdir -p \
+    storage/framework/cache \
     storage/framework/sessions \
     storage/framework/views \
     storage/logs \
-    bootstrap/cache \
-    && chown -R www-data:www-data storage bootstrap/cache \
+    bootstrap/cache
+
+# Set permissions
+RUN chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
-# Copy Docker configuration
-COPY docker/nginx.conf.template /etc/nginx/nginx.conf.template
-COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+# Copy entrypoint
 COPY docker/entrypoint.sh /entrypoint.sh
 
+# Make entrypoint executable
 RUN chmod +x /entrypoint.sh
 
-# Render default port
+# Render port
 ENV PORT=10000
 
 EXPOSE 10000
 
+# Start Laravel
 ENTRYPOINT ["/entrypoint.sh"]
