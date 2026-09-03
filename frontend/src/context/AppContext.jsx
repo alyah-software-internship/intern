@@ -18,8 +18,15 @@ export const AppContextProvider = (props) => {
   const [lang, setLang] = useState("en");
   const [currency, setCurrency] = useState("USD");
 
-  const backendUrl =
-    import.meta.env.VITE_BACKEND_URL?.replace(/\/+$/, "") || "";
+  const backendUrl = (() => {
+    const configuredUrl =
+      import.meta.env.VITE_BACKEND_URL?.replace(/\/+$/, "") || "";
+
+    if (!configuredUrl) return "";
+    return /\/api$/i.test(configuredUrl)
+      ? configuredUrl
+      : `${configuredUrl}/api`;
+  })();
 
   useEffect(() => {
     const loadPlatformCurrency = async () => {

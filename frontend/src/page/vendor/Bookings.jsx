@@ -62,13 +62,14 @@ const Bookings = () => {
     }
 
     const cleanPath = trimmed.replace(/^\/+/, "");
+    const backendOrigin = backendUrl.replace(/\/api\/?$/i, "");
 
     if (cleanPath.startsWith("storage/")) {
-      return `${backendUrl || "http://127.0.0.1:8000"}/` + cleanPath;
+      return `${backendOrigin || "http://127.0.0.1:8000"}/` + cleanPath;
     }
 
-    if (backendUrl) {
-      return `${backendUrl}/storage/${cleanPath}`;
+    if (backendOrigin) {
+      return `${backendOrigin}/storage/${cleanPath}`;
     }
 
     return `http://127.0.0.1:8000/storage/${cleanPath}`;
