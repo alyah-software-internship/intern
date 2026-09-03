@@ -58,4 +58,4 @@ ENV PORT=10000
 EXPOSE 10000
 
 # Start Laravel directly so Render can monitor the web process.
-CMD ["sh", "-c", "php -S 0.0.0.0:${PORT:-10000} -t public vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php"]
+CMD ["sh", "-c", "php artisan serve --host=0.0.0.0 --port=${PORT:-10000}"]
