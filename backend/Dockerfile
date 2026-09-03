@@ -4,6 +4,7 @@ FROM php:8.2-cli
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
+    ca-certificates \
     libzip-dev \
     libpng-dev \
     libjpeg62-turbo-dev \
@@ -60,5 +61,5 @@ ENV PORT=10000
 
 EXPOSE 10000
 
-# Start Laravel directly so Render can monitor the web process.
+# Start Laravel
 CMD ["sh", "-c", "php artisan serve --host=0.0.0.0 --port=${PORT:-10000}"]
