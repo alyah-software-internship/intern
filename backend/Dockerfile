@@ -33,6 +33,9 @@ WORKDIR /var/www/html
 # Copy Laravel application
 COPY . .
 
+# Never ship a configuration cache generated from local environment values.
+RUN rm -f bootstrap/cache/*.php
+
 # Install PHP/Laravel dependencies
 RUN composer install \
     --no-dev \
