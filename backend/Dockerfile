@@ -64,4 +64,4 @@ ENV PORT=10000
 EXPOSE 10000
 
 # Start Laravel
-ENTRYPOINT ["/entrypoint.sh"]
+CMD ["/entrypoint.sh"]
