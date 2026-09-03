@@ -9,9 +9,14 @@ use Illuminate\Http\Request;
 |--------------------------------------------------------------------------
 */
 
-// Home page route (will be handled by React frontend)
+// The React frontend is deployed separately as a static site.
 Route::get('/', function () {
-    return view('welcome');
+    return response()->json([
+        'name' => 'i-Share API',
+        'status' => 'online',
+        'api' => '/api',
+        'health' => '/health',
+    ]);
 });
 
 // Hello world test route
