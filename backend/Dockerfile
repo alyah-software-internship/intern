@@ -52,16 +52,10 @@ RUN mkdir -p \
 RUN chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
-# Copy entrypoint
-COPY docker/entrypoint.sh /entrypoint.sh
-
-# Make entrypoint executable
-RUN chmod +x /entrypoint.sh
-
 # Render port
 ENV PORT=10000
 
 EXPOSE 10000
 
-# Start Laravel
-CMD ["/entrypoint.sh"]
+# Start Laravel directly so Render can monitor the web process.
+CMD ["sh", "-c", "php -S 0.0.0.0:${PORT:-10000} -t public vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php"]
