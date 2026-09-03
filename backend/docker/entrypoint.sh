@@ -1,12 +1,24 @@
 #!/bin/sh
 
-set -e
+set -eu
 
 echo "========================================"
 echo "Starting Laravel application..."
 echo "========================================"
 
 cd /var/www/html
+
+if [ -z "${APP_KEY:-}" ]; then
+    echo "ERROR: APP_KEY is not configured. Add APP_KEY to the Render environment variables." >&2
+    exit 1
+fi
+
+case "${PORT:-10000}" in
+    ''|*[!0-9]*)
+        echo "ERROR: PORT must be a numeric port." >&2
+        exit 1
+        ;;
+esac
 
 # Create required Laravel directories
 mkdir -p \
@@ -23,14 +35,14 @@ chmod -R 775 storage bootstrap/cache
 echo "Laravel directories ready."
 
 # Clear old cached configuration
-php artisan config:clear || true
-php artisan route:clear || true
-php artisan view:clear || true
+php artisan config:clear
+php artisan route:clear
+php artisan view:clear
 
 echo "Laravel cache cleared."
 
 # Generate optimized configuration
-php artisan config:cache || true
+php artisan config:cache
 
 echo "Laravel configuration cached."
 
