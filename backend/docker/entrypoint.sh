@@ -52,7 +52,5 @@ echo "Starting server..."
 echo "Port: ${PORT:-10000}"
 echo "========================================"
 
-# Start Laravel server
-exec php artisan serve \
-    --host=0.0.0.0 \
-    --port="${PORT:-10000}"
+# Start Laravel using PHP's native server so the container tracks one process.
+exec php -S "0.0.0.0:${PORT:-10000}" -t public
