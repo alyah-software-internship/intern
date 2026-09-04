@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\URL;
 use App\Services\AuthService;
 use App\Services\UserService;
 use App\Services\VendorService;
@@ -72,10 +73,15 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot(): void
-    {
-        RateLimiter::for('api', function (Request $request) {
-            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
-        });
+ public function boot(): void
+{
+    if ($this->app->environment('production')) {
+        URL::forceScheme('https');
     }
+
+    RateLimiter::for('api', function (Request $request) {
+        return Limit::perMinute(60)->by(
+            $request->user()?->id ?: $request->ip()
+        );
+    });
 }
