@@ -281,7 +281,7 @@ const ProfilePage = () => {
           </div>
         </div>
 
-        <Row gutter={[24, 24]}>
+        <Row gutter={[24, 24]} justify={isEditing ? "start" : "center"}>
           <Col xs={24} lg={8}>
             <Card
               style={{
