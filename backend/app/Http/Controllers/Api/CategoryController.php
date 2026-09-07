@@ -9,9 +9,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use App\Services\MediaStorageService;
 
 class CategoryController extends Controller
 {
+    public function __construct(private MediaStorageService $mediaStorage)
+    {
+    }
+
     /**
      * Get all categories (Public)
      */
@@ -119,8 +124,10 @@ class CategoryController extends Controller
         try {
             $imageUrl = $request->image_url;
             if ($request->hasFile('image')) {
-                $imagePath = $request->file('image')->store('categories', 'public');
-                $imageUrl = asset('storage/' . $imagePath);
+                $imageUrl = $this->mediaStorage->uploadImage(
+                    $request->file('image'),
+                    'categories',
+                );
             }
 
             $category = Category::create([
@@ -186,8 +193,10 @@ class CategoryController extends Controller
                         Storage::disk('public')->delete($oldPath);
                     }
                 }
-                $imagePath = $request->file('image')->store('categories', 'public');
-                $data['image_url'] = asset('storage/' . $imagePath);
+                $data['image_url'] = $this->mediaStorage->uploadImage(
+                    $request->file('image'),
+                    'categories',
+                );
             }
             unset($data['image']);
             if (isset($data['slug'])) {

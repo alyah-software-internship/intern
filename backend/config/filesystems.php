@@ -2,6 +2,8 @@
 
 return [
 
+    'media_disk' => env('MEDIA_DISK', 'public'),
+
     /*
     |--------------------------------------------------------------------------
     | Default Filesystem Disk
@@ -58,6 +60,13 @@ return [
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
             'throw' => false,
             'report' => false,
+        ],
+
+        'cloudinary' => [
+            'driver' => 'cloudinary',
+            'url' => env('CLOUDINARY_URL'),
+            'secure' => true,
+            'prefix' => env('CLOUDINARY_PREFIX'),
         ],
 
     ],

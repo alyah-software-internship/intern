@@ -22,6 +22,7 @@ esac
 
 # Create required Laravel directories
 mkdir -p \
+    storage/app/public \
     storage/framework/cache \
     storage/framework/sessions \
     storage/framework/views \
@@ -31,6 +32,9 @@ mkdir -p \
 # Set permissions
 chown -R www-data:www-data storage bootstrap/cache
 chmod -R 775 storage bootstrap/cache
+
+# Recreate the public URL after a persistent storage volume is mounted.
+php artisan storage:link --force
 
 echo "Laravel directories ready."
 

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ProductImage;
 use App\Services\ProductService;
 use App\Services\VendorService;
+use App\Services\MediaStorageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -13,13 +14,16 @@ class ProductController extends Controller
 {
     protected $productService;
     protected $vendorService;
+    protected $mediaStorage;
 
     public function __construct(
         ProductService $productService,
-        VendorService $vendorService
+        VendorService $vendorService,
+        MediaStorageService $mediaStorage
     ) {
         $this->productService = $productService;
         $this->vendorService = $vendorService;
+        $this->mediaStorage = $mediaStorage;
     }
 
     /**
@@ -132,11 +136,11 @@ class ProductController extends Controller
             );
 
             foreach ($request->file('images', []) as $sortOrder => $image) {
-                $path = $image->store('products', 'public');
+                $imageUrl = $this->mediaStorage->uploadImage($image, 'products');
 
                 ProductImage::create([
                     'product_id' => $product->id,
-                    'image_url' => $path,
+                    'image_url' => $imageUrl,
                     'alt_text' => $request->input('name'),
                     'is_primary' => $sortOrder === 0,
                     'sort_order' => $sortOrder,
