@@ -192,12 +192,15 @@ const Header = () => {
     let active = true;
     const loadUnreadNotifications = async () => {
       try {
-        const response = await fetch(`${backendUrl}/notifications/unread-count`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-            Accept: "application/json",
+        const response = await fetch(
+          `${backendUrl}/notifications/unread-count`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+              Accept: "application/json",
+            },
           },
-        });
+        );
         const data = await response.json();
         if (active) setUnreadNotifications(Number(data.unread_count || 0));
       } catch {

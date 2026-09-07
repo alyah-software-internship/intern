@@ -27,7 +27,9 @@ const NotificationPage = () => {
         headers: authHeaders(),
       });
       const data = await response.json();
-      setNotifications(Array.isArray(data.notifications) ? data.notifications : []);
+      setNotifications(
+        Array.isArray(data.notifications) ? data.notifications : [],
+      );
     } catch {
       setNotifications([]);
     } finally {
@@ -129,49 +131,55 @@ const NotificationPage = () => {
               : "1px solid rgba(15,23,42,0.08)",
           }}
         >
-          {loading ? <Spin /> : <List
-            itemLayout="vertical"
-            dataSource={notifications}
-            locale={{ emptyText: t.notifications?.empty || "No notifications" }}
-            renderItem={(item) => (
-              <List.Item
-                key={item.id}
-                style={{
-                  borderRadius: 20,
-                  marginBottom: 16,
-                  padding: 24,
-                  background: isDark ? "#091127" : "#f8fbff",
-                }}
-              >
-                <List.Item.Meta
-                  avatar={
+          {loading ? (
+            <Spin />
+          ) : (
+            <List
+              itemLayout="vertical"
+              dataSource={notifications}
+              locale={{
+                emptyText: t.notifications?.empty || "No notifications",
+              }}
+              renderItem={(item) => (
+                <List.Item
+                  key={item.id}
+                  style={{
+                    borderRadius: 20,
+                    marginBottom: 16,
+                    padding: 24,
+                    background: isDark ? "#091127" : "#f8fbff",
+                  }}
+                >
+                  <List.Item.Meta
+                    avatar={
                       <Badge dot={!item.is_read} offset={[0, 8]}>
-                      <BellOutlined
+                        <BellOutlined
                           onClick={() => markRead(item)}
-                        style={{ fontSize: 24, color: "#16a34a" }}
-                      />
-                    </Badge>
-                  }
-                  title={
-                    <Text
-                      strong
-                      style={{ color: isDark ? "#f8fafc" : "#0f172a" }}
-                    >
-                      {item.title}
-                    </Text>
-                  }
-                  description={
-                    <Text style={{ color: isDark ? "#cbd5e1" : "#475569" }}>
-                      {item.message}
-                    </Text>
-                  }
-                />
-                <Text style={{ color: isDark ? "#94a3b8" : "#64748b" }}>
-                  {new Date(item.created_at).toLocaleString()}
-                </Text>
-              </List.Item>
-            )}
-          />}
+                          style={{ fontSize: 24, color: "#16a34a" }}
+                        />
+                      </Badge>
+                    }
+                    title={
+                      <Text
+                        strong
+                        style={{ color: isDark ? "#f8fafc" : "#0f172a" }}
+                      >
+                        {item.title}
+                      </Text>
+                    }
+                    description={
+                      <Text style={{ color: isDark ? "#cbd5e1" : "#475569" }}>
+                        {item.message}
+                      </Text>
+                    }
+                  />
+                  <Text style={{ color: isDark ? "#94a3b8" : "#64748b" }}>
+                    {new Date(item.created_at).toLocaleString()}
+                  </Text>
+                </List.Item>
+              )}
+            />
+          )}
         </Card>
       </div>
     </div>
