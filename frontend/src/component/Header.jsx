@@ -87,9 +87,10 @@ const Header = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [isWide, setIsWide] = useState(window.innerWidth >= 1300);
   const [langHover, setLangHover] = useState(false);
-  const { isSignedIn, signOut } = useContext(AppContext);
+  const { backendUrl, isSignedIn, signOut } = useContext(AppContext);
   const { theme } = useTheme();
   const { setLanguage, translation: t } = useTranslation();
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
 
   const handleLogout = () => {
     signOut();
@@ -182,6 +183,36 @@ const Header = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  useEffect(() => {
+    if (!isSignedIn || !backendUrl) {
+      setUnreadNotifications(0);
+      return undefined;
+    }
+
+    let active = true;
+    const loadUnreadNotifications = async () => {
+      try {
+        const response = await fetch(`${backendUrl}/notifications/unread-count`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            Accept: "application/json",
+          },
+        });
+        const data = await response.json();
+        if (active) setUnreadNotifications(Number(data.unread_count || 0));
+      } catch {
+        if (active) setUnreadNotifications(0);
+      }
+    };
+
+    loadUnreadNotifications();
+    const interval = window.setInterval(loadUnreadNotifications, 60000);
+    return () => {
+      active = false;
+      window.clearInterval(interval);
+    };
+  }, [backendUrl, isSignedIn]);
+
   return (
     <AntHeader
       style={{
@@ -253,7 +284,7 @@ const Header = () => {
         <LanguageSwitcher />
         <ThemeSwitcher />
         {isSignedIn && (
-          <Badge count={2}>
+          <Badge count={unreadNotifications} overflowCount={99}>
             <Button
               shape="circle"
               icon={<BellOutlined />}

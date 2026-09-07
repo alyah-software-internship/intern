@@ -1,45 +1,64 @@
-import React from "react";
-import { Typography, Row, Col, Card, Button, List, Badge } from "antd";
+import { useContext, useEffect, useState } from "react";
+import { Typography, Row, Col, Card, Button, List, Badge, Spin } from "antd";
 import { BellOutlined } from "@ant-design/icons";
 import { useTranslation } from "../../component/LanguageProvider.jsx";
 import { useTheme } from "../../context/ThemeProvider.jsx";
+import { AppContext } from "../../context/AppContext.jsx";
 
 const { Title, Paragraph, Text } = Typography;
 
 const NotificationPage = () => {
   const { translation: t } = useTranslation();
   const { theme } = useTheme();
+  const { backendUrl } = useContext(AppContext);
   const isDark = theme === "dark";
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const notifications = [
-    {
-      id: 1,
-      title: t.notifications?.newOffer || "New rental offer available",
-      description:
-        t.notifications?.newOfferDesc ||
-        "Check out a new discount from one of your favorite vendors.",
-      time: "2 hours ago",
-      unread: true,
-    },
-    {
-      id: 2,
-      title: t.notifications?.bookingConfirmed || "Booking confirmed",
-      description:
-        t.notifications?.bookingConfirmedDesc ||
-        "Your booking has been confirmed and is ready for pickup.",
-      time: "Yesterday",
-      unread: false,
-    },
-    {
-      id: 3,
-      title: t.notifications?.paymentSuccess || "Payment successful",
-      description:
-        t.notifications?.paymentSuccessDesc ||
-        "Your payment was processed successfully.",
-      time: "2 days ago",
-      unread: false,
-    },
-  ];
+  const authHeaders = () => ({
+    Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+    Accept: "application/json",
+  });
+
+  const loadNotifications = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`${backendUrl}/notifications`, {
+        headers: authHeaders(),
+      });
+      const data = await response.json();
+      setNotifications(Array.isArray(data.notifications) ? data.notifications : []);
+    } catch {
+      setNotifications([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadNotifications();
+  }, [backendUrl]);
+
+  const markAllRead = async () => {
+    await fetch(`${backendUrl}/notifications/read-all`, {
+      method: "POST",
+      headers: authHeaders(),
+    });
+    await loadNotifications();
+  };
+
+  const markRead = async (notification) => {
+    if (notification.is_read) return;
+    await fetch(`${backendUrl}/notifications/${notification.id}/read`, {
+      method: "POST",
+      headers: authHeaders(),
+    });
+    setNotifications((current) =>
+      current.map((item) =>
+        item.id === notification.id ? { ...item, is_read: true } : item,
+      ),
+    );
+  };
 
   return (
     <div
@@ -95,10 +114,7 @@ const NotificationPage = () => {
             </Paragraph>
           </div>
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-            <Button type="default">
-              {t.notifications?.clearAll || "Clear All"}
-            </Button>
-            <Button type="primary">
+            <Button type="primary" onClick={markAllRead}>
               {t.notifications?.markAllRead || "Mark All Read"}
             </Button>
           </div>
@@ -113,7 +129,7 @@ const NotificationPage = () => {
               : "1px solid rgba(15,23,42,0.08)",
           }}
         >
-          <List
+          {loading ? <Spin /> : <List
             itemLayout="vertical"
             dataSource={notifications}
             locale={{ emptyText: t.notifications?.empty || "No notifications" }}
@@ -129,8 +145,9 @@ const NotificationPage = () => {
               >
                 <List.Item.Meta
                   avatar={
-                    <Badge dot={item.unread} offset={[0, 8]}>
+                      <Badge dot={!item.is_read} offset={[0, 8]}>
                       <BellOutlined
+                          onClick={() => markRead(item)}
                         style={{ fontSize: 24, color: "#16a34a" }}
                       />
                     </Badge>
@@ -145,16 +162,16 @@ const NotificationPage = () => {
                   }
                   description={
                     <Text style={{ color: isDark ? "#cbd5e1" : "#475569" }}>
-                      {item.description}
+                      {item.message}
                     </Text>
                   }
                 />
                 <Text style={{ color: isDark ? "#94a3b8" : "#64748b" }}>
-                  {item.time}
+                  {new Date(item.created_at).toLocaleString()}
                 </Text>
               </List.Item>
             )}
-          />
+          />}
         </Card>
       </div>
     </div>
