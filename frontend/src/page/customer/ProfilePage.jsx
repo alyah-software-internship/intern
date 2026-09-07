@@ -401,6 +401,19 @@ const ProfilePage = () => {
                     {profile.paymentMethodsVerified ? "Yes" : "No"}
                   </Text>
                 </div>
+
+                <Button
+                  type="primary"
+                  size="large"
+                  block
+                  onClick={isEditing ? handleSave : handleStartEditing}
+                  loading={isEditing && saving}
+                  style={{ borderRadius: 999 }}
+                >
+                  {isEditing
+                    ? t.profile?.updateButton || "Update Profile"
+                    : t.profile?.editButton || "Edit Profile"}
+                </Button>
               </Space>
             </Card>
           </Col>
