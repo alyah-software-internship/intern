@@ -4,6 +4,7 @@ FROM php:8.2-cli
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
+    ca-certificates \
     libzip-dev \
     libpng-dev \
     libjpeg62-turbo-dev \
@@ -33,7 +34,7 @@ WORKDIR /var/www/html
 # Copy Laravel application
 COPY . .
 
-# Never ship a configuration cache generated from local environment values.
+# Never ship a configuration cache generated from local environment values
 RUN rm -f bootstrap/cache/*.php
 
 # Install PHP/Laravel dependencies
@@ -49,7 +50,11 @@ RUN mkdir -p \
     storage/framework/sessions \
     storage/framework/views \
     storage/logs \
+    storage/app/public/products \
     bootstrap/cache
+
+# Create Laravel storage link
+RUN php artisan storage:link
 
 # Set permissions
 RUN chown -R www-data:www-data storage bootstrap/cache \
@@ -60,5 +65,5 @@ ENV PORT=10000
 
 EXPOSE 10000
 
-# Start Laravel directly so Render can monitor the web process.
-CMD ["sh", "-c", "php artisan serve --host=0.0.0.0 --port=${PORT:-10000}"]
+# Start Laravel
+CMD ["sh", "-c", "php artisan storage:link --force && php artisan serve --host=0.0.0.0 --port=${PORT:-10000}"]

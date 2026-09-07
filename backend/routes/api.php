@@ -40,6 +40,19 @@ Route::get('/test', function () {
     ]);
 });
 
+
+
+Route::get('/db-config-test', function () {
+    return response()->json([
+        'connection' => config('database.default'),
+        'host' => config('database.connections.mysql.host'),
+        'port' => config('database.connections.mysql.port'),
+        'database' => config('database.connections.mysql.database'),
+        'username' => config('database.connections.mysql.username'),
+        'password_set' => !empty(config('database.connections.mysql.password')),
+    ]);
+});
+
 // Health check
 Route::get('/health', function () {
     return response()->json([

@@ -15,6 +15,7 @@ use App\Services\WalletService;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -24,7 +25,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // Register all services as singletons
         $this->app->singleton(AuthService::class, function ($app) {
             return new AuthService();
         });
@@ -74,8 +74,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        if ($this->app->environment('production')) {
+            URL::forceScheme('https');
+        }
+
         RateLimiter::for('api', function (Request $request) {
-            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+            return Limit::perMinute(60)->by(
+                $request->user()?->id ?: $request->ip()
+            );
         });
     }
 }
