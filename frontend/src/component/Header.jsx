@@ -87,10 +87,25 @@ const Header = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [isWide, setIsWide] = useState(window.innerWidth >= 1300);
   const [langHover, setLangHover] = useState(false);
-  const { backendUrl, isSignedIn, signOut } = useContext(AppContext);
+  const { backendUrl, isSignedIn, user, signOut } = useContext(AppContext);
   const { theme } = useTheme();
   const { setLanguage, translation: t } = useTranslation();
   const [unreadNotifications, setUnreadNotifications] = useState(0);
+  const [wishlistCount, setWishlistCount] = useState(0);
+
+  const displayName =
+    [user?.first_name, user?.last_name].filter(Boolean).join(" ") ||
+    user?.email ||
+    "Account";
+  const displayRole = user?.role
+    ? user.role.charAt(0).toUpperCase() + user.role.slice(1)
+    : "Customer";
+  const initials = displayName
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0].toUpperCase())
+    .join("");
 
   const handleLogout = () => {
     signOut();
@@ -216,6 +231,36 @@ const Header = () => {
     };
   }, [backendUrl, isSignedIn]);
 
+  useEffect(() => {
+    if (!isSignedIn || !backendUrl) {
+      setWishlistCount(0);
+      return undefined;
+    }
+
+    let active = true;
+    const loadWishlistCount = async () => {
+      try {
+        const response = await fetch(`${backendUrl}/wishlist`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            Accept: "application/json",
+          },
+        });
+        const data = await response.json();
+        if (active) setWishlistCount(Number(data.count || 0));
+      } catch {
+        if (active) setWishlistCount(0);
+      }
+    };
+
+    loadWishlistCount();
+    const interval = window.setInterval(loadWishlistCount, 60000);
+    return () => {
+      active = false;
+      window.clearInterval(interval);
+    };
+  }, [backendUrl, isSignedIn]);
+
   return (
     <AntHeader
       style={{
@@ -311,7 +356,7 @@ const Header = () => {
         {isWide ? (
           isSignedIn ? (
             <>
-              <Badge>
+              <Badge count={wishlistCount} overflowCount={99}>
                 <Button
                   shape="circle"
                   icon={<HeartOutlined />}
@@ -327,12 +372,9 @@ const Header = () => {
                   }}
                 >
                   <Space>
-                    <Avatar
-                      style={{
-                        background: "#1677ff",
-                      }}
-                      icon={<UserOutlined />}
-                    />
+                    <Avatar style={{ background: "#1677ff" }}>
+                      {initials || <UserOutlined />}
+                    </Avatar>
 
                     <div
                       style={{
@@ -340,7 +382,7 @@ const Header = () => {
                         lineHeight: 1.1,
                       }}
                     >
-                      <Text strong>Marshal</Text>
+                      <Text strong>{displayName}</Text>
                       <br />
                       <Text
                         type="secondary"
@@ -348,7 +390,7 @@ const Header = () => {
                           fontSize: 12,
                         }}
                       >
-                        Premium
+                        {displayRole}
                       </Text>
                     </div>
 
