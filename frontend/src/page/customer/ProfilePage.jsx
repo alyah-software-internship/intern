@@ -29,20 +29,20 @@ const ProfilePage = () => {
   const isDark = theme === "dark";
 
   const initialProfile = {
-    fullName: "Marcus Sterling",
-    businessName: "Sterling Constructions Ltd",
-    email: "marcus.sterling@i-share.et",
-    phone: "0911554433",
-    address: "123 iShare Plaza, Addis Ababa, Ethiopia",
-    city: "Addis Ababa",
-    country: "Ethiopia",
-    bio: "General construction project coordinator and asset manager in East Africa. Specialized in heavy machinery logistics and high-value fleet rentals.",
+    fullName: "",
+    businessName: "",
+    email: "",
+    phone: "",
+    address: "",
+    city: "",
+    country: "",
+    bio: "",
     image: "",
-    verificationStatus: "approved",
-    identityVerified: true,
-    paymentMethodsVerified: true,
-    rating: 4.9,
-    totalBookings: 28,
+    verificationStatus: "",
+    identityVerified: false,
+    paymentMethodsVerified: false,
+    rating: 0,
+    totalBookings: 0,
   };
 
   const uploadRef = useRef(null);
@@ -267,7 +267,6 @@ const ProfilePage = () => {
                 "Manage credentials, company validation, and rental identity details."}
             </Text>
           </div>
-         
         </div>
 
         <Row gutter={[24, 24]} justify={isEditing ? "start" : "center"}>
@@ -325,9 +324,7 @@ const ProfilePage = () => {
                     {profile.fullName}
                   </Title>
                   <Text type="secondary">
-                    {profile.businessName ||
-                      t.profile?.memberStatus ||
-                      "Premium Member"}
+                    {profile.businessName || t.profile?.memberStatus || ""}
                   </Text>
                 </div>
 
