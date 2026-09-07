@@ -47,6 +47,7 @@ const ProfilePage = () => {
   };
 
   const uploadRef = useRef(null);
+  const fullNameRef = useRef(null);
   const [isEditing, setIsEditing] = useState(false);
   const [profile, setProfile] = useState(initialProfile);
   const [backupProfile, setBackupProfile] = useState(initialProfile);
@@ -133,6 +134,12 @@ const ProfilePage = () => {
     setBackupProfile(profile);
     setIsEditing(true);
   };
+
+  useEffect(() => {
+    if (isEditing) {
+      fullNameRef.current?.focus();
+    }
+  }, [isEditing]);
 
   const handleSave = async () => {
     setSaving(true);
@@ -426,6 +433,7 @@ const ProfilePage = () => {
                       {t.profile?.fullName || "Verified Full Name"}
                     </Text>
                     <Input
+                      ref={fullNameRef}
                       value={profile.fullName}
                       onChange={handleFieldChange("fullName")}
                       disabled={!isEditing}
