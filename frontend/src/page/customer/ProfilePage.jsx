@@ -281,148 +281,143 @@ const ProfilePage = () => {
           </div>
         </div>
 
-        {isEditing && (
-          <Row gutter={[24, 24]}>
-            <Col xs={24} lg={8}>
-              <Card
-                style={{
-                  borderRadius: 28,
-                  background: isDark
-                    ? "linear-gradient(180deg, #0f172a 0%, #111827 100%)"
-                    : "#ffffff",
-                  border: isDark
-                    ? "1px solid rgba(255,255,255,0.08)"
-                    : "1px solid rgba(15,23,42,0.07)",
-                  boxShadow: isDark
-                    ? "0 30px 80px rgba(0,0,0,0.18)"
-                    : "0 24px 60px rgba(15,23,42,0.08)",
-                }}
-              >
-                <Space
-                  orientation="vertical"
-                  size={26}
-                  style={{ width: "100%" }}
-                >
-                  <div style={{ textAlign: "center" }}>
-                    <input
-                      type="file"
-                      ref={uploadRef}
-                      accept="image/*"
-                      style={{ display: "none" }}
-                      onChange={handleAvatarUpload}
+        <Row gutter={[24, 24]}>
+          <Col xs={24} lg={8}>
+            <Card
+              style={{
+                borderRadius: 28,
+                background: isDark
+                  ? "linear-gradient(180deg, #0f172a 0%, #111827 100%)"
+                  : "#ffffff",
+                border: isDark
+                  ? "1px solid rgba(255,255,255,0.08)"
+                  : "1px solid rgba(15,23,42,0.07)",
+                boxShadow: isDark
+                  ? "0 30px 80px rgba(0,0,0,0.18)"
+                  : "0 24px 60px rgba(15,23,42,0.08)",
+              }}
+            >
+              <Space orientation="vertical" size={26} style={{ width: "100%" }}>
+                <div style={{ textAlign: "center" }}>
+                  <input
+                    type="file"
+                    ref={uploadRef}
+                    accept="image/*"
+                    style={{ display: "none" }}
+                    onChange={handleAvatarUpload}
+                  />
+                  <Tooltip
+                    title={
+                      isEditing
+                        ? "Click to upload a new profile picture"
+                        : "Enable edit mode to change your picture"
+                    }
+                    color={isDark ? undefined : "#0f172a"}
+                    overlayInnerStyle={{ color: "#ffffff" }}
+                  >
+                    <Avatar
+                      size={120}
+                      src={profile.image || undefined}
+                      icon={!profile.image && <UserOutlined />}
+                      style={{
+                        background: profile.image ? undefined : "#2563eb",
+                        cursor: isEditing ? "pointer" : "default",
+                      }}
+                      onClick={handleAvatarClick}
                     />
-                    <Tooltip
-                      title={
-                        isEditing
-                          ? "Click to upload a new profile picture"
-                          : "Enable edit mode to change your picture"
-                      }
-                      color={isDark ? undefined : "#0f172a"}
-                      overlayInnerStyle={{ color: "#ffffff" }}
-                    >
-                      <Avatar
-                        size={120}
-                        src={profile.image || undefined}
-                        icon={!profile.image && <UserOutlined />}
-                        style={{
-                          background: profile.image ? undefined : "#2563eb",
-                          cursor: isEditing ? "pointer" : "default",
-                        }}
-                        onClick={handleAvatarClick}
-                      />
-                    </Tooltip>
-                    <Title
-                      level={4}
-                      style={{
-                        marginTop: 16,
-                        color: isDark ? "#f8fafc" : "#0f172a",
-                      }}
-                    >
-                      {profile.fullName}
-                    </Title>
-                    <Text type="secondary">
-                      {profile.businessName ||
-                        t.profile?.memberStatus ||
-                        "Premium Member"}
-                    </Text>
-                  </div>
-
-                  <div>
-                    <Text
-                      style={{
-                        display: "block",
-                        marginBottom: 12,
-                        color: isDark ? "#cbd5e1" : "#475569",
-                      }}
-                    >
-                      {profile.bio}
-                    </Text>
-                  </div>
-
-                  <div
+                  </Tooltip>
+                  <Title
+                    level={4}
                     style={{
-                      padding: 20,
-                      borderRadius: 22,
-                      background: isDark ? "rgba(15,23,42,0.9)" : "#eff6ff",
+                      marginTop: 16,
+                      color: isDark ? "#f8fafc" : "#0f172a",
                     }}
                   >
-                    <Space align="center" size={14}>
-                      <CheckCircleOutlined
-                        style={{ color: "#16a34a", fontSize: 22 }}
-                      />
-                      <div>
-                        <Text
-                          strong
-                          style={{ color: isDark ? "#f8fafc" : "#0f172a" }}
-                        >
-                          {t.profile?.verifiedTitle || "Identity Confirmed"}
-                        </Text>
-                        <br />
-                        <Text type="secondary">
-                          {profile.verificationStatus
-                            ? `Verification status: ${profile.verificationStatus}`
-                            : t.profile?.verifiedSubtitle ||
-                              "Insurance pre-bond active until 2027."}
-                        </Text>
-                      </div>
-                    </Space>
-                  </div>
+                    {profile.fullName}
+                  </Title>
+                  <Text type="secondary">
+                    {profile.businessName ||
+                      t.profile?.memberStatus ||
+                      "Premium Member"}
+                  </Text>
+                </div>
 
-                  <div
+                <div>
+                  <Text
                     style={{
-                      display: "grid",
-                      gap: 12,
+                      display: "block",
+                      marginBottom: 12,
                       color: isDark ? "#cbd5e1" : "#475569",
                     }}
                   >
-                    <Text>Rating: {profile.rating} / 5</Text>
-                    <Text>Bookings: {profile.totalBookings}</Text>
-                    <Text>
-                      Identity verified:{" "}
-                      {profile.identityVerified ? "Yes" : "No"}
-                    </Text>
-                    <Text>
-                      Payment methods verified:{" "}
-                      {profile.paymentMethodsVerified ? "Yes" : "No"}
-                    </Text>
-                  </div>
+                    {profile.bio}
+                  </Text>
+                </div>
 
-                  <Button
-                    type="primary"
-                    size="large"
-                    block
-                    onClick={isEditing ? handleSave : handleStartEditing}
-                    loading={isEditing && saving}
-                    style={{ borderRadius: 999 }}
-                  >
-                    {isEditing
-                      ? t.profile?.updateButton || "Update Profile"
-                      : t.profile?.editButton || "Edit Profile"}
-                  </Button>
-                </Space>
-              </Card>
-            </Col>
+                <div
+                  style={{
+                    padding: 20,
+                    borderRadius: 22,
+                    background: isDark ? "rgba(15,23,42,0.9)" : "#eff6ff",
+                  }}
+                >
+                  <Space align="center" size={14}>
+                    <CheckCircleOutlined
+                      style={{ color: "#16a34a", fontSize: 22 }}
+                    />
+                    <div>
+                      <Text
+                        strong
+                        style={{ color: isDark ? "#f8fafc" : "#0f172a" }}
+                      >
+                        {t.profile?.verifiedTitle || "Identity Confirmed"}
+                      </Text>
+                      <br />
+                      <Text type="secondary">
+                        {profile.verificationStatus
+                          ? `Verification status: ${profile.verificationStatus}`
+                          : t.profile?.verifiedSubtitle ||
+                            "Insurance pre-bond active until 2027."}
+                      </Text>
+                    </div>
+                  </Space>
+                </div>
 
+                <div
+                  style={{
+                    display: "grid",
+                    gap: 12,
+                    color: isDark ? "#cbd5e1" : "#475569",
+                  }}
+                >
+                  <Text>Rating: {profile.rating} / 5</Text>
+                  <Text>Bookings: {profile.totalBookings}</Text>
+                  <Text>
+                    Identity verified: {profile.identityVerified ? "Yes" : "No"}
+                  </Text>
+                  <Text>
+                    Payment methods verified:{" "}
+                    {profile.paymentMethodsVerified ? "Yes" : "No"}
+                  </Text>
+                </div>
+
+                <Button
+                  type="primary"
+                  size="large"
+                  block
+                  onClick={isEditing ? handleSave : handleStartEditing}
+                  loading={isEditing && saving}
+                  style={{ borderRadius: 999 }}
+                >
+                  {isEditing
+                    ? t.profile?.updateButton || "Update Profile"
+                    : t.profile?.editButton || "Edit Profile"}
+                </Button>
+              </Space>
+            </Card>
+          </Col>
+
+          {isEditing && (
             <Col xs={24} lg={16}>
               <Card
                 style={{
@@ -691,8 +686,8 @@ const ProfilePage = () => {
                 </Space>
               </Card>
             </Col>
-          </Row>
-        )}
+          )}
+        </Row>
       </div>
     </div>
   );
