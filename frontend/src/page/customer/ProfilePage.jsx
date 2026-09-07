@@ -267,18 +267,7 @@ const ProfilePage = () => {
                 "Manage credentials, company validation, and rental identity details."}
             </Text>
           </div>
-          <div style={{ alignSelf: "center" }}>
-            <Button
-              type={isEditing ? "default" : "primary"}
-              size="large"
-              onClick={isEditing ? handleCancel : handleStartEditing}
-              style={{ minWidth: 150, borderRadius: 999 }}
-            >
-              {isEditing
-                ? t.profile?.cancelButton || "Cancel"
-                : t.profile?.editButton || "Edit Profile"}
-            </Button>
-          </div>
+         
         </div>
 
         <Row gutter={[24, 24]} justify={isEditing ? "start" : "center"}>
@@ -411,7 +400,7 @@ const ProfilePage = () => {
                 >
                   {isEditing
                     ? t.profile?.updateButton || "Update Profile"
-                    : t.profile?.editButton || "Edit Profile"}
+                    : t.profile?.updateButton || "Update Profile"}
                 </Button>
               </Space>
             </Card>
@@ -679,7 +668,7 @@ const ProfilePage = () => {
                     ) : (
                       <Text type="secondary">
                         {t.profile?.hint ||
-                          "Toggle Edit Profile to make changes to your details."}
+                          "Select Update Profile to change your details."}
                       </Text>
                     )}
                   </div>
