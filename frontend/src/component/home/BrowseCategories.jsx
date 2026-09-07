@@ -4,6 +4,10 @@ import { Card, Row, Col, Typography, Button } from "antd";
 import { useTranslation } from "../LanguageProvider.jsx";
 import { useTheme } from "../../context/ThemeProvider.jsx";
 import { AppContext } from "../../context/AppContext.jsx";
+import {
+  getCategoryImageUrl,
+  useFallbackImage,
+} from "../../config/categoryImage.js";
 
 const { Text } = Typography;
 
@@ -20,13 +24,6 @@ const BrowseCategories = () => {
       .then((response) => setCategories(response.data.categories || []))
       .catch(() => setCategories([]));
   }, [backendUrl]);
-
-  const categoryImage = (category) => {
-    if (!category.image_url) return "/logo.png";
-    if (category.image_url.startsWith("http")) return category.image_url;
-    const apiBase = backendUrl.replace(/\/api\/?$/, "");
-    return `${apiBase}/storage/${category.image_url.replace(/^\/+/, "")}`;
-  };
 
   return (
     <Card
@@ -137,8 +134,9 @@ const BrowseCategories = () => {
                   }}
                 >
                   <img
-                    src={categoryImage(category)}
+                    src={getCategoryImageUrl(category.image_url, backendUrl)}
                     alt={title}
+                    onError={useFallbackImage}
                     style={{ width: 28, height: 28, objectFit: "contain" }}
                   />
                 </div>

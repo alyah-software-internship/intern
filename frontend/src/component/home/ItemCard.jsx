@@ -4,6 +4,7 @@ import { Card, Typography, Button, Row, message } from "antd";
 import { HeartFilled, HeartOutlined, StarFilled } from "@ant-design/icons";
 import { useTranslation } from "../LanguageProvider.jsx";
 import { AppContext } from "../../context/AppContext.jsx";
+import { useFallbackImage } from "../../config/categoryImage.js";
 
 const { Text } = Typography;
 
@@ -85,6 +86,7 @@ const ItemCard = ({ item, onAction, onSelect }) => {
         <img
           src={image}
           alt={title}
+          onError={useFallbackImage}
           style={{ width: "100%", height: 200, objectFit: "cover" }}
         />
         <div

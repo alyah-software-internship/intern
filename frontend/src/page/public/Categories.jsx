@@ -5,6 +5,10 @@ import { Row, Col, Card, Typography, Button } from "antd";
 import { useTranslation } from "../../component/LanguageProvider.jsx";
 import { useTheme } from "../../context/ThemeProvider.jsx";
 import { AppContext } from "../../context/AppContext.jsx";
+import {
+  getCategoryImageUrl,
+  useFallbackImage,
+} from "../../config/categoryImage.js";
 
 const { Title, Text } = Typography;
 const categoryCacheKey = "rentalCategories";
@@ -54,13 +58,6 @@ const Categories = () => {
 
   const openCategory = (category) => {
     navigate(`/rentals?category=${encodeURIComponent(category.name)}`);
-  };
-
-  const categoryImage = (category) => {
-    if (!category.image_url) return "/logo.png";
-    if (category.image_url.startsWith("http")) return category.image_url;
-    const apiBase = backendUrl.replace(/\/api\/?$/, "");
-    return `${apiBase}/storage/${category.image_url.replace(/^\/+/, "")}`;
   };
 
   return (
@@ -163,8 +160,12 @@ const Categories = () => {
                       }}
                     >
                       <img
-                        src={categoryImage(category)}
+                        src={getCategoryImageUrl(
+                          category.image_url,
+                          backendUrl,
+                        )}
                         alt={title}
+                        onError={useFallbackImage}
                         style={{
                           width: "100%",
                           height: "100%",

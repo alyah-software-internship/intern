@@ -23,6 +23,7 @@ import { useTranslation } from "../../component/LanguageProvider.jsx";
 import { useTheme } from "../../context/ThemeProvider.jsx";
 import { AppContext } from "../../context/AppContext.jsx";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { getCategoryImageUrl } from "../../config/categoryImage.js";
 
 const { Title, Text } = Typography;
 const rentalProductsCacheKey = "rentalProducts";
@@ -111,10 +112,7 @@ const Rental = () => {
     (product) => {
       const image =
         product.images?.find((item) => item.is_primary) || product.images?.[0];
-      if (!image?.image_url) return "/logo.png";
-      if (image.image_url.startsWith("http")) return image.image_url;
-      const apiBase = backendUrl.replace(/\/api\/?$/, "");
-      return `${apiBase}/storage/${image.image_url.replace(/^\/+/, "")}`;
+      return getCategoryImageUrl(image?.image_url, backendUrl);
     },
     [backendUrl],
   );
