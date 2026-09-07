@@ -22,7 +22,6 @@ const { Title, Text } = Typography;
 const authConfig = () => ({
   headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` },
 });
-
 const ProfilePage = () => {
   const { translation: t } = useTranslation();
   const { theme } = useTheme();
@@ -282,401 +281,418 @@ const ProfilePage = () => {
           </div>
         </div>
 
-        <Row gutter={[24, 24]}>
-          <Col xs={24} lg={8}>
-            <Card
-              style={{
-                borderRadius: 28,
-                background: isDark
-                  ? "linear-gradient(180deg, #0f172a 0%, #111827 100%)"
-                  : "#ffffff",
-                border: isDark
-                  ? "1px solid rgba(255,255,255,0.08)"
-                  : "1px solid rgba(15,23,42,0.07)",
-                boxShadow: isDark
-                  ? "0 30px 80px rgba(0,0,0,0.18)"
-                  : "0 24px 60px rgba(15,23,42,0.08)",
-              }}
-            >
-              <Space orientation="vertical" size={26} style={{ width: "100%" }}>
-                <div style={{ textAlign: "center" }}>
-                  <input
-                    type="file"
-                    ref={uploadRef}
-                    accept="image/*"
-                    style={{ display: "none" }}
-                    onChange={handleAvatarUpload}
-                  />
-                  <Tooltip
-                    title={
-                      isEditing
-                        ? "Click to upload a new profile picture"
-                        : "Enable edit mode to change your picture"
-                    }
-                    color={isDark ? undefined : "#0f172a"}
-                    overlayInnerStyle={{ color: "#ffffff" }}
-                  >
-                    <Avatar
-                      size={120}
-                      src={profile.image || undefined}
-                      icon={!profile.image && <UserOutlined />}
-                      style={{
-                        background: profile.image ? undefined : "#2563eb",
-                        cursor: isEditing ? "pointer" : "default",
-                      }}
-                      onClick={handleAvatarClick}
+        {isEditing && (
+          <Row gutter={[24, 24]}>
+            <Col xs={24} lg={8}>
+              <Card
+                style={{
+                  borderRadius: 28,
+                  background: isDark
+                    ? "linear-gradient(180deg, #0f172a 0%, #111827 100%)"
+                    : "#ffffff",
+                  border: isDark
+                    ? "1px solid rgba(255,255,255,0.08)"
+                    : "1px solid rgba(15,23,42,0.07)",
+                  boxShadow: isDark
+                    ? "0 30px 80px rgba(0,0,0,0.18)"
+                    : "0 24px 60px rgba(15,23,42,0.08)",
+                }}
+              >
+                <Space
+                  orientation="vertical"
+                  size={26}
+                  style={{ width: "100%" }}
+                >
+                  <div style={{ textAlign: "center" }}>
+                    <input
+                      type="file"
+                      ref={uploadRef}
+                      accept="image/*"
+                      style={{ display: "none" }}
+                      onChange={handleAvatarUpload}
                     />
-                  </Tooltip>
-                  <Title
-                    level={4}
+                    <Tooltip
+                      title={
+                        isEditing
+                          ? "Click to upload a new profile picture"
+                          : "Enable edit mode to change your picture"
+                      }
+                      color={isDark ? undefined : "#0f172a"}
+                      overlayInnerStyle={{ color: "#ffffff" }}
+                    >
+                      <Avatar
+                        size={120}
+                        src={profile.image || undefined}
+                        icon={!profile.image && <UserOutlined />}
+                        style={{
+                          background: profile.image ? undefined : "#2563eb",
+                          cursor: isEditing ? "pointer" : "default",
+                        }}
+                        onClick={handleAvatarClick}
+                      />
+                    </Tooltip>
+                    <Title
+                      level={4}
+                      style={{
+                        marginTop: 16,
+                        color: isDark ? "#f8fafc" : "#0f172a",
+                      }}
+                    >
+                      {profile.fullName}
+                    </Title>
+                    <Text type="secondary">
+                      {profile.businessName ||
+                        t.profile?.memberStatus ||
+                        "Premium Member"}
+                    </Text>
+                  </div>
+
+                  <div>
+                    <Text
+                      style={{
+                        display: "block",
+                        marginBottom: 12,
+                        color: isDark ? "#cbd5e1" : "#475569",
+                      }}
+                    >
+                      {profile.bio}
+                    </Text>
+                  </div>
+
+                  <div
                     style={{
-                      marginTop: 16,
-                      color: isDark ? "#f8fafc" : "#0f172a",
+                      padding: 20,
+                      borderRadius: 22,
+                      background: isDark ? "rgba(15,23,42,0.9)" : "#eff6ff",
                     }}
                   >
-                    {profile.fullName}
-                  </Title>
-                  <Text type="secondary">
-                    {profile.businessName ||
-                      t.profile?.memberStatus ||
-                      "Premium Member"}
-                  </Text>
-                </div>
+                    <Space align="center" size={14}>
+                      <CheckCircleOutlined
+                        style={{ color: "#16a34a", fontSize: 22 }}
+                      />
+                      <div>
+                        <Text
+                          strong
+                          style={{ color: isDark ? "#f8fafc" : "#0f172a" }}
+                        >
+                          {t.profile?.verifiedTitle || "Identity Confirmed"}
+                        </Text>
+                        <br />
+                        <Text type="secondary">
+                          {profile.verificationStatus
+                            ? `Verification status: ${profile.verificationStatus}`
+                            : t.profile?.verifiedSubtitle ||
+                              "Insurance pre-bond active until 2027."}
+                        </Text>
+                      </div>
+                    </Space>
+                  </div>
 
-                <div>
-                  <Text
+                  <div
                     style={{
-                      display: "block",
-                      marginBottom: 12,
+                      display: "grid",
+                      gap: 12,
                       color: isDark ? "#cbd5e1" : "#475569",
                     }}
                   >
-                    {profile.bio}
-                  </Text>
-                </div>
+                    <Text>Rating: {profile.rating} / 5</Text>
+                    <Text>Bookings: {profile.totalBookings}</Text>
+                    <Text>
+                      Identity verified:{" "}
+                      {profile.identityVerified ? "Yes" : "No"}
+                    </Text>
+                    <Text>
+                      Payment methods verified:{" "}
+                      {profile.paymentMethodsVerified ? "Yes" : "No"}
+                    </Text>
+                  </div>
 
-                <div
-                  style={{
-                    padding: 20,
-                    borderRadius: 22,
-                    background: isDark ? "rgba(15,23,42,0.9)" : "#eff6ff",
-                  }}
+                  <Button
+                    type="primary"
+                    size="large"
+                    block
+                    onClick={isEditing ? handleSave : handleStartEditing}
+                    loading={isEditing && saving}
+                    style={{ borderRadius: 999 }}
+                  >
+                    {isEditing
+                      ? t.profile?.updateButton || "Update Profile"
+                      : t.profile?.editButton || "Edit Profile"}
+                  </Button>
+                </Space>
+              </Card>
+            </Col>
+
+            <Col xs={24} lg={16}>
+              <Card
+                style={{
+                  borderRadius: 28,
+                  background: isDark
+                    ? "linear-gradient(180deg, rgba(15,23,42,0.92) 0%, #0f172a 100%)"
+                    : "#ffffff",
+                  border: isDark
+                    ? "1px solid rgba(255,255,255,0.08)"
+                    : "1px solid rgba(15,23,42,0.07)",
+                  boxShadow: isDark
+                    ? "0 30px 80px rgba(0,0,0,0.18)"
+                    : "0 24px 60px rgba(15,23,42,0.08)",
+                }}
+              >
+                <Space
+                  orientation="vertical"
+                  size={28}
+                  style={{ width: "100%" }}
                 >
-                  <Space align="center" size={14}>
-                    <CheckCircleOutlined
-                      style={{ color: "#16a34a", fontSize: 22 }}
-                    />
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                      gap: 24,
+                    }}
+                  >
                     <div>
-                      <Text
-                        strong
-                        style={{ color: isDark ? "#f8fafc" : "#0f172a" }}
-                      >
-                        {t.profile?.verifiedTitle || "Identity Confirmed"}
+                      <Text strong>
+                        {t.profile?.fullName || "Verified Full Name"}
                       </Text>
-                      <br />
-                      <Text type="secondary">
-                        {profile.verificationStatus
-                          ? `Verification status: ${profile.verificationStatus}`
-                          : t.profile?.verifiedSubtitle ||
-                            "Insurance pre-bond active until 2027."}
-                      </Text>
+                      <Input
+                        ref={fullNameRef}
+                        value={profile.fullName}
+                        onChange={handleFieldChange("fullName")}
+                        disabled={!isEditing}
+                        placeholder={
+                          t.profile?.fullName || "Verified Full Name"
+                        }
+                        style={{
+                          marginTop: 8,
+                          borderRadius: 16,
+                          background: isEditing
+                            ? undefined
+                            : isDark
+                              ? "#0f172a"
+                              : "#f5f7ff",
+                        }}
+                      />
                     </div>
-                  </Space>
-                </div>
 
-                <div
-                  style={{
-                    display: "grid",
-                    gap: 12,
-                    color: isDark ? "#cbd5e1" : "#475569",
-                  }}
-                >
-                  <Text>Rating: {profile.rating} / 5</Text>
-                  <Text>Bookings: {profile.totalBookings}</Text>
-                  <Text>
-                    Identity verified: {profile.identityVerified ? "Yes" : "No"}
-                  </Text>
-                  <Text>
-                    Payment methods verified:{" "}
-                    {profile.paymentMethodsVerified ? "Yes" : "No"}
-                  </Text>
-                </div>
+                    <div>
+                      <Text strong>
+                        {t.profile?.company || "Business Name"}
+                      </Text>
+                      <Input
+                        value={profile.businessName}
+                        onChange={handleFieldChange("businessName")}
+                        disabled={!isEditing}
+                        placeholder={t.profile?.company || "Business Name"}
+                        style={{
+                          marginTop: 8,
+                          borderRadius: 16,
+                          background: isEditing
+                            ? undefined
+                            : isDark
+                              ? "#0f172a"
+                              : "#f5f7ff",
+                        }}
+                      />
+                    </div>
 
-                <Button
-                  type="primary"
-                  size="large"
-                  block
-                  onClick={isEditing ? handleSave : handleStartEditing}
-                  loading={isEditing && saving}
-                  style={{ borderRadius: 999 }}
-                >
-                  {isEditing
-                    ? t.profile?.updateButton || "Update Profile"
-                    : t.profile?.editButton || "Edit Profile"}
-                </Button>
-              </Space>
-            </Card>
-          </Col>
+                    <div>
+                      <Text strong>
+                        {t.profile?.imageLabel || "Profile Image URL"}
+                      </Text>
+                      <Input
+                        value={profile.image}
+                        onChange={handleFieldChange("image")}
+                        disabled={!isEditing}
+                        placeholder={
+                          t.profile?.imagePlaceholder ||
+                          "https://example.com/avatar.png"
+                        }
+                        style={{
+                          marginTop: 8,
+                          borderRadius: 16,
+                          background: isEditing
+                            ? undefined
+                            : isDark
+                              ? "#0f172a"
+                              : "#f5f7ff",
+                        }}
+                      />
+                    </div>
 
-          <Col xs={24} lg={16}>
-            <Card
-              style={{
-                borderRadius: 28,
-                background: isDark
-                  ? "linear-gradient(180deg, rgba(15,23,42,0.92) 0%, #0f172a 100%)"
-                  : "#ffffff",
-                border: isDark
-                  ? "1px solid rgba(255,255,255,0.08)"
-                  : "1px solid rgba(15,23,42,0.07)",
-                boxShadow: isDark
-                  ? "0 30px 80px rgba(0,0,0,0.18)"
-                  : "0 24px 60px rgba(15,23,42,0.08)",
-              }}
-            >
-              <Space orientation="vertical" size={28} style={{ width: "100%" }}>
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-                    gap: 24,
-                  }}
-                >
-                  <div>
-                    <Text strong>
-                      {t.profile?.fullName || "Verified Full Name"}
-                    </Text>
-                    <Input
-                      ref={fullNameRef}
-                      value={profile.fullName}
-                      onChange={handleFieldChange("fullName")}
-                      disabled={!isEditing}
-                      placeholder={t.profile?.fullName || "Verified Full Name"}
-                      style={{
-                        marginTop: 8,
-                        borderRadius: 16,
-                        background: isEditing
-                          ? undefined
-                          : isDark
-                            ? "#0f172a"
-                            : "#f5f7ff",
-                      }}
-                    />
+                    <div>
+                      <Text strong>
+                        {t.profile?.email || "Secure Registered Email"}
+                      </Text>
+                      <Input
+                        value={profile.email}
+                        onChange={handleFieldChange("email")}
+                        disabled={!isEditing}
+                        placeholder={
+                          t.profile?.email || "Secure Registered Email"
+                        }
+                        style={{
+                          marginTop: 8,
+                          borderRadius: 16,
+                          background: isEditing
+                            ? undefined
+                            : isDark
+                              ? "#0f172a"
+                              : "#f5f7ff",
+                        }}
+                      />
+                    </div>
+
+                    <div>
+                      <Text strong>
+                        {t.profile?.phone || "Verified Contact Phone"}
+                      </Text>
+                      <Input
+                        value={profile.phone}
+                        onChange={handleFieldChange("phone")}
+                        disabled={!isEditing}
+                        placeholder={
+                          t.profile?.phone || "Verified Contact Phone"
+                        }
+                        style={{
+                          marginTop: 8,
+                          borderRadius: 16,
+                          background: isEditing
+                            ? undefined
+                            : isDark
+                              ? "#0f172a"
+                              : "#f5f7ff",
+                        }}
+                      />
+                    </div>
                   </div>
 
-                  <div>
-                    <Text strong>{t.profile?.company || "Business Name"}</Text>
-                    <Input
-                      value={profile.businessName}
-                      onChange={handleFieldChange("businessName")}
-                      disabled={!isEditing}
-                      placeholder={t.profile?.company || "Business Name"}
-                      style={{
-                        marginTop: 8,
-                        borderRadius: 16,
-                        background: isEditing
-                          ? undefined
-                          : isDark
-                            ? "#0f172a"
-                            : "#f5f7ff",
-                      }}
-                    />
-                  </div>
-
-                  <div>
-                    <Text strong>
-                      {t.profile?.imageLabel || "Profile Image URL"}
-                    </Text>
-                    <Input
-                      value={profile.image}
-                      onChange={handleFieldChange("image")}
-                      disabled={!isEditing}
-                      placeholder={
-                        t.profile?.imagePlaceholder ||
-                        "https://example.com/avatar.png"
-                      }
-                      style={{
-                        marginTop: 8,
-                        borderRadius: 16,
-                        background: isEditing
-                          ? undefined
-                          : isDark
-                            ? "#0f172a"
-                            : "#f5f7ff",
-                      }}
-                    />
-                  </div>
-
-                  <div>
-                    <Text strong>
-                      {t.profile?.email || "Secure Registered Email"}
-                    </Text>
-                    <Input
-                      value={profile.email}
-                      onChange={handleFieldChange("email")}
-                      disabled={!isEditing}
-                      placeholder={
-                        t.profile?.email || "Secure Registered Email"
-                      }
-                      style={{
-                        marginTop: 8,
-                        borderRadius: 16,
-                        background: isEditing
-                          ? undefined
-                          : isDark
-                            ? "#0f172a"
-                            : "#f5f7ff",
-                      }}
-                    />
-                  </div>
-
-                  <div>
-                    <Text strong>
-                      {t.profile?.phone || "Verified Contact Phone"}
-                    </Text>
-                    <Input
-                      value={profile.phone}
-                      onChange={handleFieldChange("phone")}
-                      disabled={!isEditing}
-                      placeholder={t.profile?.phone || "Verified Contact Phone"}
-                      style={{
-                        marginTop: 8,
-                        borderRadius: 16,
-                        background: isEditing
-                          ? undefined
-                          : isDark
-                            ? "#0f172a"
-                            : "#f5f7ff",
-                      }}
-                    />
-                  </div>
-                </div>
-
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-                    gap: 24,
-                  }}
-                >
-                  <div>
-                    <Text strong>
-                      {t.profile?.headquarters || "Business Address"}
-                    </Text>
-                    <Input
-                      value={profile.address}
-                      onChange={handleFieldChange("address")}
-                      disabled={!isEditing}
-                      placeholder={
-                        t.profile?.headquarters || "Business Address"
-                      }
-                      style={{
-                        marginTop: 8,
-                        borderRadius: 16,
-                        background: isEditing
-                          ? undefined
-                          : isDark
-                            ? "#0f172a"
-                            : "#f5f7ff",
-                      }}
-                    />
-                  </div>
-
-                  <div>
-                    <Text strong>{t.profile?.city || "City"}</Text>
-                    <Input
-                      value={profile.city}
-                      onChange={handleFieldChange("city")}
-                      disabled={!isEditing}
-                      placeholder={t.profile?.city || "City"}
-                      style={{
-                        marginTop: 8,
-                        borderRadius: 16,
-                        background: isEditing
-                          ? undefined
-                          : isDark
-                            ? "#0f172a"
-                            : "#f5f7ff",
-                      }}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <Text strong>{t.profile?.country || "Country"}</Text>
-                  <Input
-                    value={profile.country}
-                    onChange={handleFieldChange("country")}
-                    disabled={!isEditing}
-                    placeholder={t.profile?.country || "Country"}
+                  <div
                     style={{
-                      marginTop: 8,
-                      borderRadius: 16,
-                      background: isEditing
-                        ? undefined
-                        : isDark
-                          ? "#0f172a"
-                          : "#f5f7ff",
+                      display: "grid",
+                      gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                      gap: 24,
                     }}
-                  />
-                </div>
+                  >
+                    <div>
+                      <Text strong>
+                        {t.profile?.headquarters || "Business Address"}
+                      </Text>
+                      <Input
+                        value={profile.address}
+                        onChange={handleFieldChange("address")}
+                        disabled={!isEditing}
+                        placeholder={
+                          t.profile?.headquarters || "Business Address"
+                        }
+                        style={{
+                          marginTop: 8,
+                          borderRadius: 16,
+                          background: isEditing
+                            ? undefined
+                            : isDark
+                              ? "#0f172a"
+                              : "#f5f7ff",
+                        }}
+                      />
+                    </div>
 
-                <div>
-                  <Text strong>
-                    {t.profile?.bioLabel || "Professional Bio"}
-                  </Text>
-                  <Input.TextArea
-                    value={profile.bio}
-                    onChange={handleFieldChange("bio")}
-                    disabled={!isEditing}
-                    rows={5}
-                    placeholder={
-                      t.profile?.bioLabel || "Enter your professional bio"
-                    }
-                    style={{
-                      marginTop: 8,
-                      borderRadius: 16,
-                      background: isEditing
-                        ? undefined
-                        : isDark
-                          ? "#0f172a"
-                          : "#f5f7ff",
-                    }}
-                  />
-                </div>
+                    <div>
+                      <Text strong>{t.profile?.city || "City"}</Text>
+                      <Input
+                        value={profile.city}
+                        onChange={handleFieldChange("city")}
+                        disabled={!isEditing}
+                        placeholder={t.profile?.city || "City"}
+                        style={{
+                          marginTop: 8,
+                          borderRadius: 16,
+                          background: isEditing
+                            ? undefined
+                            : isDark
+                              ? "#0f172a"
+                              : "#f5f7ff",
+                        }}
+                      />
+                    </div>
+                  </div>
 
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "flex-end",
-                    gap: 12,
-                    flexWrap: "wrap",
-                  }}
-                >
-                  {isEditing ? (
-                    <>
-                      <Button onClick={handleCancel} size="large">
-                        {t.profile?.cancelButton || "Cancel"}
-                      </Button>
-                      <Button
-                        type="primary"
-                        size="large"
-                        onClick={handleSave}
-                        loading={saving}
-                      >
-                        {t.profile?.saveButton || "Save Profile Changes"}
-                      </Button>
-                    </>
-                  ) : (
-                    <Text type="secondary">
-                      {t.profile?.hint ||
-                        "Toggle Edit Profile to make changes to your details."}
+                  <div>
+                    <Text strong>{t.profile?.country || "Country"}</Text>
+                    <Input
+                      value={profile.country}
+                      onChange={handleFieldChange("country")}
+                      disabled={!isEditing}
+                      placeholder={t.profile?.country || "Country"}
+                      style={{
+                        marginTop: 8,
+                        borderRadius: 16,
+                        background: isEditing
+                          ? undefined
+                          : isDark
+                            ? "#0f172a"
+                            : "#f5f7ff",
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <Text strong>
+                      {t.profile?.bioLabel || "Professional Bio"}
                     </Text>
-                  )}
-                </div>
-              </Space>
-            </Card>
-          </Col>
-        </Row>
+                    <Input.TextArea
+                      value={profile.bio}
+                      onChange={handleFieldChange("bio")}
+                      disabled={!isEditing}
+                      rows={5}
+                      placeholder={
+                        t.profile?.bioLabel || "Enter your professional bio"
+                      }
+                      style={{
+                        marginTop: 8,
+                        borderRadius: 16,
+                        background: isEditing
+                          ? undefined
+                          : isDark
+                            ? "#0f172a"
+                            : "#f5f7ff",
+                      }}
+                    />
+                  </div>
+
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "flex-end",
+                      gap: 12,
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    {isEditing ? (
+                      <>
+                        <Button onClick={handleCancel} size="large">
+                          {t.profile?.cancelButton || "Cancel"}
+                        </Button>
+                        <Button
+                          type="primary"
+                          size="large"
+                          onClick={handleSave}
+                          loading={saving}
+                        >
+                          {t.profile?.saveButton || "Save Profile Changes"}
+                        </Button>
+                      </>
+                    ) : (
+                      <Text type="secondary">
+                        {t.profile?.hint ||
+                          "Toggle Edit Profile to make changes to your details."}
+                      </Text>
+                    )}
+                  </div>
+                </Space>
+              </Card>
+            </Col>
+          </Row>
+        )}
       </div>
     </div>
   );
