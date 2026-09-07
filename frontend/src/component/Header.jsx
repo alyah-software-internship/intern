@@ -93,10 +93,7 @@ const Header = () => {
   const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [wishlistCount, setWishlistCount] = useState(0);
 
-  const displayName =
-    [user?.first_name, user?.last_name].filter(Boolean).join(" ") ||
-    user?.email ||
-    "Account";
+  const displayName = user?.first_name || user?.email || "Account";
   const displayRole = user?.role
     ? user.role.charAt(0).toUpperCase() + user.role.slice(1)
     : "Customer";
