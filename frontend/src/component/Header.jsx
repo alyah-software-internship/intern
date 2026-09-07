@@ -326,7 +326,7 @@ const Header = () => {
 
       {/* Right */}
       <Space size={18}>
-        <LanguageSwitcher />
+       
         <ThemeSwitcher />
         {isSignedIn && (
           <Badge count={unreadNotifications} overflowCount={99}>
