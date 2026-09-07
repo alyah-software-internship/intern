@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\ChatMessage;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 
@@ -172,13 +173,18 @@ class NotificationController extends Controller
     public function unreadCount(Request $request)
     {
         try {
-            $count = $this->notificationService->getUnreadCount(
+            $notificationCount = $this->notificationService->getUnreadCount(
                 $request->user()->id
             );
+            $messageCount = ChatMessage::where('receiver_id', $request->user()->id)
+                ->where('is_seen', false)
+                ->count();
 
             return response()->json([
                 'success' => true,
-                'unread_count' => $count,
+                'unread_count' => $notificationCount + $messageCount,
+                'unread_notifications' => $notificationCount,
+                'unread_messages' => $messageCount,
             ]);
 
         } catch (\Exception $e) {
