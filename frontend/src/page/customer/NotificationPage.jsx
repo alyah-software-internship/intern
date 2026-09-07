@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { Typography, Row, Col, Card, Button, List, Badge, Spin } from "antd";
 import { BellOutlined } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "../../component/LanguageProvider.jsx";
 import { useTheme } from "../../context/ThemeProvider.jsx";
 import { AppContext } from "../../context/AppContext.jsx";
@@ -11,6 +12,7 @@ const NotificationPage = () => {
   const { translation: t } = useTranslation();
   const { theme } = useTheme();
   const { backendUrl } = useContext(AppContext);
+  const navigate = useNavigate();
   const isDark = theme === "dark";
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -50,16 +52,35 @@ const NotificationPage = () => {
   };
 
   const markRead = async (notification) => {
-    if (notification.is_read) return;
-    await fetch(`${backendUrl}/notifications/${notification.id}/read`, {
-      method: "POST",
-      headers: authHeaders(),
-    });
+    if (!notification.is_read) {
+      await fetch(`${backendUrl}/notifications/${notification.id}/read`, {
+        method: "POST",
+        headers: authHeaders(),
+      });
+    }
     setNotifications((current) =>
       current.map((item) =>
         item.id === notification.id ? { ...item, is_read: true } : item,
       ),
     );
+  };
+
+  const openNotification = async (notification) => {
+    await markRead(notification);
+
+    if (!notification.link) return;
+
+    const link = notification.link.replace(
+      /^\/customer\/bookings\/(\d+)/,
+      "/booking-details/$1",
+    );
+
+    if (link.startsWith("http://") || link.startsWith("https://")) {
+      window.location.assign(link);
+      return;
+    }
+
+    navigate(link.startsWith("/") ? link : `/${link}`);
   };
 
   return (
@@ -143,18 +164,19 @@ const NotificationPage = () => {
               renderItem={(item) => (
                 <List.Item
                   key={item.id}
+                  onClick={() => openNotification(item)}
                   style={{
                     borderRadius: 20,
                     marginBottom: 16,
                     padding: 24,
                     background: isDark ? "#091127" : "#f8fbff",
+                    cursor: item.link ? "pointer" : "default",
                   }}
                 >
                   <List.Item.Meta
                     avatar={
                       <Badge dot={!item.is_read} offset={[0, 8]}>
                         <BellOutlined
-                          onClick={() => markRead(item)}
                           style={{ fontSize: 24, color: "#16a34a" }}
                         />
                       </Badge>
