@@ -6,10 +6,8 @@ import {
   Typography,
   Space,
   Divider,
-  Tag,
   Grid,
   Button,
-  Badge,
 } from "antd";
 import {
   FacebookOutlined,
@@ -17,7 +15,6 @@ import {
   InstagramOutlined,
   LinkedinOutlined,
   YoutubeOutlined,
-  SafetyOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "../LanguageProvider.jsx";
 
@@ -75,13 +72,6 @@ const FooterLink = () => {
     { icon: <InstagramOutlined />, href: "#", color: "#e4405f" },
     { icon: <LinkedinOutlined />, href: "#", color: "#0a66c2" },
     { icon: <YoutubeOutlined />, href: "#", color: "#ff0000" },
-  ];
-
-  const paymentMethods = [
-    { name: "VISA" },
-    { name: "MC" },
-    { name: "PayPal" },
-    { name: "Chapa" },
   ];
 
   return (
@@ -262,72 +252,12 @@ const FooterLink = () => {
                 display: "flex",
               }}
             >
-              <Space size={8}>
-                <Text
-                  style={{
-                    color: "#f8fafc",
-                    fontSize: isMobile ? 11 : 12,
-                  }}
-                >
-                  {t.footer?.securePayments || "SECURE PAYMENTS:"}
-                </Text>
-                {paymentMethods.map((method, index) => (
-                  <Tag
-                    key={index}
-                    style={{
-                      padding: "2px 10px",
-                      borderRadius: 4,
-                      background: "rgba(255,255,255,0.05)",
-                      border: "1px solid rgba(255,255,255,0.08)",
-                      color: "#e2e8f0",
-                      fontSize: isMobile ? 10 : 11,
-                      fontWeight: 600,
-                      cursor: "default",
-                    }}
-                  >
-                    {method.name}
-                  </Tag>
-                ))}
-              </Space>
-
-              <Badge
-                count={<SafetyOutlined style={{ fontSize: 16 }} />}
-                style={{
-                  backgroundColor: "#10b981",
-                  display: isMobile ? "none" : "inline-flex",
-                }}
-              >
-                <Text
-                  style={{
-                    color: "#cbd5e1",
-                    fontSize: 12,
-                    marginLeft: 8,
-                  }}
-                >
-                  {t.footer?.secureTrusted || "Secure & Trusted"}
-                </Text>
-              </Badge>
+              <Text style={{ color: "#cbd5e1", fontSize: 12 }}>
+                Alyah software
+              </Text>
             </Space>
           </Col>
         </Row>
-
-        {isMobile && (
-          <Row style={{ marginTop: 16, textAlign: "center" }}>
-            <Col span={24}>
-              <Space size={8} wrap justify="center" style={{ display: "flex" }}>
-                <SafetyOutlined style={{ color: "#10b981" }} />
-                <Text
-                  style={{
-                    color: "#cbd5e1",
-                    fontSize: 11,
-                  }}
-                >
-                  {t.footer?.secureTrusted || "Secure & Trusted"}
-                </Text>
-              </Space>
-            </Col>
-          </Row>
-        )}
       </div>
     </Footer>
   );
