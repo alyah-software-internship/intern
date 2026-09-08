@@ -88,6 +88,12 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+        if (is_string($request->input('rental_policies'))) {
+            $request->merge([
+                'rental_policies' => json_decode($request->input('rental_policies'), true),
+            ]);
+        }
+
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
@@ -100,6 +106,12 @@ class ProductController extends Controller
             'security_deposit_amount' => 'nullable|numeric|min:0',
             'quantity' => 'required|integer|min:1',
             'delivery_available' => 'boolean',
+            'rental_policies' => 'nullable|array',
+            'rental_policies.late_fee' => 'nullable|numeric|min:0',
+            'rental_policies.late_fee_unit' => 'nullable|in:hour,day',
+            'rental_policies.delivery_fee' => 'nullable|numeric|min:0',
+            'rental_policies.cancellation_policy' => 'nullable|in:flexible,moderate,strict,non_refundable',
+            'rental_policies.cancellation_fee' => 'nullable|numeric|min:0|max:100',
             'operator_required' => 'boolean',
             'availability_status' => 'nullable|in:available,unavailable,booked,maintenance',
             'images' => 'nullable|array|max:4',
@@ -181,6 +193,13 @@ class ProductController extends Controller
             'price_monthly' => 'sometimes|numeric|min:0',
             'security_deposit_amount' => 'nullable|numeric|min:0',
             'quantity' => 'sometimes|integer|min:1',
+            'delivery_available' => 'sometimes|boolean',
+            'rental_policies' => 'sometimes|array',
+            'rental_policies.late_fee' => 'nullable|numeric|min:0',
+            'rental_policies.late_fee_unit' => 'nullable|in:hour,day',
+            'rental_policies.delivery_fee' => 'nullable|numeric|min:0',
+            'rental_policies.cancellation_policy' => 'nullable|in:flexible,moderate,strict,non_refundable',
+            'rental_policies.cancellation_fee' => 'nullable|numeric|min:0|max:100',
             'status' => 'sometimes|in:active,inactive,pending,suspended',
             'availability_status' => 'sometimes|in:available,unavailable,booked,maintenance',
         ]);

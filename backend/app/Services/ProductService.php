@@ -99,6 +99,7 @@ class ProductService
             'status' => $data['status'] ?? 'active',
             'availability_status' => $data['availability_status'] ?? 'available',
             'delivery_available' => $data['delivery_available'] ?? false,
+            'rental_policies' => $data['rental_policies'] ?? null,
             'operator_required' => $data['operator_required'] ?? false,
             'operator_included' => $data['operator_included'] ?? false,
             'operator_charge_type' => $data['operator_charge_type'] ?? 'fixed',

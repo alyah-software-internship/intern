@@ -9,6 +9,7 @@ import {
   InputNumber,
   Select,
   Segmented,
+  Switch,
   Upload,
   message,
   Typography,
@@ -108,6 +109,13 @@ const AddItem = () => {
           prices: [{ amount, unit }],
           quantity: product.quantity,
           securityDeposit: product.security_deposit_amount || 0,
+          deliveryAvailable: product.delivery_available ?? false,
+          deliveryFee: product.rental_policies?.delivery_fee || 0,
+          lateFee: product.rental_policies?.late_fee || 0,
+          lateFeeUnit: product.rental_policies?.late_fee_unit || "hour",
+          cancellationPolicy:
+            product.rental_policies?.cancellation_policy || "flexible",
+          cancellationFee: product.rental_policies?.cancellation_fee || 0,
           availabilityStatus,
         });
       })
@@ -140,13 +148,24 @@ const AddItem = () => {
         price_monthly: pricingModel === "monthly" ? price.amount : 0,
         quantity: values.quantity,
         security_deposit_amount: values.securityDeposit || 0,
+        delivery_available: values.deliveryAvailable || false,
+        rental_policies: {
+          delivery_fee: values.deliveryFee || 0,
+          late_fee: values.lateFee || 0,
+          late_fee_unit: values.lateFeeUnit || "hour",
+          cancellation_policy: values.cancellationPolicy || "flexible",
+          cancellation_fee: values.cancellationFee || 0,
+        },
         availability_status: values.availabilityStatus || "available",
       };
 
       const formData = new FormData();
-      Object.entries(payload).forEach(([key, value]) =>
-        formData.append(key, value),
-      );
+      Object.entries(payload).forEach(([key, value]) => {
+        formData.append(
+          key,
+          typeof value === "object" ? JSON.stringify(value) : value,
+        );
+      });
       values.images?.forEach((file) => {
         if (file.originFileObj) formData.append("images[]", file.originFileObj);
       });
@@ -411,6 +430,106 @@ const AddItem = () => {
               placeholder="Refundable deposit amount"
             />
           </Form.Item>
+
+          <Card
+            size="small"
+            title="Rental Policies"
+            style={{ marginBottom: 24 }}
+          >
+            <Form.Item
+              name="deliveryAvailable"
+              label="Delivery Available"
+              valuePropName="checked"
+              initialValue={false}
+            >
+              <Switch checkedChildren="Yes" unCheckedChildren="No" />
+            </Form.Item>
+
+            <Form.Item
+              name="deliveryFee"
+              label="Delivery Fee"
+              rules={[
+                {
+                  type: "number",
+                  min: 0,
+                  message: "Enter a valid delivery fee.",
+                },
+              ]}
+            >
+              <InputNumber min={0} style={{ width: "100%" }} placeholder="0" />
+            </Form.Item>
+
+            <Space style={{ display: "flex" }} align="start">
+              <Form.Item
+                name="lateFee"
+                label="Late Fee"
+                rules={[
+                  {
+                    type: "number",
+                    min: 0,
+                    message: "Enter a valid late fee.",
+                  },
+                ]}
+                style={{ flex: 1 }}
+              >
+                <InputNumber
+                  min={0}
+                  style={{ width: "100%" }}
+                  placeholder="0"
+                />
+              </Form.Item>
+              <Form.Item
+                name="lateFeeUnit"
+                label="Charged Per"
+                initialValue="hour"
+              >
+                <Select
+                  style={{ width: 140 }}
+                  options={[
+                    { label: "Hour", value: "hour" },
+                    { label: "Day", value: "day" },
+                  ]}
+                />
+              </Form.Item>
+            </Space>
+
+            <Form.Item
+              name="cancellationPolicy"
+              label="Cancellation Policy"
+              initialValue="flexible"
+            >
+              <Select
+                options={[
+                  { label: "Flexible", value: "flexible" },
+                  { label: "Moderate", value: "moderate" },
+                  { label: "Strict", value: "strict" },
+                  { label: "Non-refundable", value: "non_refundable" },
+                ]}
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="cancellationFee"
+              label="Cancellation Fee"
+              rules={[
+                {
+                  type: "number",
+                  min: 0,
+                  max: 100,
+                  message: "Enter a percentage from 0 to 100.",
+                },
+              ]}
+              extra="Percentage charged when a cancellation is not free."
+            >
+              <InputNumber
+                min={0}
+                max={100}
+                addonAfter="%"
+                style={{ width: "100%" }}
+                placeholder="0"
+              />
+            </Form.Item>
+          </Card>
 
           <Form.Item
             name="availabilityStatus"
