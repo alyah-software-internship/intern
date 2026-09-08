@@ -135,6 +135,7 @@ Route::middleware('auth:sanctum')->group(function () {
         // These routes are protected by vendor middleware
         Route::get('/dashboard', [VendorController::class, 'dashboard']);
         Route::get('/products', [VendorController::class, 'products']);
+        Route::get('/products/{id}', [VendorController::class, 'product']);
         Route::post('/products', [ProductController::class, 'store']);
         Route::put('/products/{id}', [ProductController::class, 'update']);
         Route::delete('/products/{id}', [ProductController::class, 'destroy']);

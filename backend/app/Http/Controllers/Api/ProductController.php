@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Product;
 use App\Models\ProductImage;
 use App\Services\ProductService;
 use App\Services\VendorService;
@@ -212,6 +213,18 @@ class ProductController extends Controller
         }
 
         try {
+            $vendor = $this->vendorService->getVendorByUserId($request->user()->id);
+            $product = Product::where('id', $id)
+                ->where('vendor_id', $vendor?->id)
+                ->first();
+
+            if (!$product) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Product not found.',
+                ], 404);
+            }
+
             $product = $this->productService->updateProduct($id, $request->all());
 
             return response()->json([

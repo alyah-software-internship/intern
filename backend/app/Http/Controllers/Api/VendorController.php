@@ -510,6 +510,34 @@ class VendorController extends Controller
     }
 
     /**
+     * Get one product belonging to the authenticated vendor.
+     */
+    public function product(Request $request, $id)
+    {
+        try {
+            $vendor = $request->user()->vendorProfile;
+            $product = $vendor?->products()->with(['category', 'images'])->find($id);
+
+            if (!$product) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Product not found.',
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'product' => $product,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to get vendor product.',
+            ], 500);
+        }
+    }
+
+    /**
      * Get vendor bookings
      */
     public function bookings(Request $request)

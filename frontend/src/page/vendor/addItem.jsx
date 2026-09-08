@@ -77,15 +77,13 @@ const AddItem = () => {
     }
 
     axios
-      .get(`${backendUrl}/vendor/products`, {
+      .get(`${backendUrl}/vendor/products/${editId}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("authToken")}`,
         },
       })
       .then((response) => {
-        const product = (response.data.products || []).find(
-          (item) => String(item.id) === String(editId),
-        );
+        const product = response.data.product;
 
         if (!product) {
           throw new Error("Product not found.");
@@ -96,8 +94,12 @@ const AddItem = () => {
           : product.price_monthly
             ? "month"
             : "day";
-        const amount =
-          product.price_hourly || product.price_monthly || product.price_daily;
+        const amount = Number(
+          product.price_hourly ||
+            product.price_monthly ||
+            product.price_daily ||
+            0,
+        );
         const availabilityStatus = product.availability_status || "available";
 
         form.setFieldsValue({
