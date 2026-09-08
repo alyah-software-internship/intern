@@ -52,6 +52,9 @@ const BookingDetailsStep = ({
   const [checkOutDate, setCheckOutDate] = useState(booking.checkOutDate || "");
   const [selectedService, setSelectedService] = useState("delivery");
   const [couponCode, setCouponCode] = useState(booking.couponCode || "");
+  const [additionalInfo, setAdditionalInfo] = useState(
+    booking.additionalInfo || "",
+  );
 
   const duration = useMemo(() => {
     if (!checkInDate || !checkOutDate) return booking.duration || 1;
@@ -283,10 +286,12 @@ const BookingDetailsStep = ({
                 <Input.TextArea
                   rows={3}
                   placeholder="e.g. I will use this for a photo shoot."
-                  value={booking.additionalInfo || ""}
-                  onChange={(event) =>
-                    onAdditionalInfoChange(event.target.value)
-                  }
+                  value={additionalInfo}
+                  onChange={(event) => {
+                    const value = event.target.value;
+                    setAdditionalInfo(value);
+                    onAdditionalInfoChange(value);
+                  }}
                   style={{ borderRadius: 10 }}
                 />
               </div>
