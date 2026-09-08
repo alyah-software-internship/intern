@@ -104,7 +104,8 @@ class BookingService
             $platformFee = $this->calculatePlatformFee($rentalAmount);
             $operatorCharge = $this->calculateOperatorCharge($data, $days);
             
-            $totalAmount = $rentalAmount + $securityDeposit + $platformFee + $operatorCharge;
+            $deliveryCharge = (float) ($data['delivery_charge'] ?? 0);
+            $totalAmount = $rentalAmount + $securityDeposit + $platformFee + $operatorCharge + $deliveryCharge;
 
             // Generate reference
             $reference = $this->generateBookingReference();
@@ -123,7 +124,7 @@ class BookingService
                 'rental_amount' => $rentalAmount,
                 'operator_charge' => $operatorCharge,
                 'security_deposit_amount' => $securityDeposit,
-                'delivery_charge' => $data['delivery_charge'] ?? 0,
+                'delivery_charge' => $deliveryCharge,
                 'platform_fee' => $platformFee,
                 'total_amount' => $totalAmount,
                 'vendor_payment' => $rentalAmount - $platformFee + $operatorCharge,

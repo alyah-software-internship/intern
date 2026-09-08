@@ -21,6 +21,13 @@ const BookingDetailsPage = () => {
   const item = state?.item || {};
   const startDate = state?.startDate || "";
   const endDate = state?.endDate || "";
+  const duration = useMemo(() => {
+    if (!startDate || !endDate) return 1;
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    return Math.max(1, Math.ceil((end - start) / (1000 * 60 * 60 * 24)));
+  }, [endDate, startDate]);
 
   const booking = useMemo(
     () => ({
@@ -31,7 +38,7 @@ const BookingDetailsPage = () => {
       ),
       checkInDate: startDate,
       checkOutDate: endDate,
-      duration: 1,
+      duration,
       deliveryFee: 10,
       pickupFee: 0,
       returnFee: 10,
@@ -42,10 +49,10 @@ const BookingDetailsPage = () => {
       total: 0,
       additionalInfo: "",
       deliveryMethod: "Delivery",
-      totalDays: 1,
+      totalDays: duration,
       productId: item.id || null,
     }),
-    [endDate, item, startDate],
+    [duration, endDate, item, startDate],
   );
 
   const handleBookingRequest = async () => {

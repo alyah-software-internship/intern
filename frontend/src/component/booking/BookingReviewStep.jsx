@@ -50,6 +50,13 @@ const BookingReviewStep = ({
     ...defaultBooking,
     ...booking,
   };
+  const duration = Math.max(1, Number(item.duration ?? item.totalDays ?? 1));
+  const pricePerDay = Number(item.pricePerDay ?? 0);
+  const deliveryFee = Number(item.deliveryFee ?? 0);
+  const platformFee = Number(item.platformFee ?? 0);
+  const refundableDeposit = Number(item.refundableDeposit ?? 0);
+  const total =
+    pricePerDay * duration + deliveryFee + platformFee + refundableDeposit;
 
   const stepItems = [
     { title: "Booking Details" },
@@ -275,7 +282,7 @@ const BookingReviewStep = ({
                     </div>
                   </div>
                   <Text strong style={{ fontSize: 18 }}>
-                    ${item.deliveryFee || 10.0}
+                    ${deliveryFee.toFixed(2)}
                   </Text>
                 </div>
               </div>
@@ -324,7 +331,7 @@ const BookingReviewStep = ({
                     <SafetyCertificateOutlined style={{ color: "#f59e0b" }} />
                     <Text>Refundable Escrow Deposit</Text>
                   </Space>
-                  <Text strong>${item.refundableDeposit || 500}</Text>
+                  <Text strong>${refundableDeposit.toFixed(2)}</Text>
                 </Row>
 
                 <Row
@@ -451,23 +458,21 @@ const BookingReviewStep = ({
                 <div style={{ display: "grid", gap: 10 }}>
                   <Row justify="space-between">
                     <Text type="secondary">
-                      Rent Subtotal ({item.duration} days)
+                      Rent Subtotal ({duration} days)
                     </Text>
-                    <Text>
-                      ${(item.pricePerDay || 67) * (item.duration || 1)}
-                    </Text>
+                    <Text>${(pricePerDay * duration).toFixed(2)}</Text>
                   </Row>
                   <Row justify="space-between">
                     <Text type="secondary">Delivery Fee</Text>
-                    <Text>${item.deliveryFee || 10}</Text>
+                    <Text>${deliveryFee.toFixed(2)}</Text>
                   </Row>
                   <Row justify="space-between">
                     <Text type="secondary">Refundable Deposit</Text>
-                    <Text>${item.refundableDeposit || 500}</Text>
+                    <Text>${refundableDeposit.toFixed(2)}</Text>
                   </Row>
                   <Row justify="space-between">
-                    <Text type="secondary">Platform Commission (15%)</Text>
-                    <Text>${item.platformFee || 38}</Text>
+                    <Text type="secondary">Platform Commission</Text>
+                    <Text>${platformFee.toFixed(2)}</Text>
                   </Row>
                 </div>
 
@@ -482,7 +487,7 @@ const BookingReviewStep = ({
                     Total
                   </Text>
                   <Text strong style={{ fontSize: 26, color: "#0f172a" }}>
-                    ${item.total || 749}
+                    ${total.toFixed(2)}
                   </Text>
                 </Row>
 
