@@ -143,14 +143,7 @@ const Header = () => {
         </NavLink>
       ),
     },
-    {
-      key: "pricing",
-      label: (
-        <NavLink to="/pricing" style={navLinkStyle}>
-          {t.nav.pricing}
-        </NavLink>
-      ),
-    },
+   
     {
       key: "about",
       label: (
