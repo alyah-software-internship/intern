@@ -31,6 +31,7 @@ const defaultBooking = {
   checkOutDate: "2025-03-28",
   duration: 3,
   deliveryFee: 10,
+  operatorCharge: 0,
   pickupFee: 0,
   returnFee: 10,
   refundableDeposit: 500,
@@ -75,6 +76,7 @@ const BookingDetailsStep = ({
     () =>
       (booking.pricePerDay || 0) * duration +
       (serviceFeeMap[selectedService] || 0) +
+      (booking.operatorCharge || 0) +
       (booking.platformFee || 0) +
       (booking.tax || 0),
     [

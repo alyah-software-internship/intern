@@ -53,10 +53,15 @@ const BookingReviewStep = ({
   const duration = Math.max(1, Number(item.duration ?? item.totalDays ?? 1));
   const pricePerDay = Number(item.pricePerDay ?? 0);
   const deliveryFee = Number(item.deliveryFee ?? 0);
+  const operatorCharge = Number(item.operatorCharge ?? 0);
   const platformFee = Number(item.platformFee ?? 0);
   const refundableDeposit = Number(item.refundableDeposit ?? 0);
   const total =
-    pricePerDay * duration + deliveryFee + platformFee + refundableDeposit;
+    pricePerDay * duration +
+    deliveryFee +
+    operatorCharge +
+    platformFee +
+    refundableDeposit;
 
   const stepItems = [
     { title: "Booking Details" },
@@ -466,6 +471,12 @@ const BookingReviewStep = ({
                     <Text type="secondary">Delivery Fee</Text>
                     <Text>${deliveryFee.toFixed(2)}</Text>
                   </Row>
+                  {operatorCharge > 0 && (
+                    <Row justify="space-between">
+                      <Text type="secondary">Operator Charge</Text>
+                      <Text>${operatorCharge.toFixed(2)}</Text>
+                    </Row>
+                  )}
                   <Row justify="space-between">
                     <Text type="secondary">Refundable Deposit</Text>
                     <Text>${refundableDeposit.toFixed(2)}</Text>

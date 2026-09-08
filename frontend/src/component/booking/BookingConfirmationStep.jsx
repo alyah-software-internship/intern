@@ -38,6 +38,18 @@ const BookingConfirmationStep = ({
 }) => {
   const navigate = useNavigate();
   const item = { ...defaultBooking, ...booking };
+  const duration = Math.max(1, Number(item.duration ?? item.totalDays ?? 1));
+  const pricePerDay = Number(item.pricePerDay ?? 0);
+  const deliveryFee = Number(item.deliveryFee ?? 0);
+  const operatorCharge = Number(item.operatorCharge ?? 0);
+  const platformFee = Number(item.platformFee ?? 0);
+  const refundableDeposit = Number(item.refundableDeposit ?? 0);
+  const total =
+    pricePerDay * duration +
+    deliveryFee +
+    operatorCharge +
+    platformFee +
+    refundableDeposit;
 
   const handleContactVendor = () => {
     // Navigate to messages page or open vendor contact modal
@@ -351,7 +363,7 @@ const BookingConfirmationStep = ({
                   </div>
                   <div style={{ marginLeft: "auto" }}>
                     <Text strong style={{ fontSize: 18 }}>
-                      ${item.pricePerDay || 67} / day
+                      ${pricePerDay.toFixed(2)} / day
                     </Text>
                   </div>
                 </div>
@@ -369,7 +381,7 @@ const BookingConfirmationStep = ({
                   </Row>
                   <Row justify="space-between">
                     <Text type="secondary">Duration</Text>
-                    <Text>{item.duration} days</Text>
+                    <Text>{duration} days</Text>
                   </Row>
                 </div>
 
@@ -378,23 +390,27 @@ const BookingConfirmationStep = ({
                 <div style={{ display: "grid", gap: 10 }}>
                   <Row justify="space-between">
                     <Text type="secondary">
-                      Rent Subtotal ({item.duration} days)
+                      Rent Subtotal ({duration} days)
                     </Text>
-                    <Text>
-                      ${(item.pricePerDay || 67) * (item.duration || 1)}
-                    </Text>
+                    <Text>${(pricePerDay * duration).toFixed(2)}</Text>
                   </Row>
                   <Row justify="space-between">
                     <Text type="secondary">Delivery Fee</Text>
-                    <Text>${item.deliveryFee || 10}</Text>
+                    <Text>${deliveryFee.toFixed(2)}</Text>
                   </Row>
+                  {operatorCharge > 0 && (
+                    <Row justify="space-between">
+                      <Text type="secondary">Operator Charge</Text>
+                      <Text>${operatorCharge.toFixed(2)}</Text>
+                    </Row>
+                  )}
                   <Row justify="space-between">
                     <Text type="secondary">Refundable Deposit</Text>
-                    <Text>${item.refundableDeposit || 500}</Text>
+                    <Text>${refundableDeposit.toFixed(2)}</Text>
                   </Row>
                   <Row justify="space-between">
-                    <Text type="secondary">Platform Commission (15%)</Text>
-                    <Text>${item.platformFee || 38}</Text>
+                    <Text type="secondary">Platform Commission</Text>
+                    <Text>${platformFee.toFixed(2)}</Text>
                   </Row>
                 </div>
 
@@ -409,7 +425,7 @@ const BookingConfirmationStep = ({
                     Total Paid
                   </Text>
                   <Text strong style={{ fontSize: 26, color: "#0f172a" }}>
-                    ${item.total || 749}
+                    ${total.toFixed(2)}
                   </Text>
                 </Row>
 
