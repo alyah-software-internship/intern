@@ -204,7 +204,10 @@ const DetailInfo = ({ item }) => {
                     "Escrowed Security Deposit & Late Policies"}
                 </Title>
 
-                <div className="detail-policy-grid" style={{ display: "flex", gap: 16, marginTop: 8 }}>
+                <div
+                  className="detail-policy-grid"
+                  style={{ display: "flex", gap: 16, marginTop: 8 }}
+                >
                   <div
                     style={{
                       flex: 1,
