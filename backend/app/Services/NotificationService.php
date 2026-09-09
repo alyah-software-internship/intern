@@ -259,6 +259,24 @@ class NotificationService
     }
 
     /**
+     * Incoming chat message notification
+     */
+    public function messageReceived(int $userId, array $messageData): Notification
+    {
+        return $this->createBilingualNotification(
+            $userId,
+            'message_received',
+            'New Message',
+            'አዲስ መልዕክት',
+            "You received a new message from {$messageData['sender']} for booking #{$messageData['reference']}.",
+            "ለቦታ ማስያዝ #{$messageData['reference']} ከ{$messageData['sender']} አዲስ መልዕክት ደርሶዎታል።",
+            $messageData['link'] ?? null,
+            'medium',
+            'message'
+        );
+    }
+
+    /**
      * Vendor approved notification
      */
     public function vendorApproved(int $userId, array $vendorData): Notification

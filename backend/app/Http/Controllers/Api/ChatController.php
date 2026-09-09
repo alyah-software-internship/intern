@@ -5,11 +5,16 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\ChatMessage;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class ChatController extends Controller
 {
+    public function __construct(protected NotificationService $notificationService)
+    {
+    }
+
     public function index(Request $request, $bookingId)
     {
         $user = $request->user();
@@ -118,6 +123,19 @@ class ChatController extends Controller
             'message' => trim($request->input('message')),
             'is_seen' => false,
         ]);
+
+        if ($receiver) {
+            $this->notificationService->messageReceived(
+                $receiver->id,
+                [
+                    'sender' => $user->full_name ?? $user->email,
+                    'reference' => $booking->booking_reference,
+                    'link' => $receiver->role === 'customer'
+                        ? "/booking-details/{$booking->id}"
+                        : '/vendor/messages',
+                ]
+            );
+        }
 
         return response()->json([
             'success' => true,

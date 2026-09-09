@@ -182,7 +182,7 @@ class NotificationController extends Controller
 
             return response()->json([
                 'success' => true,
-                'unread_count' => $notificationCount + $messageCount,
+                'unread_count' => $notificationCount,
                 'unread_notifications' => $notificationCount,
                 'unread_messages' => $messageCount,
             ]);
