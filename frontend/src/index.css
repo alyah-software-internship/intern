@@ -879,7 +879,7 @@ html.dark .text-slate-500,
 .customer-bookings-table-header,
 .customer-booking-row {
   display: grid;
-  grid-template-columns: 2fr 2fr 1.2fr 1fr 1fr auto;
+  grid-template-columns: 2fr 2fr 1.2fr 1fr auto;
   gap: 16px;
 }
 
@@ -915,6 +915,54 @@ html.dark .text-slate-500,
   overflow-wrap: anywhere;
 }
 
+.customer-booking-thumbnail {
+  width: 58px;
+  height: 58px;
+  flex: 0 0 58px;
+  object-fit: cover;
+  border-radius: 9px;
+  background: #e8f0f8;
+}
+
+.customer-booking-thumbnail-fallback {
+  display: grid;
+  place-items: center;
+  color: #2563eb;
+  background: #e8f1ff;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.customer-booking-period-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #1e3a5f;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.customer-booking-period-title .anticon {
+  color: #5b88b5;
+}
+
+.customer-booking-period-meta {
+  display: block;
+  margin-top: 6px;
+  font-size: 11px;
+}
+
+.customer-booking-total {
+  color: #19385c;
+  font-size: 14px;
+}
+
+.customer-booking-action {
+  border-radius: 8px !important;
+  font-size: 12px !important;
+  white-space: nowrap;
+}
+
 .customer-bookings-pagination {
   display: flex;
   justify-content: center;
@@ -948,12 +996,12 @@ html.dark .text-slate-500,
     grid-column: 1 / -1;
   }
 
-  .customer-booking-row > div:nth-child(6) {
+  .customer-booking-row > div:nth-child(5) {
     grid-column: 1 / -1;
     justify-content: flex-start !important;
   }
 
-  .customer-booking-row > div:nth-child(6) .ant-btn {
+  .customer-booking-row > div:nth-child(5) .ant-btn {
     flex: 1 1 auto;
   }
 }
@@ -988,21 +1036,24 @@ html.dark .text-slate-500,
 
   .customer-booking-row > div:nth-child(2),
   .customer-booking-row > div:nth-child(3),
-  .customer-booking-row > div:nth-child(4),
-  .customer-booking-row > div:nth-child(5) {
+  .customer-booking-row > div:nth-child(4) {
     grid-column: 1 / -1;
   }
 
-  .customer-booking-row > div:nth-child(5) {
+  .customer-booking-row > div:nth-child(4) {
     text-align: left !important;
   }
 
-  .customer-booking-row > div:nth-child(6) {
+  .customer-booking-row > div:nth-child(5) {
     flex-direction: column;
   }
 
-  .customer-booking-row > div:nth-child(6) .ant-btn {
+  .customer-booking-row > div:nth-child(5) .ant-btn {
     width: 100%;
+  }
+
+  .customer-booking-period-title {
+    white-space: normal;
   }
 }
 

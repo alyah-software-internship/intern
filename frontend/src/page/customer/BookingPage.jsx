@@ -12,7 +12,12 @@ import {
   Pagination,
 } from "antd";
 import { useNavigate } from "react-router-dom";
-import { EyeOutlined, MessageOutlined } from "@ant-design/icons";
+import {
+  CalendarOutlined,
+  EyeOutlined,
+  MessageOutlined,
+  ReloadOutlined,
+} from "@ant-design/icons";
 import axios from "axios";
 import { AppContext } from "../../context/AppContext.jsx";
 
@@ -44,6 +49,27 @@ const getFilterStatus = (status) => {
   return normalizedStatus;
 };
 
+const getProductImage = (product, backendUrl) => {
+  const firstImage = Array.isArray(product.images) ? product.images[0] : null;
+  const imageValue =
+    firstImage?.image_url ||
+    firstImage?.url ||
+    firstImage ||
+    product.image_url ||
+    product.image;
+
+  if (!imageValue || typeof imageValue !== "string") return null;
+  if (imageValue.startsWith("http") || imageValue.startsWith("data:")) {
+    return imageValue;
+  }
+
+  const backendOrigin = backendUrl?.replace(/\/api\/?$/i, "") || "";
+  const cleanPath = imageValue.replace(/^\/+/, "");
+  return cleanPath.startsWith("storage/")
+    ? `${backendOrigin}/${cleanPath}`
+    : `${backendOrigin}/storage/${cleanPath}`;
+};
+
 const BookingPage = () => {
   const navigate = useNavigate();
   const { user, backendUrl } = useContext(AppContext);
@@ -52,7 +78,7 @@ const BookingPage = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const [filterStatus, setFilterStatus] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 5;
+  const pageSize = 6;
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -201,8 +227,8 @@ const BookingPage = () => {
   // Define filter tabs
   const filterTabs = [
     { key: "all", label: "All Bookings", count: bookingCounts.all },
-    { key: "pending", label: "Pending", count: bookingCounts.pending },
-    { key: "active", label: "Active", count: bookingCounts.active },
+    { key: "pending", label: "Upcoming", count: bookingCounts.pending },
+    { key: "active", label: "Ongoing", count: bookingCounts.active },
     { key: "completed", label: "Completed", count: bookingCounts.completed },
     { key: "cancelled", label: "Cancelled", count: bookingCounts.cancelled },
   ];
@@ -239,7 +265,13 @@ const BookingPage = () => {
             {/* Filter Tabs */}
             <div className="customer-bookings-filters">
               {filterTabs.map((tab) => (
-                <Badge key={tab.key} count={tab.count} color="#1890ff">
+                <Badge
+                  key={tab.key}
+                  count={tab.count}
+                  showZero
+                  color={filterStatus === tab.key ? "#1677ff" : "#dbeafe"}
+                  className="customer-bookings-filter-badge"
+                >
                   <Button
                     type={filterStatus === tab.key ? "primary" : "default"}
                     onClick={() => {
@@ -251,7 +283,12 @@ const BookingPage = () => {
                   </Button>
                 </Badge>
               ))}
-              <Button onClick={handleManualRefresh} loading={loading}>
+              <Button
+                className="customer-bookings-refresh"
+                icon={<ReloadOutlined />}
+                onClick={handleManualRefresh}
+                loading={loading}
+              >
                 Refresh
               </Button>
             </div>
@@ -294,10 +331,9 @@ const BookingPage = () => {
                 {/* Table Header */}
                 <div className="customer-bookings-table-header">
                   <div>Item</div>
-                  <div>Dates</div>
+                  <div>Period</div>
                   <div>Status</div>
-                  <div>Payment</div>
-                  <div>Total</div>
+                  <div>Total Price</div>
                   <div></div>
                 </div>
 
@@ -313,6 +349,16 @@ const BookingPage = () => {
                         (1000 * 60 * 60 * 24),
                     ),
                   );
+                  const productImage = getProductImage(product, backendUrl);
+                  const bookingStatus = normalizeStatus(booking.status);
+                  const isRebookable = [
+                    "completed",
+                    "cancelled",
+                    "rejected",
+                  ].includes(bookingStatus);
+                  const isUnpaid =
+                    (booking.payment_status || booking.paymentStatus) !==
+                    "paid";
 
                   return (
                     <div key={booking.id} className="customer-booking-row">
@@ -324,24 +370,17 @@ const BookingPage = () => {
                           alignItems: "center",
                         }}
                       >
-                        <div
-                          style={{
-                            width: 60,
-                            height: 60,
-                            borderRadius: 8,
-                            background:
-                              "linear-gradient(135deg, #334155, #2563eb)",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            color: "#fff",
-                            fontWeight: 700,
-                            fontSize: 12,
-                            flexShrink: 0,
-                          }}
-                        >
-                          {(product.name || "Item").slice(0, 2).toUpperCase()}
-                        </div>
+                        {productImage ? (
+                          <img
+                            className="customer-booking-thumbnail"
+                            src={productImage}
+                            alt=""
+                          />
+                        ) : (
+                          <div className="customer-booking-thumbnail customer-booking-thumbnail-fallback">
+                            {(product.name || "Item").slice(0, 2).toUpperCase()}
+                          </div>
+                        )}
                         <div>
                           <Text
                             strong
@@ -350,40 +389,27 @@ const BookingPage = () => {
                             {product.name || "Rental Item"}
                           </Text>
                           <Text type="secondary" style={{ fontSize: 12 }}>
-                            Rental, Addis Ababa
+                            {product.category?.name ||
+                              product.category ||
+                              "Rental"}
                           </Text>
                         </div>
                       </div>
 
                       {/* Dates */}
                       <div>
-                        <Text style={{ display: "block", fontSize: 13 }}>
-                          {formatDate(startDate)}
-                        </Text>
-                        <Text type="secondary" style={{ fontSize: 12 }}>
-                          {formatTime(startDate)}
-                        </Text>
-                        <Text
-                          style={{
-                            display: "block",
-                            marginTop: 4,
-                            fontSize: 13,
-                          }}
-                        >
-                          {formatDate(endDate)}
-                        </Text>
-                        <Text type="secondary" style={{ fontSize: 12 }}>
-                          {formatTime(endDate)}
-                        </Text>
+                        <div className="customer-booking-period-title">
+                          <CalendarOutlined />
+                          <Text>
+                            {formatDate(startDate)} - {formatDate(endDate)}
+                          </Text>
+                        </div>
                         <Text
                           type="secondary"
-                          style={{
-                            display: "block",
-                            marginTop: 4,
-                            fontSize: 11,
-                          }}
+                          className="customer-booking-period-meta"
                         >
-                          ({durationDays} day{durationDays > 1 ? "s" : ""})
+                          {durationDays} day{durationDays > 1 ? "s" : ""} •{" "}
+                          {formatTime(startDate)} - {formatTime(endDate)}
                         </Text>
                       </div>
 
@@ -396,29 +422,18 @@ const BookingPage = () => {
                             "default"
                           }
                         >
-                          {normalizeStatus(booking.status)}
-                        </Tag>
-                      </div>
-
-                      {/* Payment */}
-                      <div>
-                        <Tag
-                          color={
-                            booking.payment_status === "paid" ||
-                            booking.paymentStatus === "paid"
-                              ? "green"
-                              : "orange"
-                          }
-                        >
-                          {booking.payment_status ||
-                            booking.paymentStatus ||
-                            "unpaid"}
+                          {bookingStatus === "pending"
+                            ? "Upcoming"
+                            : bookingStatus === "confirmed" ||
+                                bookingStatus === "active"
+                              ? "Ongoing"
+                              : bookingStatus}
                         </Tag>
                       </div>
 
                       {/* Total */}
                       <div style={{ textAlign: "right" }}>
-                        <Text strong style={{ fontSize: 14 }}>
+                        <Text strong className="customer-booking-total">
                           $
                           {booking.total_amount ??
                             booking.totalAmount ??
@@ -438,9 +453,32 @@ const BookingPage = () => {
                       >
                         <Button
                           type="default"
+                          className="customer-booking-action"
                           size="small"
-                          icon={<MessageOutlined />}
+                          icon={<EyeOutlined />}
                           onClick={() =>
+                            navigate(`/booking-details/${booking.id}`)
+                          }
+                        >
+                          View Details
+                        </Button>
+                        <Button
+                          type="primary"
+                          className="customer-booking-action"
+                          size="small"
+                          icon={
+                            isRebookable ? (
+                              <ReloadOutlined />
+                            ) : (
+                              <MessageOutlined />
+                            )
+                          }
+                          onClick={() => {
+                            if (isRebookable) {
+                              navigate("/rentals");
+                              return;
+                            }
+
                             navigate("/messages", {
                               state: {
                                 vendorId:
@@ -456,32 +494,19 @@ const BookingPage = () => {
                                 bookingId: booking.id,
                                 productName: product.name || "Rental Item",
                               },
-                            })
-                          }
+                            });
+                          }}
                         >
-                          Contact Vendor
+                          {isRebookable ? "Rebook" : "Manage"}
                         </Button>
-                        <Button
-                          type="primary"
-                          size="small"
-                          icon={<EyeOutlined />}
-                          onClick={() =>
-                            navigate(`/booking-details/${booking.id}`)
-                          }
-                        >
-                          View Details
-                        </Button>
-                        {booking.status === "confirmed" &&
-                          booking.payment_status !== "paid" && (
-                            <Button
-                              type="primary"
-                              onClick={() =>
-                                navigate(`/payments/${booking.id}`)
-                              }
-                            >
-                              Pay Now
-                            </Button>
-                          )}
+                        {bookingStatus === "confirmed" && isUnpaid && (
+                          <Button
+                            type="primary"
+                            onClick={() => navigate(`/payments/${booking.id}`)}
+                          >
+                            Pay Now
+                          </Button>
+                        )}
                       </div>
                     </div>
                   );
