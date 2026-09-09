@@ -31,6 +31,19 @@ const formatTime = (dateValue) =>
     minute: "2-digit",
   });
 
+const normalizeStatus = (status) => String(status || "pending").toLowerCase();
+
+const getFilterStatus = (status) => {
+  const normalizedStatus = normalizeStatus(status);
+
+  if (normalizedStatus === "confirmed" || normalizedStatus === "active") {
+    return "active";
+  }
+
+  if (normalizedStatus === "rejected") return "cancelled";
+  return normalizedStatus;
+};
+
 const BookingPage = () => {
   const navigate = useNavigate();
   const { user, backendUrl } = useContext(AppContext);
@@ -112,22 +125,28 @@ const BookingPage = () => {
     }
   }, [user, backendUrl, messageApi]);
 
-  // Filter bookings based on selected status
   const filteredBookings = useMemo(() => {
     if (filterStatus === "all") {
       return bookings;
     }
-    return bookings.filter((b) => b.status === filterStatus);
+    return bookings.filter(
+      (booking) => getFilterStatus(booking.status) === filterStatus,
+    );
   }, [bookings, filterStatus]);
 
-  // Calculate booking counts
   const bookingCounts = useMemo(() => {
     return {
       all: bookings.length,
-      upcoming: bookings.filter((b) => b.status === "upcoming").length,
-      ongoing: bookings.filter((b) => b.status === "ongoing").length,
-      completed: bookings.filter((b) => b.status === "completed").length,
-      cancelled: bookings.filter((b) => b.status === "cancelled").length,
+      pending: bookings.filter((b) => getFilterStatus(b.status) === "pending")
+        .length,
+      active: bookings.filter((b) => getFilterStatus(b.status) === "active")
+        .length,
+      completed: bookings.filter(
+        (b) => getFilterStatus(b.status) === "completed",
+      ).length,
+      cancelled: bookings.filter(
+        (b) => getFilterStatus(b.status) === "cancelled",
+      ).length,
     };
   }, [bookings]);
 
@@ -138,12 +157,11 @@ const BookingPage = () => {
   }, [filteredBookings, currentPage, pageSize]);
 
   const statusColors = {
-    upcoming: "cyan",
-    ongoing: "orange",
-    completed: "green",
-    cancelled: "red",
     pending: "gold",
     confirmed: "blue",
+    active: "orange",
+    completed: "green",
+    cancelled: "red",
     paid: "green",
     unpaid: "orange",
   };
@@ -183,24 +201,20 @@ const BookingPage = () => {
   // Define filter tabs
   const filterTabs = [
     { key: "all", label: "All Bookings", count: bookingCounts.all },
-    { key: "upcoming", label: "Upcoming", count: bookingCounts.upcoming },
-    { key: "ongoing", label: "Ongoing", count: bookingCounts.ongoing },
+    { key: "pending", label: "Pending", count: bookingCounts.pending },
+    { key: "active", label: "Active", count: bookingCounts.active },
     { key: "completed", label: "Completed", count: bookingCounts.completed },
     { key: "cancelled", label: "Cancelled", count: bookingCounts.cancelled },
   ];
 
   return (
     <div
-      style={{
-        minHeight: "100vh",
-        background: "#f4f7fb",
-        padding: "40px 24px",
-      }}
+      className="customer-bookings-page"
     >
       {contextHolder}
-      <div style={{ maxWidth: 1400, margin: "0 auto" }}>
+      <div className="customer-bookings-content">
         {/* Header */}
-        <div style={{ marginBottom: 32 }}>
+        <div className="customer-bookings-heading">
           <Text
             style={{
               display: "block",
@@ -225,15 +239,7 @@ const BookingPage = () => {
           {/* Main Content */}
           <Col xs={24}>
             {/* Filter Tabs */}
-            <div
-              style={{
-                display: "flex",
-                gap: 12,
-                marginBottom: 24,
-                flexWrap: "wrap",
-                alignItems: "center",
-              }}
-            >
+            <div className="customer-bookings-filters">
               {filterTabs.map((tab) => (
                 <Badge key={tab.key} count={tab.count} color="#1890ff">
                   <Button
@@ -248,7 +254,7 @@ const BookingPage = () => {
                 </Badge>
               ))}
               <Button onClick={handleManualRefresh} loading={loading}>
-                🔄 Refresh
+                Refresh
               </Button>
             </div>
 
@@ -264,7 +270,7 @@ const BookingPage = () => {
                     type="secondary"
                     style={{ fontSize: 16, display: "block", marginBottom: 16 }}
                   >
-                    No {filterStatus !== "all" ? filterStatus : ""} bookings
+                    No {filterStatus !== "all" ? `${filterStatus} ` : ""}bookings
                     found yet.
                   </Text>
                   <Text
@@ -288,21 +294,7 @@ const BookingPage = () => {
             ) : (
               <>
                 {/* Table Header */}
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "2fr 2fr 1.2fr 1fr 1fr auto",
-                    gap: 16,
-                    padding: "16px 20px",
-                    background: "#fff",
-                    borderRadius: "8px 8px 0 0",
-                    fontWeight: 600,
-                    fontSize: 12,
-                    color: "#666",
-                    textTransform: "uppercase",
-                    borderBottom: "1px solid #e8e8e8",
-                  }}
-                >
+                <div className="customer-bookings-table-header">
                   <div>Item</div>
                   <div>Dates</div>
                   <div>Status</div>
@@ -327,15 +319,7 @@ const BookingPage = () => {
                   return (
                     <div
                       key={booking.id}
-                      style={{
-                        display: "grid",
-                        gridTemplateColumns: "2fr 2fr 1.2fr 1fr 1fr auto",
-                        gap: 16,
-                        padding: "16px 20px",
-                        background: "#fff",
-                        borderBottom: "1px solid #f0f0f0",
-                        alignItems: "center",
-                      }}
+                      className="customer-booking-row"
                     >
                       {/* Item */}
                       <div
@@ -361,7 +345,7 @@ const BookingPage = () => {
                             flexShrink: 0,
                           }}
                         >
-                          {(product.name || "Item").slice(0, 2).toUpperCase()}
+                            {(product.name || "Item").slice(0, 2).toUpperCase()}
                         </div>
                         <div>
                           <Text
@@ -410,8 +394,14 @@ const BookingPage = () => {
 
                       {/* Status */}
                       <div>
-                        <Tag color={statusColors[booking.status] || "default"}>
-                          {booking.status || "pending"}
+                        <Tag
+                          color={
+                            statusColors[getFilterStatus(booking.status)] ||
+                            statusColors[normalizeStatus(booking.status)] ||
+                            "default"
+                          }
+                        >
+                          {normalizeStatus(booking.status)}
                         </Tag>
                       </div>
 
@@ -504,16 +494,7 @@ const BookingPage = () => {
 
                 {/* Pagination */}
                 {filteredBookings.length > pageSize && (
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "center",
-                      padding: "20px",
-                      background: "#fff",
-                      borderRadius: "0 0 8px 8px",
-                      borderTop: "1px solid #f0f0f0",
-                    }}
-                  >
+                  <div className="customer-bookings-pagination">
                     <Pagination
                       current={currentPage}
                       pageSize={pageSize}
