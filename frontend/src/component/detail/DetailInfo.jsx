@@ -22,6 +22,10 @@ const DetailInfo = ({ item }) => {
 
   if (!item) return null;
 
+  const cancellationLabel = String(item.cancellationWindow || "Flexible")
+    .replaceAll("_", " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+
   const handleBookNow = async () => {
     if (!localStorage.getItem("authToken")) {
       messageApi.info("Please sign in to book this rental.");
@@ -262,7 +266,7 @@ const DetailInfo = ({ item }) => {
                     <div
                       style={{ fontSize: 20, fontWeight: 800, margin: "8px 0" }}
                     >
-                      ${item.overdueFee || 0}
+                      ${item.overdueFee || 0} / {item.overdueFeeUnit || "hour"}
                     </div>
                     <Text type="secondary" style={{ fontSize: 12 }}>
                       {t.productDetail?.overdueNote || "Charged per late hour"}
@@ -290,10 +294,12 @@ const DetailInfo = ({ item }) => {
                     <div
                       style={{ fontSize: 20, fontWeight: 800, margin: "8px 0" }}
                     >
-                      {item.cancellationWindow || "N/A"}
+                      {cancellationLabel}
                     </div>
                     <Text type="secondary" style={{ fontSize: 12 }}>
-                      {t.productDetail?.cancellationNote || "Free cancellation"}
+                      {item.cancellationFee > 0
+                        ? `${item.cancellationFee}% cancellation fee`
+                        : t.productDetail?.cancellationNote || "Free cancellation"}
                     </Text>
                   </div>
                 </div>

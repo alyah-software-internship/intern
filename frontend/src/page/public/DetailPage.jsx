@@ -8,6 +8,11 @@ import { AppContext } from "../../context/AppContext.jsx";
 const { Text } = Typography;
 
 const normalizeProduct = (product) => {
+  const policies = product.rental_policies || {};
+  const lateFee = Number(policies.late_fee ?? 0);
+  const lateFeeUnit = policies.late_fee_unit || "hour";
+  const cancellationPolicy = policies.cancellation_policy || "flexible";
+  const cancellationFee = Number(policies.cancellation_fee ?? 0);
   const specs =
     product.specifications && typeof product.specifications === "object"
       ? Object.entries(product.specifications).map(([label, value]) => ({
@@ -27,6 +32,10 @@ const normalizeProduct = (product) => {
     specs,
     price: Number(product.price_daily || 0),
     deposit: Number(product.security_deposit_amount || 0),
+    overdueFee: lateFee,
+    overdueFeeUnit: lateFeeUnit,
+    cancellationWindow: cancellationPolicy,
+    cancellationFee,
     vendor: product.vendor?.business_name || "Unknown vendor",
     vendorInfo: product.vendor
       ? {
