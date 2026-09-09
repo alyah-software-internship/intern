@@ -81,7 +81,7 @@ const DetailInfo = ({ item }) => {
   const totalPrice = rentalSubtotal + refundableDeposit + platformFee;
 
   return (
-    <div className="detail-layout">
+    <div className="detail-layout shared-page-content">
       {contextHolder}
       <div className="detail-main">
         <div style={{ marginBottom: 16 }}>
@@ -143,7 +143,10 @@ const DetailInfo = ({ item }) => {
         </div>
 
         <div style={{ marginTop: 18 }}>
-          <Card style={{ background: isDark ? "#0f172a" : "#fff" }}>
+          <Card
+            className="shared-surface"
+            style={{ background: isDark ? "#0f172a" : "#fff" }}
+          >
             <Title
               level={4}
               className="detail-hero-image"
@@ -390,6 +393,7 @@ const DetailInfo = ({ item }) => {
 
       <div className="detail-booking-panel">
         <Card
+          className="shared-surface detail-booking-card"
           style={{ borderRadius: 12, background: isDark ? "#0f172a" : "#fff" }}
         >
           <div style={{ display: "flex", gap: 12, alignItems: "center" }}>

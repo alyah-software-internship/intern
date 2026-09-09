@@ -122,6 +122,7 @@ const BookingDetailsStep = ({
 
   return (
     <div
+      className="booking-flow-page"
       style={{
         minHeight: "100vh",
         background: "#f4f7fb",
@@ -146,6 +147,7 @@ const BookingDetailsStep = ({
         <Row gutter={[28, 28]} align="top">
           <Col xs={24} lg={16}>
             <Card
+              className="booking-flow-card shared-surface"
               bordered={false}
               style={{
                 borderRadius: 22,

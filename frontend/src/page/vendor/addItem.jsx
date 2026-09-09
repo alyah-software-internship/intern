@@ -163,9 +163,11 @@ const AddItem = () => {
 
       const formData = new FormData();
       Object.entries(payload).forEach(([key, value]) => {
+        const formValue =
+          key === "delivery_available" ? (value ? "1" : "0") : value;
         formData.append(
           key,
-          typeof value === "object" ? JSON.stringify(value) : value,
+          typeof formValue === "object" ? JSON.stringify(formValue) : formValue,
         );
       });
       values.images?.forEach((file) => {
@@ -222,6 +224,7 @@ const AddItem = () => {
     <>
       {contextHolder}
       <Card
+        className="shared-surface vendor-add-item-page"
         style={{
           borderRadius: 24,
           minHeight: "72vh",
@@ -252,6 +255,7 @@ const AddItem = () => {
         <Form
           form={form}
           layout="vertical"
+          className="shared-form"
           style={{ marginTop: 24, maxWidth: 720 }}
           onFinish={onFinish}
           disabled={loadingProduct}

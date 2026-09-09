@@ -839,6 +839,104 @@ html.dark .text-slate-500,
   padding: 24px;
 }
 
+/* Shared customer/vendor surface language */
+.shared-surface {
+  border: 1px solid #e6edf5 !important;
+  border-radius: 16px !important;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06) !important;
+}
+
+.shared-page-content,
+.booking-flow-page {
+  color: #0f172a;
+}
+
+.booking-flow-page {
+  min-height: 100vh;
+  padding: 28px 24px 48px !important;
+  background: #f4f7fb !important;
+}
+
+.booking-flow-page > div,
+.vendor-add-item-page .shared-form {
+  width: min(1220px, 100%);
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.booking-flow-card,
+.vendor-add-item-page {
+  background: #ffffff !important;
+}
+
+.booking-flow-card .ant-card-body,
+.vendor-add-item-page .ant-card-body {
+  padding: 24px !important;
+}
+
+.shared-form .ant-form-item-label > label {
+  color: #334155;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.shared-form .ant-input,
+.shared-form .ant-input-number,
+.shared-form .ant-input-number-input,
+.shared-form .ant-select-selector,
+.shared-form textarea,
+.booking-flow-page .ant-input,
+.booking-flow-page textarea {
+  border-radius: 10px !important;
+}
+
+.shared-form .ant-input,
+.shared-form .ant-input-number,
+.shared-form .ant-select-selector,
+.booking-flow-page .ant-input {
+  min-height: 42px;
+}
+
+.shared-form .ant-btn,
+.booking-flow-page .ant-btn {
+  border-radius: 10px;
+}
+
+.detail-gallery,
+.detail-booking-card {
+  border: 1px solid #e6edf5;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05);
+}
+
+@media (max-width: 600px) {
+  .booking-flow-page {
+    padding: 18px 12px 32px !important;
+  }
+
+  .booking-flow-card .ant-card-body,
+  .vendor-add-item-page .ant-card-body {
+    padding: 16px !important;
+  }
+
+  .vendor-add-item-page .shared-form {
+    max-width: none !important;
+  }
+
+  .vendor-add-item-page .ant-space {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .vendor-add-item-page .ant-space > .ant-space-item {
+    flex: 1 1 140px;
+  }
+
+  .vendor-add-item-page .ant-input-number,
+  .vendor-add-item-page .ant-select {
+    width: 100% !important;
+  }
+}
+
 .customer-bookings-page {
   min-height: 100vh;
   padding: 40px 24px;
