@@ -833,6 +833,111 @@ html.dark .text-slate-500,
   gap: 16px;
 }
 
+.detail-page-shell {
+  width: min(1200px, 100%);
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.detail-layout {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.detail-main {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.detail-booking-panel {
+  width: 360px;
+  flex: 0 0 360px;
+}
+
+.detail-hero-image {
+  display: block;
+  max-width: 100%;
+}
+
+.detail-specs-grid {
+  min-width: 0;
+}
+
+.detail-policy-grid > div {
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  .detail-layout {
+    flex-direction: column;
+  }
+
+  .detail-booking-panel {
+    width: 100%;
+    flex-basis: auto;
+  }
+}
+
+@media (max-width: 600px) {
+  .detail-page-shell {
+    padding: 16px 12px 28px;
+  }
+
+  .detail-gallery {
+    padding: 8px !important;
+  }
+
+  .detail-hero-image {
+    height: min(68vw, 300px) !important;
+  }
+
+  .detail-specs-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .detail-policy-grid {
+    flex-direction: column;
+  }
+
+  .detail-policy-grid > div {
+    width: 100%;
+    padding: 16px !important;
+  }
+
+  .detail-vendor-header {
+    align-items: flex-start !important;
+    flex-direction: column;
+  }
+
+  .detail-vendor-header > div:last-child,
+  .detail-vendor-header > div:last-child .ant-btn {
+    width: 100%;
+  }
+
+  .detail-vendor-header > div:last-child .ant-btn {
+    white-space: normal;
+    height: auto;
+    min-height: 32px;
+  }
+
+  .detail-booking-panel .ant-card-body {
+    padding: 16px;
+  }
+
+  .detail-booking-panel .ant-card-body > div:first-child {
+    align-items: flex-start;
+  }
+
+  .detail-booking-panel .ant-card-body > div:first-child > div {
+    min-width: 0;
+  }
+
+  .detail-booking-panel .ant-card-body > div:first-child .ant-typography {
+    overflow-wrap: anywhere;
+  }
+}
+
 .verification-card__top .ant-tag {
   margin-left: auto;
 }

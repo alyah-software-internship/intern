@@ -65,7 +65,7 @@ const DetailPage = () => {
   }, [backendUrl, id]);
 
   return (
-    <div style={{ padding: 24, maxWidth: 1200, margin: "0 auto" }}>
+    <div className="detail-page-shell">
       <Link to="/rentals">&lt; Back to Rental Catalog</Link>
       <div style={{ marginTop: 18 }}>
         {loading && (

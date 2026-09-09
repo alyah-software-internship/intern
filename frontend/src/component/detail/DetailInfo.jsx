@@ -81,9 +81,9 @@ const DetailInfo = ({ item }) => {
   const totalPrice = rentalSubtotal + refundableDeposit + platformFee;
 
   return (
-    <div style={{ display: "flex", gap: 24, alignItems: "flex-start" }}>
+    <div className="detail-layout">
       {contextHolder}
-      <div style={{ flex: 1 }}>
+      <div className="detail-main">
         <div style={{ marginBottom: 16 }}>
           <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
             <Tag color="blue">{item.category}</Tag>
@@ -98,6 +98,7 @@ const DetailInfo = ({ item }) => {
         </div>
 
         <div
+          className="detail-gallery"
           style={{
             borderRadius: 12,
             overflow: "hidden",
@@ -145,6 +146,7 @@ const DetailInfo = ({ item }) => {
           <Card style={{ background: isDark ? "#0f172a" : "#fff" }}>
             <Title
               level={4}
+              className="detail-hero-image"
               style={{
                 marginBottom: 12,
                 color: isDark ? "#f8fafc" : undefined,
@@ -165,6 +167,7 @@ const DetailInfo = ({ item }) => {
                 </Title>
 
                 <div
+                  className="detail-specs-grid"
                   style={{
                     display: "grid",
                     gridTemplateColumns: "1fr 1fr",
@@ -201,7 +204,7 @@ const DetailInfo = ({ item }) => {
                     "Escrowed Security Deposit & Late Policies"}
                 </Title>
 
-                <div style={{ display: "flex", gap: 16, marginTop: 8 }}>
+                <div className="detail-policy-grid" style={{ display: "flex", gap: 16, marginTop: 8 }}>
                   <div
                     style={{
                       flex: 1,
@@ -299,6 +302,7 @@ const DetailInfo = ({ item }) => {
                     "VENDOR CHECKOUT INSTRUCTIONS & AGREEMENTS"}
                 </Title>
                 <div
+                  className="detail-vendor-header"
                   style={{
                     border: isDark ? "1px solid #334155" : "1px solid #e6edf3",
                     borderRadius: 8,
@@ -381,7 +385,7 @@ const DetailInfo = ({ item }) => {
         </div>
       </div>
 
-      <div style={{ width: 360 }}>
+      <div className="detail-booking-panel">
         <Card
           style={{ borderRadius: 12, background: isDark ? "#0f172a" : "#fff" }}
         >
