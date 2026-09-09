@@ -316,6 +316,8 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::prefix('payments')->group(function () {
         Route::get('/', [PaymentController::class, 'adminIndex']);
         Route::get('/{id}', [PaymentController::class, 'adminShow']);
+        Route::post('/{id}/approve', [PaymentController::class, 'adminApprove']);
+        Route::post('/{id}/reject', [PaymentController::class, 'adminReject']);
         Route::post('/{id}/refund', [PaymentController::class, 'adminRefund']);
     });
     

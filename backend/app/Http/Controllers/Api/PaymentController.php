@@ -36,6 +36,7 @@ class PaymentController extends Controller
         $validator = Validator::make($request->all(), [
             'payment_method' => 'required|in:cbe,telebirr',
             'payment_data' => 'nullable|array',
+            'payment_proof' => 'required|file|image|mimes:jpg,jpeg,png,webp|max:5120',
         ]);
 
         if ($validator->fails()) {
@@ -71,6 +72,17 @@ class PaymentController extends Controller
                 ], 400);
             }
 
+            $pendingProof = Payment::where('booking_id', $booking->id)
+                ->where('payment_type', 'rental')
+                ->where('status', 'pending_verification')
+                ->exists();
+            if ($pendingProof) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'A payment proof for this booking is already awaiting verification.',
+                ], 409);
+            }
+
             if ($booking->status !== 'confirmed') {
                 return response()->json([
                     'success' => false,
@@ -78,18 +90,47 @@ class PaymentController extends Controller
                 ], 409);
             }
 
-            $paymentData = [
+            $proofPath = $request->file('payment_proof')->store('payment-proofs', 'public');
+            $payment = Payment::create([
+                'booking_id' => $booking->id,
+                'user_id' => $booking->customer_id,
+                'vendor_id' => $booking->vendor_id,
+                'amount' => $booking->total_amount,
+                'payment_type' => 'rental',
                 'payment_method' => $request->payment_method,
                 'payment_data' => $request->payment_data,
-            ];
+                'payment_proof_path' => $proofPath,
+                'payment_proof_type' => 'screenshot',
+                'status' => 'pending_verification',
+                'payment_status' => 'pending',
+                'proof_verification_status' => 'pending',
+            ]);
+            $booking->update(['payment_status' => 'pending']);
 
-            $result = $this->paymentService->processBookingPayment($booking, $paymentData);
+            $this->notificationService->createNotification(
+                $booking->customer_id,
+                'payment_pending_verification',
+                'Payment Proof Submitted',
+                "Your payment proof for booking #{$booking->booking_reference} is awaiting admin verification.",
+                "/booking-details/{$booking->id}",
+                'medium',
+                'payment'
+            );
+            $this->notificationService->createNotification(
+                $booking->vendor->user_id,
+                'payment_pending_verification',
+                'Payment Awaiting Verification',
+                "Payment proof for booking #{$booking->booking_reference} was submitted and is awaiting admin verification.",
+                "/vendor/bookings/{$booking->id}",
+                'medium',
+                'payment'
+            );
 
             return response()->json([
                 'success' => true,
-                'message' => 'Payment processed successfully',
-                'payment' => $result['payment'],
-                'booking' => $result['booking'],
+                'message' => 'Payment proof submitted. Awaiting admin verification.',
+                'payment' => $payment,
+                'booking' => $booking->fresh(),
             ]);
 
         } catch (\Exception $e) {
@@ -283,6 +324,67 @@ class PaymentController extends Controller
     }
 
     /**
+     * Approve a customer-submitted manual payment proof (Admin only).
+     */
+    public function adminApprove($id, Request $request)
+    {
+        try {
+            $payment = $this->paymentService->approveManualPayment(
+                Payment::findOrFail($id),
+                $request->user()->id
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Payment approved successfully',
+                'payment' => $payment,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 422);
+        }
+    }
+
+    /**
+     * Reject a customer-submitted manual payment proof (Admin only).
+     */
+    public function adminReject(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'reason' => 'nullable|string|max:500',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        try {
+            $payment = $this->paymentService->rejectManualPayment(
+                Payment::findOrFail($id),
+                $request->user()->id,
+                $request->input('reason')
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Payment rejected successfully',
+                'payment' => $payment,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 422);
+        }
+    }
+
+    /**
      * Initiate refund (Admin only)
      */
     public function adminRefund($id, Request $request)
@@ -393,7 +495,7 @@ class PaymentController extends Controller
     }
 
     /**
-     * Submit manual payment proof for subscription payments
+     * Submit manual payment proof for subscription payments.
      */
     public function submitManualProof(Request $request, $paymentId)
     {

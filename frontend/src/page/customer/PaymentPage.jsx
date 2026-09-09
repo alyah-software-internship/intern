@@ -504,22 +504,26 @@ const PaymentPage = () => {
   }
 
   const submitPayment = async ({ paymentMethod, screenshot }) => {
+    const formData = new FormData();
+    formData.append("payment_method", paymentMethod);
+    formData.append("payment_proof", screenshot.originFileObj || screenshot);
+    formData.append(
+      "payment_data[initiated_from]",
+      "customer_payment_page",
+    );
+    formData.append("payment_data[proof_file_name]", screenshot.name || "");
+
     await axios.post(
       `${backendUrl}/bookings/${bookingId}/pay`,
-      {
-        payment_method: paymentMethod,
-        payment_data: {
-          initiated_from: "customer_payment_page",
-          proof_file_name: screenshot?.name || null,
-        },
-      },
+      formData,
       {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          "Content-Type": "multipart/form-data",
         },
       },
     );
-    messageApi.success("Payment received by iShare.");
+    messageApi.success("Payment proof submitted for admin verification.");
     navigate("/bookings");
   };
 

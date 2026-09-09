@@ -130,6 +130,117 @@ class PaymentService
     }
 
     /**
+     * Approve a customer-submitted manual payment proof.
+     */
+    public function approveManualPayment(Payment $payment, int $adminUserId): Payment
+    {
+        return DB::transaction(function () use ($payment, $adminUserId) {
+            $payment = Payment::with(['booking', 'vendor'])->lockForUpdate()->findOrFail($payment->id);
+
+            if ($payment->payment_status === 'paid') {
+                return $payment;
+            }
+
+            if (!$payment->booking || !$payment->payment_proof_path) {
+                throw new \Exception('A payment proof is required before approval');
+            }
+
+            $booking = $payment->booking;
+            $vendor = VendorProfile::findOrFail($booking->vendor_id);
+            $payment->update([
+                'status' => 'completed',
+                'payment_status' => 'paid',
+                'proof_verification_status' => 'verified',
+                'verified_at' => now(),
+                'verified_by' => $adminUserId,
+                'paid_at' => now(),
+                'completed_at' => now(),
+                'transaction_id' => $payment->transaction_id ?: $this->generateTransactionId(),
+            ]);
+
+            $booking->update([
+                'payment_status' => 'paid',
+                'status' => 'confirmed',
+                'transaction_id' => $payment->transaction_id,
+            ]);
+
+            $vendor->increment('total_bookings');
+            $vendor->increment('pending_payouts', $booking->vendor_payment);
+            $this->walletService->addPendingEarning($vendor->user, (float) $booking->vendor_payment, [
+                'booking_id' => $booking->id,
+                'payment_id' => $payment->id,
+            ]);
+
+            $this->notificationService->paymentReceived($booking->customer_id, [
+                'amount' => $payment->amount,
+                'reference' => $booking->booking_reference,
+                'link' => "/booking-details/{$booking->id}",
+            ]);
+            $this->notificationService->createNotification(
+                $vendor->user_id,
+                'payment_approved',
+                'Payment Approved',
+                "Payment for booking #{$booking->booking_reference} was verified. The customer can collect the item.",
+                "/vendor/bookings/{$booking->id}",
+                'high',
+                'payment'
+            );
+
+            return $payment->fresh(['booking', 'customer', 'vendor']);
+        });
+    }
+
+    /**
+     * Reject a customer-submitted manual payment proof.
+     */
+    public function rejectManualPayment(Payment $payment, int $adminUserId, ?string $reason = null): Payment
+    {
+        return DB::transaction(function () use ($payment, $adminUserId, $reason) {
+            $payment = Payment::with('booking')->lockForUpdate()->findOrFail($payment->id);
+
+            if ($payment->payment_status === 'paid') {
+                throw new \Exception('A paid payment cannot be rejected');
+            }
+
+            $payment->update([
+                'status' => 'failed',
+                'payment_status' => 'failed',
+                'proof_verification_status' => 'rejected',
+                'payment_remarks' => $reason,
+                'verified_at' => now(),
+                'verified_by' => $adminUserId,
+                'failed_at' => now(),
+            ]);
+
+            if ($payment->booking) {
+                $payment->booking->update(['payment_status' => 'failed']);
+                $this->notificationService->createNotification(
+                    $payment->booking->customer_id,
+                    'payment_rejected',
+                    'Payment Proof Rejected',
+                    "Payment proof for booking #{$payment->booking->booking_reference} was rejected. " . ($reason ?: 'Please submit a valid proof.'),
+                    "/payment/{$payment->booking->id}",
+                    'high',
+                    'payment'
+                );
+                if ($payment->booking->vendor) {
+                    $this->notificationService->createNotification(
+                        $payment->booking->vendor->user_id,
+                        'payment_rejected',
+                        'Payment Proof Rejected',
+                        "Payment proof for booking #{$payment->booking->booking_reference} was rejected by the admin.",
+                        "/vendor/bookings/{$payment->booking->id}",
+                        'high',
+                        'payment'
+                    );
+                }
+            }
+
+            return $payment->fresh(['booking', 'customer', 'vendor']);
+        });
+    }
+
+    /**
      * Process security deposit
      */
     public function processSecurityDeposit(Booking $booking, array $paymentData): SecurityDeposit

@@ -1,10 +1,9 @@
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import axios from "axios";
 import {
   Card,
   Table,
   Empty,
-  Spin,
   Button,
   message,
   Space,
@@ -17,8 +16,7 @@ import {
   Descriptions,
 } from "antd";
 import { AppContext } from "../../context/AppContext.jsx";
-import { EyeOutlined, DownloadOutlined, UndoOutlined } from "@ant-design/icons";
-import dayjs from "dayjs";
+import { EyeOutlined, UndoOutlined } from "@ant-design/icons";
 
 const AdminPaymentsPage = () => {
   const { backendUrl } = useContext(AppContext);
@@ -33,11 +31,7 @@ const AdminPaymentsPage = () => {
   });
   const [messageApi, contextHolder] = message.useMessage();
 
-  useEffect(() => {
-    fetchPayments();
-  }, [filters]);
-
-  const fetchPayments = async () => {
+  const fetchPayments = useCallback(async () => {
     try {
       setLoading(true);
       const params = {};
@@ -55,12 +49,17 @@ const AdminPaymentsPage = () => {
       });
 
       setPayments(response.data.payments?.data || []);
-    } catch (err) {
+    } catch {
       messageApi.error("Failed to load payments");
     } finally {
       setLoading(false);
     }
-  };
+  }, [backendUrl, filters, messageApi]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(fetchPayments, 0);
+    return () => window.clearTimeout(timer);
+  }, [fetchPayments]);
 
   const handleViewDetails = (payment) => {
     setSelectedPayment(payment);
@@ -87,6 +86,35 @@ const AdminPaymentsPage = () => {
     } catch (err) {
       messageApi.error(
         err.response?.data?.message || "Failed to initiate refund",
+      );
+    }
+  };
+
+  const handleVerifyPayment = async (paymentId, approved) => {
+    try {
+      const reason = approved ? undefined : window.prompt("Rejection reason (optional)");
+      if (!approved && reason === null) return;
+
+      const response = await axios.post(
+        `${backendUrl}/admin/payments/${paymentId}/${approved ? "approve" : "reject"}`,
+        approved ? {} : { reason },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+        },
+      );
+
+      if (response.data.success) {
+        messageApi.success(
+          approved ? "Payment approved and both parties notified" : "Payment rejected",
+        );
+        await fetchPayments();
+        setDrawerVisible(false);
+      }
+    } catch (err) {
+      messageApi.error(
+        err.response?.data?.message || "Unable to update payment verification",
       );
     }
   };
@@ -379,6 +407,27 @@ const AdminPaymentsPage = () => {
                 Initiate Refund
               </Button>
             )}
+
+            {selectedPayment.payment_proof_path &&
+              selectedPayment.payment_status !== "paid" &&
+              selectedPayment.proof_verification_status !== "rejected" && (
+                <Space direction="vertical" style={{ width: "100%", marginTop: 16 }}>
+                  <strong>Payment Screenshot</strong>
+                  <img
+                    src={`${backendUrl.replace(/\/api\/?$/i, "")}/storage/${selectedPayment.payment_proof_path}`}
+                    alt="Customer payment proof"
+                    style={{ width: "100%", maxHeight: 420, objectFit: "contain", border: "1px solid #ddd" }}
+                  />
+                  <Space style={{ width: "100%" }}>
+                    <Button type="primary" onClick={() => handleVerifyPayment(selectedPayment.id, true)}>
+                      Approve Payment
+                    </Button>
+                    <Button danger onClick={() => handleVerifyPayment(selectedPayment.id, false)}>
+                      Reject Payment
+                    </Button>
+                  </Space>
+                </Space>
+              )}
           </div>
         )}
       </Drawer>
