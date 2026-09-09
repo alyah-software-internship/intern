@@ -299,7 +299,8 @@ const DetailInfo = ({ item }) => {
                     <Text type="secondary" style={{ fontSize: 12 }}>
                       {item.cancellationFee > 0
                         ? `${item.cancellationFee}% cancellation fee`
-                        : t.productDetail?.cancellationNote || "Free cancellation"}
+                        : t.productDetail?.cancellationNote ||
+                          "Free cancellation"}
                     </Text>
                   </div>
                 </div>
