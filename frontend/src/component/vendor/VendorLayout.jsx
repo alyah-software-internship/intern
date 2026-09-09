@@ -132,8 +132,7 @@ const VendorLayout = () => {
         setPendingBookings(
           Array.isArray(bookings)
             ? bookings.filter(
-                (booking) =>
-                  String(booking.status).toLowerCase() === "pending",
+                (booking) => String(booking.status).toLowerCase() === "pending",
               ).length
             : 0,
         );
