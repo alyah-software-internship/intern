@@ -879,7 +879,12 @@ html.dark .text-slate-500,
 .customer-bookings-table-header,
 .customer-booking-row {
   display: grid;
-  grid-template-columns: 2fr 2fr 1.2fr 1fr auto;
+  grid-template-columns:
+    minmax(220px, 2.2fr)
+    minmax(250px, 2fr)
+    minmax(110px, 1fr)
+    minmax(110px, 0.8fr)
+    minmax(250px, 1.6fr);
   gap: 16px;
 }
 
@@ -909,6 +914,23 @@ html.dark .text-slate-500,
 
 .customer-booking-row > div {
   min-width: 0;
+}
+
+.customer-bookings-table-header > div:nth-child(4),
+.customer-booking-row > div:nth-child(4) {
+  text-align: left;
+}
+
+.customer-bookings-table-header > div:last-child {
+  text-align: right;
+}
+
+.customer-booking-row > div:last-child {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  min-width: 250px;
 }
 
 .customer-booking-row .ant-typography {
@@ -963,6 +985,14 @@ html.dark .text-slate-500,
   white-space: nowrap;
 }
 
+.customer-booking-action:first-child {
+  min-width: 108px;
+}
+
+.customer-booking-action:nth-child(2) {
+  min-width: 82px;
+}
+
 .customer-bookings-pagination {
   display: flex;
   justify-content: center;
@@ -999,6 +1029,7 @@ html.dark .text-slate-500,
   .customer-booking-row > div:nth-child(5) {
     grid-column: 1 / -1;
     justify-content: flex-start !important;
+    min-width: 0;
   }
 
   .customer-booking-row > div:nth-child(5) .ant-btn {
