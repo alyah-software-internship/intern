@@ -208,9 +208,7 @@ const BookingPage = () => {
   ];
 
   return (
-    <div
-      className="customer-bookings-page"
-    >
+    <div className="customer-bookings-page">
       {contextHolder}
       <div className="customer-bookings-content">
         {/* Header */}
@@ -270,8 +268,8 @@ const BookingPage = () => {
                     type="secondary"
                     style={{ fontSize: 16, display: "block", marginBottom: 16 }}
                   >
-                    No {filterStatus !== "all" ? `${filterStatus} ` : ""}bookings
-                    found yet.
+                    No {filterStatus !== "all" ? `${filterStatus} ` : ""}
+                    bookings found yet.
                   </Text>
                   <Text
                     type="secondary"
@@ -317,10 +315,7 @@ const BookingPage = () => {
                   );
 
                   return (
-                    <div
-                      key={booking.id}
-                      className="customer-booking-row"
-                    >
+                    <div key={booking.id} className="customer-booking-row">
                       {/* Item */}
                       <div
                         style={{
@@ -345,7 +340,7 @@ const BookingPage = () => {
                             flexShrink: 0,
                           }}
                         >
-                            {(product.name || "Item").slice(0, 2).toUpperCase()}
+                          {(product.name || "Item").slice(0, 2).toUpperCase()}
                         </div>
                         <div>
                           <Text
