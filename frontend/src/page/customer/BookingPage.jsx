@@ -41,8 +41,8 @@ const normalizeStatus = (status) => String(status || "pending").toLowerCase();
 const getFilterStatus = (status) => {
   const normalizedStatus = normalizeStatus(status);
 
-  if (normalizedStatus === "confirmed" || normalizedStatus === "active") {
-    return "active";
+  if (normalizedStatus === "active") {
+    return "confirmed";
   }
 
   if (normalizedStatus === "rejected") return "cancelled";
@@ -155,9 +155,15 @@ const BookingPage = () => {
     if (filterStatus === "all") {
       return bookings;
     }
-    return bookings.filter(
-      (booking) => getFilterStatus(booking.status) === filterStatus,
-    );
+    return bookings.filter((booking) => {
+      if (filterStatus === "paid") {
+        return (
+          booking.payment_status?.toLowerCase() === "paid" ||
+          booking.paymentStatus?.toLowerCase() === "paid"
+        );
+      }
+      return getFilterStatus(booking.status) === filterStatus;
+    });
   }, [bookings, filterStatus]);
 
   const bookingCounts = useMemo(() => {
@@ -165,8 +171,14 @@ const BookingPage = () => {
       all: bookings.length,
       pending: bookings.filter((b) => getFilterStatus(b.status) === "pending")
         .length,
-      active: bookings.filter((b) => getFilterStatus(b.status) === "active")
-        .length,
+      confirmed: bookings.filter(
+        (b) => getFilterStatus(b.status) === "confirmed",
+      ).length,
+      paid: bookings.filter(
+        (b) =>
+          b.payment_status?.toLowerCase() === "paid" ||
+          b.paymentStatus?.toLowerCase() === "paid",
+      ).length,
       completed: bookings.filter(
         (b) => getFilterStatus(b.status) === "completed",
       ).length,
@@ -227,8 +239,9 @@ const BookingPage = () => {
   // Define filter tabs
   const filterTabs = [
     { key: "all", label: "All Bookings", count: bookingCounts.all },
-    { key: "pending", label: "Upcoming", count: bookingCounts.pending },
-    { key: "active", label: "Ongoing", count: bookingCounts.active },
+    { key: "pending", label: "Pending", count: bookingCounts.pending },
+    { key: "confirmed", label: "Confirmed", count: bookingCounts.confirmed },
+    { key: "paid", label: "Paid", count: bookingCounts.paid },
     { key: "completed", label: "Completed", count: bookingCounts.completed },
     { key: "cancelled", label: "Cancelled", count: bookingCounts.cancelled },
   ];
@@ -417,17 +430,18 @@ const BookingPage = () => {
                       <div>
                         <Tag
                           color={
-                            statusColors[getFilterStatus(booking.status)] ||
-                            statusColors[normalizeStatus(booking.status)] ||
-                            "default"
+                            booking.payment_status?.toLowerCase() === "paid" ||
+                            booking.paymentStatus?.toLowerCase() === "paid"
+                              ? statusColors.paid
+                              : statusColors[getFilterStatus(booking.status)] ||
+                                statusColors[normalizeStatus(booking.status)] ||
+                                "default"
                           }
                         >
-                          {bookingStatus === "pending"
-                            ? "Upcoming"
-                            : bookingStatus === "confirmed" ||
-                                bookingStatus === "active"
-                              ? "Ongoing"
-                              : bookingStatus}
+                          {booking.payment_status?.toLowerCase() === "paid" ||
+                          booking.paymentStatus?.toLowerCase() === "paid"
+                            ? "Paid"
+                            : getFilterStatus(booking.status)}
                         </Tag>
                       </div>
 
