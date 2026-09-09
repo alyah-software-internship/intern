@@ -68,6 +68,17 @@ const NotificationPage = () => {
   const openNotification = async (notification) => {
     await markRead(notification);
 
+    const notificationType = String(notification.type || "").toLowerCase();
+    const notificationTitle = String(notification.title || "").toLowerCase();
+    const isBookingConfirmed =
+      notificationType === "booking_confirmed" ||
+      notificationTitle.includes("booking confirmed");
+
+    if (isBookingConfirmed) {
+      navigate("/bookings");
+      return;
+    }
+
     if (!notification.link) return;
 
     const link = notification.link.replace(
