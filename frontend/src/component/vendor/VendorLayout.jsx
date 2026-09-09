@@ -1,11 +1,13 @@
 import { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { Button, Card, Space, Tag, Typography } from "antd";
+import { Badge, Button, Card, Space, Tag, Tooltip, Typography } from "antd";
 import {
   BellOutlined,
+  CalendarOutlined,
   CheckCircleOutlined,
   LogoutOutlined,
+  MessageOutlined,
   MenuOutlined,
   PlusOutlined,
   WarningOutlined,
@@ -68,6 +70,8 @@ const VendorLayout = () => {
       return null;
     }
   });
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
+  const [pendingBookings, setPendingBookings] = useState(0);
   const sidebarVisible = !isMobile || sidebarOpen;
 
   useEffect(() => {
@@ -105,6 +109,44 @@ const VendorLayout = () => {
       });
 
     return () => controller.abort();
+  }, [backendUrl]);
+
+  useEffect(() => {
+    let isCurrent = true;
+    const headers = {
+      Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+    };
+
+    Promise.all([
+      axios.get(`${backendUrl}/notifications/unread-count`, { headers }),
+      axios.get(`${backendUrl}/vendor/bookings`, { headers }),
+    ])
+      .then(([notificationResponse, bookingResponse]) => {
+        if (!isCurrent) return;
+
+        setUnreadNotifications(
+          Number(notificationResponse.data?.unread_count || 0),
+        );
+        const bookings =
+          bookingResponse.data?.bookings || bookingResponse.data?.data || [];
+        setPendingBookings(
+          Array.isArray(bookings)
+            ? bookings.filter(
+                (booking) =>
+                  String(booking.status).toLowerCase() === "pending",
+              ).length
+            : 0,
+        );
+      })
+      .catch(() => {
+        if (!isCurrent) return;
+        setUnreadNotifications(0);
+        setPendingBookings(0);
+      });
+
+    return () => {
+      isCurrent = false;
+    };
   }, [backendUrl]);
 
   const toggleSidebar = () => {
@@ -403,14 +445,37 @@ const VendorLayout = () => {
           </div>
 
           <Space wrap size={8}>
-            <Button
-              icon={<BellOutlined />}
-              type="default"
-              style={{ borderRadius: 16 }}
-              onClick={() => navigate("/vendor/alerts")}
-            >
-              {t.vendor?.alertsButton || "Alerts"}
-            </Button>
+            <Tooltip title={t.vendor?.alertsButton || "Alerts"}>
+              <Badge count={unreadNotifications} overflowCount={99}>
+                <Button
+                  aria-label={t.vendor?.alertsButton || "Alerts"}
+                  icon={<BellOutlined />}
+                  type="default"
+                  shape="circle"
+                  onClick={() => navigate("/vendor/alerts")}
+                />
+              </Badge>
+            </Tooltip>
+            <Tooltip title={t.vendor?.messages || "Messages"}>
+              <Button
+                aria-label={t.vendor?.messages || "Messages"}
+                icon={<MessageOutlined />}
+                type="default"
+                shape="circle"
+                onClick={() => navigate("/vendor/messages")}
+              />
+            </Tooltip>
+            <Tooltip title={t.vendor?.bookings || "Bookings"}>
+              <Badge count={pendingBookings} overflowCount={99}>
+                <Button
+                  aria-label={t.vendor?.bookings || "Bookings"}
+                  icon={<CalendarOutlined />}
+                  type="default"
+                  shape="circle"
+                  onClick={() => navigate("/vendor/bookings")}
+                />
+              </Badge>
+            </Tooltip>
             <Button
               icon={<PlusOutlined />}
               type="primary"
