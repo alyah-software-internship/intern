@@ -74,6 +74,17 @@ class NotificationService
     }
 
     /**
+     * Get all active notifications for administrators.
+     */
+    public function getAllNotifications()
+    {
+        return Notification::with('user:id,first_name,last_name,email')
+            ->where('is_archived', false)
+            ->orderBy('created_at', 'desc')
+            ->get();
+    }
+
+    /**
      * Get unread notifications count
      */
     public function getUnreadCount(int $userId): int

@@ -38,7 +38,7 @@ const Messagespage = () => {
   const currentUserId = user?.id;
 
   useEffect(() => {
-    if (!bookingId || !vendorName) {
+    if (!bookingId) {
       setConversation(null);
       setSelectedId("");
       return;
@@ -50,9 +50,9 @@ const Messagespage = () => {
       vendorId,
       customerId: customerId || currentUserId || "customer-current",
       bookingId,
-      vendor: vendorName,
+      vendor: vendorName || "Vendor",
       subject: productName || "Rental Item",
-      avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(vendorName)}&background=2563eb&color=fff`,
+      avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(vendorName || "Vendor")}&background=2563eb&color=fff`,
       lastMessage: "Loading messages...",
       lastTime: "Now",
       unread: 0,

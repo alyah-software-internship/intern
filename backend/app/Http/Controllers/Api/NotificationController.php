@@ -47,6 +47,25 @@ class NotificationController extends Controller
     }
 
     /**
+     * Get all active notifications for the admin notification center.
+     */
+    public function adminIndex()
+    {
+        try {
+            return response()->json([
+                'success' => true,
+                'notifications' => $this->notificationService->getAllNotifications(),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to get all notifications',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
      * Mark a notification as read
      */
     public function markAsRead($id, Request $request)

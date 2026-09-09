@@ -1,11 +1,7 @@
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import axios from "axios";
-import {
-  BellOutlined,
-  ClockCircleOutlined,
-  ReloadOutlined,
-} from "@ant-design/icons";
-import { Card, List, Space, Tag, Typography, Button, message } from "antd";
+import { ClockCircleOutlined, ReloadOutlined } from "@ant-design/icons";
+import { Card, List, Space, Tag, Typography, Button } from "antd";
 import { useTranslation } from "../../component/LanguageProvider.jsx";
 import { AppContext } from "../../context/AppContext.jsx";
 import { useTheme } from "../../context/ThemeProvider.jsx";
@@ -22,18 +18,17 @@ const Notifications = () => {
   const isDark = theme === "dark";
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [messageApi, contextHolder] = message.useMessage();
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     setLoading(true);
     try {
       const response = await axios.get(
-        `${backendUrl}/notifications`,
+        `${backendUrl}/admin/notifications`,
         authConfig(),
       );
       const data = response.data?.data || response.data?.notifications || [];
       setNotifications(Array.isArray(data) ? data : []);
-    } catch (error) {
+    } catch {
       // Fallback to mock data if API fails
       setNotifications([
         {
@@ -66,11 +61,12 @@ const Notifications = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [backendUrl]);
 
   useEffect(() => {
-    fetchNotifications();
-  }, [backendUrl]);
+    const timer = window.setTimeout(fetchNotifications, 0);
+    return () => window.clearTimeout(timer);
+  }, [fetchNotifications]);
 
   const formatTime = (timestamp) => {
     const date = new Date(timestamp);
@@ -94,7 +90,6 @@ const Notifications = () => {
         padding: "24px",
       }}
     >
-      {contextHolder}
       <Card
         style={{
           borderRadius: 20,
@@ -189,7 +184,7 @@ const Notifications = () => {
                     {item.is_read ? "READ" : "UNREAD"}
                   </Tag>
                 </Space>
-                <Text type="secondary">{item.description}</Text>
+                <Text type="secondary">{item.message || item.description}</Text>
                 <Space size={8} style={{ alignItems: "center" }}>
                   <ClockCircleOutlined />
                   <Text type="secondary">{formatTime(item.created_at)}</Text>

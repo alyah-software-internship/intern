@@ -70,6 +70,25 @@ const NotificationPage = () => {
 
     const notificationType = String(notification.type || "").toLowerCase();
     const notificationTitle = String(notification.title || "").toLowerCase();
+    const notificationCategory = String(
+      notification.category || "",
+    ).toLowerCase();
+    const isMessageNotification =
+      notificationCategory === "message" ||
+      notificationType.includes("message") ||
+      notificationType.includes("chat") ||
+      notificationTitle.includes("message");
+
+    if (isMessageNotification) {
+      const bookingId = notification.link?.match(
+        /(?:bookings|booking-details)\/(\d+)/,
+      )?.[1];
+      navigate("/messages", {
+        state: bookingId ? { bookingId } : undefined,
+      });
+      return;
+    }
+
     const isBookingConfirmed =
       notificationType === "booking_confirmed" ||
       notificationTitle.includes("booking confirmed");

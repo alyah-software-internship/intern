@@ -247,6 +247,7 @@ Route::middleware('auth:sanctum')->group(function () {
 // =============================================
 
 Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
+    Route::get('/notifications', [NotificationController::class, 'adminIndex']);
     
     Route::get('/dashboard', [DashboardController::class, 'adminDashboard']);
     Route::get('/analytics', [DashboardController::class, 'adminAnalytics']);
