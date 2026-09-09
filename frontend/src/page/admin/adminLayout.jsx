@@ -8,6 +8,7 @@ import {
   BellOutlined,
   CloseOutlined,
   DashboardOutlined,
+  DollarOutlined,
   FileTextOutlined,
   LogoutOutlined,
   SafetyCertificateOutlined,
@@ -59,6 +60,12 @@ const navItems = [
     label: "Escrow Ledger",
     path: "/admin/escrow-ledger",
     icon: <BankOutlined />,
+  },
+  {
+    key: "payments",
+    label: "Payments & Proofs",
+    path: "/admin/payments",
+    icon: <DollarOutlined />,
   },
   {
     key: "mediationCases",
