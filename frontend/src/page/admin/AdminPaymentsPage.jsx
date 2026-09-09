@@ -92,7 +92,9 @@ const AdminPaymentsPage = () => {
 
   const handleVerifyPayment = async (paymentId, approved) => {
     try {
-      const reason = approved ? undefined : window.prompt("Rejection reason (optional)");
+      const reason = approved
+        ? undefined
+        : window.prompt("Rejection reason (optional)");
       if (!approved && reason === null) return;
 
       const response = await axios.post(
@@ -107,7 +109,9 @@ const AdminPaymentsPage = () => {
 
       if (response.data.success) {
         messageApi.success(
-          approved ? "Payment approved and both parties notified" : "Payment rejected",
+          approved
+            ? "Payment approved and both parties notified"
+            : "Payment rejected",
         );
         await fetchPayments();
         setDrawerVisible(false);
@@ -411,18 +415,36 @@ const AdminPaymentsPage = () => {
             {selectedPayment.payment_proof_path &&
               selectedPayment.payment_status !== "paid" &&
               selectedPayment.proof_verification_status !== "rejected" && (
-                <Space direction="vertical" style={{ width: "100%", marginTop: 16 }}>
+                <Space
+                  direction="vertical"
+                  style={{ width: "100%", marginTop: 16 }}
+                >
                   <strong>Payment Screenshot</strong>
                   <img
                     src={`${backendUrl.replace(/\/api\/?$/i, "")}/storage/${selectedPayment.payment_proof_path}`}
                     alt="Customer payment proof"
-                    style={{ width: "100%", maxHeight: 420, objectFit: "contain", border: "1px solid #ddd" }}
+                    style={{
+                      width: "100%",
+                      maxHeight: 420,
+                      objectFit: "contain",
+                      border: "1px solid #ddd",
+                    }}
                   />
                   <Space style={{ width: "100%" }}>
-                    <Button type="primary" onClick={() => handleVerifyPayment(selectedPayment.id, true)}>
+                    <Button
+                      type="primary"
+                      onClick={() =>
+                        handleVerifyPayment(selectedPayment.id, true)
+                      }
+                    >
                       Approve Payment
                     </Button>
-                    <Button danger onClick={() => handleVerifyPayment(selectedPayment.id, false)}>
+                    <Button
+                      danger
+                      onClick={() =>
+                        handleVerifyPayment(selectedPayment.id, false)
+                      }
+                    >
                       Reject Payment
                     </Button>
                   </Space>
