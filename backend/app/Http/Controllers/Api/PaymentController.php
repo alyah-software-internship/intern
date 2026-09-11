@@ -76,7 +76,8 @@ class PaymentController extends Controller
 
             $pendingProof = Payment::where('booking_id', $booking->id)
                 ->where('payment_type', 'rental')
-                ->where('status', 'pending_verification')
+                ->where('payment_status', 'pending')
+                ->where('proof_verification_status', 'pending')
                 ->exists();
             if ($pendingProof) {
                 return response()->json([
@@ -111,7 +112,7 @@ class PaymentController extends Controller
                 'payment_data' => $request->payment_data,
                 'payment_proof_path' => $proofPath,
                 'payment_proof_type' => 'screenshot',
-                'status' => 'pending_verification',
+                'status' => 'pending',
                 'payment_status' => 'pending',
                 'proof_verification_status' => 'pending',
             ]);
@@ -570,7 +571,7 @@ class PaymentController extends Controller
             $payment->update([
                 'payment_data' => json_encode($paymentData),
                 'payment_method' => $request->payment_method,
-                'status' => 'pending_verification',
+                'status' => 'pending',
                 'payment_status' => 'pending',
             ]);
 
