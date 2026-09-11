@@ -367,28 +367,7 @@ const Login = () => {
                     </Form.Item>
 
                     <Form.Item
-                      label={
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "flex-start",
-                            gap: 12,
-                          }}
-                        >
-                          <span style={{ lineHeight: 1.3 }}>{t.password}</span>
-                          <Link
-                            style={{
-                              fontSize: 14,
-                              fontWeight: 600,
-                              color: "#0ea5e9",
-                            }}
-                            to="/forgot-password"
-                          >
-                            {t.forgot}
-                          </Link>
-                        </div>
-                      }
+                      label={t.password}
                       name="password"
                       rules={[
                         {
@@ -404,6 +383,25 @@ const Login = () => {
                         style={{ borderRadius: 18, height: 56 }}
                       />
                     </Form.Item>
+
+                    <div
+                      style={{
+                        marginTop: -14,
+                        marginBottom: 18,
+                        textAlign: "right",
+                      }}
+                    >
+                      <Link
+                        style={{
+                          fontSize: 14,
+                          fontWeight: 600,
+                          color: "#0ea5e9",
+                        }}
+                        to="/forgot-password"
+                      >
+                        {t.forgot}
+                      </Link>
+                    </div>
 
                     <Form.Item
                       name="remember"
