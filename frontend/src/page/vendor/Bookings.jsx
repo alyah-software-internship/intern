@@ -67,18 +67,15 @@ const Bookings = () => {
       return trimmed;
     }
 
-    const cleanPath = trimmed.replace(/^\/+/, "");
-    const backendOrigin = backendUrl.replace(/\/api\/?$/i, "");
+    const backendOrigin = backendUrl
+      .replace(/\/api\/?$/i, "")
+      .replace(/\/$/, "");
+    const cleanPath = trimmed
+      .replace(/^public\//i, "")
+      .replace(/^\/?storage\//i, "")
+      .replace(/^\/+/, "");
 
-    if (cleanPath.startsWith("storage/")) {
-      return `${backendOrigin || "http://127.0.0.1:8000"}/` + cleanPath;
-    }
-
-    if (backendOrigin) {
-      return `${backendOrigin}/storage/${cleanPath}`;
-    }
-
-    return `http://127.0.0.1:8000/storage/${cleanPath}`;
+    return `${backendOrigin || "http://127.0.0.1:8000"}/storage/${cleanPath}`;
   };
 
   const fetchBookings = useCallback(
@@ -288,7 +285,7 @@ const Bookings = () => {
             preview={false}
             loading="lazy"
             fallback="/logo.png"
-            style={{ borderRadius: 10, objectFit: "cover" }}
+            className="vendor-booking-product-image"
           />
           <Text strong style={{ color: isDark ? "#f8fafc" : "#111827" }}>
             {record.productName}
@@ -391,11 +388,12 @@ const Bookings = () => {
       dataIndex: "actions",
       key: "actions",
       render: (_, record) => (
-        <Space size={8} wrap>
+        <Space className="vendor-booking-actions" size={8} wrap>
           {String(record.checkoutStatus).toLowerCase() === "pending" && (
             <Button
               type="primary"
               size="small"
+              className="vendor-booking-action vendor-booking-action--approve"
               icon={<CheckOutlined />}
               loading={approvingBookingId === record.bookingId}
               disabled={Boolean(approvingBookingId)}
@@ -407,13 +405,9 @@ const Bookings = () => {
           <Button
             type="text"
             size="small"
+            className="vendor-booking-action vendor-booking-action--message"
             icon={<MessageOutlined />}
             title="Chat with customer"
-            style={{
-              color: "#2563eb",
-              border: "1px solid rgba(37, 99, 235, 0.2)",
-              background: isDark ? "rgba(59, 130, 246, 0.12)" : "#eff6ff",
-            }}
             onClick={() =>
               navigate("/vendor/messages", {
                 state: {
@@ -430,7 +424,7 @@ const Bookings = () => {
           <Button
             type="default"
             size="small"
-            style={{ borderColor: "#60a5fa" }}
+            className="vendor-booking-action vendor-booking-action--returned"
             loading={returningBookingId === record.bookingId}
             disabled={Boolean(approvingBookingId || returningBookingId)}
             onClick={() => handleReturnedClean(record.bookingId)}
@@ -440,6 +434,7 @@ const Bookings = () => {
           <Button
             danger
             size="small"
+            className="vendor-booking-action vendor-booking-action--damage"
             icon={<FileProtectOutlined />}
             disabled={Boolean(approvingBookingId || returningBookingId)}
             onClick={() => setDamageBooking(record)}
