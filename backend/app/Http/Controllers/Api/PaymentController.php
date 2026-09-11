@@ -11,6 +11,7 @@ use App\Models\Refund;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class PaymentController extends Controller
 {
@@ -105,6 +106,7 @@ class PaymentController extends Controller
                 'amount' => $booking->total_amount,
                 'payment_type' => 'rental',
                 'payment_method' => $request->payment_method,
+                'transaction_id' => 'MANUAL-' . Str::upper(Str::random(24)),
                 'payment_data' => $request->payment_data,
                 'payment_proof_path' => $proofPath,
                 'payment_proof_type' => 'screenshot',

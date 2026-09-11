@@ -510,13 +510,20 @@ const PaymentPage = () => {
     formData.append("payment_data[initiated_from]", "customer_payment_page");
     formData.append("payment_data[proof_file_name]", screenshot.name || "");
 
-    await axios.post(`${backendUrl}/bookings/${bookingId}/pay`, formData, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-      },
-    });
-    messageApi.success("Payment proof submitted for admin verification.");
-    navigate("/bookings");
+    try {
+      await axios.post(`${backendUrl}/bookings/${bookingId}/pay`, formData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+      });
+      messageApi.success("Payment proof submitted for admin verification.");
+      navigate("/bookings");
+    } catch (requestError) {
+      messageApi.error(
+        requestError.response?.data?.message ||
+          "Payment submission failed. Please try again.",
+      );
+    }
   };
 
   if (loading)
