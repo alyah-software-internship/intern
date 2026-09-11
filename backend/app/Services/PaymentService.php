@@ -171,20 +171,28 @@ class PaymentService
                 'payment_id' => $payment->id,
             ]);
 
-            $this->notificationService->paymentReceived($booking->customer_id, [
-                'amount' => $payment->amount,
-                'reference' => $booking->booking_reference,
-                'link' => "/booking-details/{$booking->id}",
-            ]);
-            $this->notificationService->createNotification(
-                $vendor->user_id,
-                'payment_approved',
-                'Payment Approved',
-                "Payment for booking #{$booking->booking_reference} was verified. The customer can collect the item.",
-                "/vendor/bookings/{$booking->id}",
-                'high',
-                'payment'
-            );
+            try {
+                $this->notificationService->paymentReceived($booking->customer_id, [
+                    'amount' => $payment->amount,
+                    'reference' => $booking->booking_reference,
+                    'link' => "/booking-details/{$booking->id}",
+                ]);
+                $this->notificationService->createNotification(
+                    $vendor->user_id,
+                    'payment_approved',
+                    'Payment Approved',
+                    "Payment for booking #{$booking->booking_reference} was verified. The customer can collect the item.",
+                    "/vendor/bookings/{$booking->id}",
+                    'high',
+                    'payment'
+                );
+            } catch (\Throwable $notificationError) {
+                Log::warning('Payment approved but notifications could not be created', [
+                    'payment_id' => $payment->id,
+                    'booking_id' => $booking->id,
+                    'error' => $notificationError->getMessage(),
+                ]);
+            }
 
             return $payment->fresh(['booking', 'customer', 'vendor']);
         });
@@ -214,25 +222,33 @@ class PaymentService
 
             if ($payment->booking) {
                 $payment->booking->update(['payment_status' => 'failed']);
-                $this->notificationService->createNotification(
-                    $payment->booking->customer_id,
-                    'payment_rejected',
-                    'Payment Proof Rejected',
-                    "Payment proof for booking #{$payment->booking->booking_reference} was rejected. " . ($reason ?: 'Please submit a valid proof.'),
-                    "/payment/{$payment->booking->id}",
-                    'high',
-                    'payment'
-                );
-                if ($payment->booking->vendor) {
+                try {
                     $this->notificationService->createNotification(
-                        $payment->booking->vendor->user_id,
+                        $payment->booking->customer_id,
                         'payment_rejected',
                         'Payment Proof Rejected',
-                        "Payment proof for booking #{$payment->booking->booking_reference} was rejected by the admin.",
-                        "/vendor/bookings/{$payment->booking->id}",
+                        "Payment proof for booking #{$payment->booking->booking_reference} was rejected. " . ($reason ?: 'Please submit a valid proof.'),
+                        "/payment/{$payment->booking->id}",
                         'high',
                         'payment'
                     );
+                    if ($payment->booking->vendor) {
+                        $this->notificationService->createNotification(
+                            $payment->booking->vendor->user_id,
+                            'payment_rejected',
+                            'Payment Proof Rejected',
+                            "Payment proof for booking #{$payment->booking->booking_reference} was rejected by the admin.",
+                            "/vendor/bookings/{$payment->booking->id}",
+                            'high',
+                            'payment'
+                        );
+                    }
+                } catch (\Throwable $notificationError) {
+                    Log::warning('Payment rejected but notifications could not be created', [
+                        'payment_id' => $payment->id,
+                        'booking_id' => $payment->booking->id,
+                        'error' => $notificationError->getMessage(),
+                    ]);
                 }
             }
 
