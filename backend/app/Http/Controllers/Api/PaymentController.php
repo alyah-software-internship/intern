@@ -11,6 +11,7 @@ use App\Models\Refund;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class PaymentController extends Controller
@@ -142,7 +143,13 @@ class PaymentController extends Controller
                 'booking' => $booking->fresh(),
             ]);
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
+            Log::error('Manual payment submission failed', [
+                'booking_id' => $bookingId,
+                'user_id' => $request->user()?->id,
+                'exception' => $e,
+            ]);
+
             return response()->json([
                 'success' => false,
                 'message' => 'Payment processing failed',
