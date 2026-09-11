@@ -495,6 +495,29 @@ const AdminPaymentsPage = () => {
                   >
                     <EyeOutlined /> View Full Image
                   </a>
+                  {selectedPayment.payment_status !== "paid" &&
+                  selectedPayment.proof_verification_status !== "rejected" ? (
+                    <div className="detail-actions proof-card-actions">
+                      <Button
+                        type="primary"
+                        icon={<CheckOutlined />}
+                        onClick={() =>
+                          handleVerifyPayment(selectedPayment.id, true)
+                        }
+                      >
+                        Approve Payment
+                      </Button>
+                      <Button
+                        danger
+                        icon={<CloseCircleOutlined />}
+                        onClick={() =>
+                          handleVerifyPayment(selectedPayment.id, false)
+                        }
+                      >
+                        Reject
+                      </Button>
+                    </div>
+                  ) : null}
                 </>
               ) : (
                 <div className="proof-missing">
@@ -503,30 +526,7 @@ const AdminPaymentsPage = () => {
               )}
             </div>
             <div className="detail-actions">
-              {selectedPayment.payment_status !== "paid" &&
-              selectedPayment.proof_verification_status !== "rejected" &&
-              selectedPayment.payment_proof_path ? (
-                <>
-                  <Button
-                    type="primary"
-                    icon={<CheckOutlined />}
-                    onClick={() =>
-                      handleVerifyPayment(selectedPayment.id, true)
-                    }
-                  >
-                    Approve Payment
-                  </Button>
-                  <Button
-                    danger
-                    icon={<CloseCircleOutlined />}
-                    onClick={() =>
-                      handleVerifyPayment(selectedPayment.id, false)
-                    }
-                  >
-                    Reject
-                  </Button>
-                </>
-              ) : selectedPayment.payment_status === "paid" ? (
+              {selectedPayment.payment_status === "paid" ? (
                 <Button
                   danger
                   icon={<UndoOutlined />}
