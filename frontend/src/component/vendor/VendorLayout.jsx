@@ -70,7 +70,7 @@ const VendorLayout = () => {
       return null;
     }
   });
-  const [unreadNotifications, setUnreadNotifications] = useState(0);
+  const unreadNotifications = 3;
   const [pendingBookings, setPendingBookings] = useState(0);
   const sidebarVisible = !isMobile || sidebarOpen;
 
@@ -117,16 +117,11 @@ const VendorLayout = () => {
       Authorization: `Bearer ${localStorage.getItem("authToken")}`,
     };
 
-    Promise.all([
-      axios.get(`${backendUrl}/notifications/unread-count`, { headers }),
-      axios.get(`${backendUrl}/vendor/bookings`, { headers }),
-    ])
-      .then(([notificationResponse, bookingResponse]) => {
+    axios
+      .get(`${backendUrl}/vendor/bookings`, { headers })
+      .then((bookingResponse) => {
         if (!isCurrent) return;
 
-        setUnreadNotifications(
-          Number(notificationResponse.data?.unread_count || 0),
-        );
         const bookings =
           bookingResponse.data?.bookings || bookingResponse.data?.data || [];
         setPendingBookings(
@@ -139,7 +134,6 @@ const VendorLayout = () => {
       })
       .catch(() => {
         if (!isCurrent) return;
-        setUnreadNotifications(0);
         setPendingBookings(0);
       });
 
