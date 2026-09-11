@@ -519,8 +519,14 @@ const PaymentPage = () => {
       messageApi.success("Payment proof submitted for admin verification.");
       navigate("/bookings");
     } catch (requestError) {
+      const validationMessage = Object.values(
+        requestError.response?.data?.errors || {},
+      )
+        .flat()
+        .join(" ");
       messageApi.error(
-        requestError.response?.data?.message ||
+        validationMessage ||
+          requestError.response?.data?.message ||
           "Payment submission failed. Please try again.",
       );
     }

@@ -371,11 +371,23 @@ const BookingPaymentStep = ({
                           ) : (
                             <Upload.Dragger
                               multiple={false}
-                              accept="image/*"
+                              accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
                               beforeUpload={(file) => {
                                 if (file.size > 5 * 1024 * 1024) {
                                   message.error(
                                     "File size must be less than 5MB",
+                                  );
+                                  return Upload.LIST_IGNORE;
+                                }
+                                if (
+                                  ![
+                                    "image/jpeg",
+                                    "image/png",
+                                    "image/webp",
+                                  ].includes(file.type)
+                                ) {
+                                  message.error(
+                                    "Please upload a JPG, PNG, or WEBP image.",
                                   );
                                   return Upload.LIST_IGNORE;
                                 }
@@ -397,7 +409,7 @@ const BookingPaymentStep = ({
                                 Click to upload or drag screenshot here
                               </Text>
                               <p style={{ color: "#6b7280", fontSize: 12 }}>
-                                PNG, JPG, GIF (Max 5MB)
+                                PNG, JPG, WEBP (Max 5MB)
                               </p>
                             </Upload.Dragger>
                           )}
