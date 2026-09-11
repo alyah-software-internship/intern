@@ -1,14 +1,5 @@
-import React from "react";
-import {
-  Layout,
-  Row,
-  Col,
-  Typography,
-  Space,
-  Divider,
-  Grid,
-  Button,
-} from "antd";
+import { useEffect, useState } from "react";
+import { Layout, Row, Col, Typography, Space, Divider, Button } from "antd";
 import {
   FacebookOutlined,
   TwitterOutlined,
@@ -20,12 +11,20 @@ import { useTranslation } from "../LanguageProvider.jsx";
 
 const { Footer } = Layout;
 const { Title, Text, Paragraph } = Typography;
-const { useBreakpoint } = Grid;
 
 const FooterLink = () => {
   const { translation: t } = useTranslation();
-  const screens = useBreakpoint();
-  const isMobile = !screens.md;
+  const [isMobile, setIsMobile] = useState(
+    () => window.matchMedia("(max-width: 767px)").matches,
+  );
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 767px)");
+    const handleViewportChange = (event) => setIsMobile(event.matches);
+
+    mediaQuery.addEventListener("change", handleViewportChange);
+    return () => mediaQuery.removeEventListener("change", handleViewportChange);
+  }, []);
 
   const footerSections = [
     {

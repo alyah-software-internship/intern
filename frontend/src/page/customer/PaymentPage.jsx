@@ -513,7 +513,6 @@ const PaymentPage = () => {
     await axios.post(`${backendUrl}/bookings/${bookingId}/pay`, formData, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-        "Content-Type": "multipart/form-data",
       },
     });
     messageApi.success("Payment proof submitted for admin verification.");

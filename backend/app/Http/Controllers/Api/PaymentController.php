@@ -90,6 +90,13 @@ class PaymentController extends Controller
                 ], 409);
             }
 
+            if (!$booking->vendor || !$booking->vendor->user_id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'This booking has no valid vendor account for payment notifications.',
+                ], 409);
+            }
+
             $proofPath = $request->file('payment_proof')->store('payment-proofs', 'public');
             $payment = Payment::create([
                 'booking_id' => $booking->id,
