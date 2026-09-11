@@ -2015,6 +2015,9 @@ html.dark .text-slate-500,
   font-size: 11px;
   font-weight: 700;
 }
+.proof-card-actions .ant-btn {
+  font-size: 13px;
+}
 .payment-proof-image {
   max-height: 150px;
   object-fit: contain;
