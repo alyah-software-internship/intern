@@ -1,4 +1,10 @@
-import React, { useContext, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import axios from "axios";
 import {
   Row,
@@ -75,37 +81,42 @@ const Bookings = () => {
     return `http://127.0.0.1:8000/storage/${cleanPath}`;
   };
 
-  useEffect(() => {
-    let isCurrent = true;
-
-    axios
-      .get(`${backendUrl}/vendor/bookings`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-        },
-      })
-      .then((response) => {
-        if (!isCurrent) return;
-
+  const fetchBookings = useCallback(
+    async (showError = true) => {
+      try {
+        const response = await axios.get(`${backendUrl}/vendor/bookings`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+        });
         const rows = response.data?.bookings || response.data?.data || [];
         setBookingsList(Array.isArray(rows) ? rows : []);
-      })
-      .catch((error) => {
-        if (!isCurrent) return;
+      } catch (error) {
         console.error("Failed to fetch vendor bookings:", error);
-        messageApi.error(
-          error.response?.data?.message || "Unable to load vendor bookings.",
-        );
-        setBookingsList([]);
-      })
-      .finally(() => {
-        if (isCurrent) setLoading(false);
-      });
+        if (showError) {
+          messageApi.error(
+            error.response?.data?.message || "Unable to load vendor bookings.",
+          );
+        }
+      } finally {
+        setLoading(false);
+      }
+    },
+    [backendUrl, messageApi],
+  );
+
+  useEffect(() => {
+    const initialRefresh = window.setTimeout(() => fetchBookings(), 0);
+    const refreshTimer = window.setInterval(() => fetchBookings(false), 30000);
+    const handleFocus = () => fetchBookings(false);
+    window.addEventListener("focus", handleFocus);
 
     return () => {
-      isCurrent = false;
+      window.clearTimeout(initialRefresh);
+      window.clearInterval(refreshTimer);
+      window.removeEventListener("focus", handleFocus);
     };
-  }, [backendUrl, messageApi]);
+  }, [fetchBookings]);
 
   const pendingCount = useMemo(
     () =>
@@ -253,6 +264,8 @@ const Bookings = () => {
           startDate: startDate ? new Date(startDate).toLocaleDateString() : "-",
           endDate: endDate ? new Date(endDate).toLocaleDateString() : "-",
           checkoutStatus: booking.status || "pending",
+          paymentStatus:
+            booking.payment_status || booking.paymentStatus || "pending",
           escrowHolding: booking.security_deposit_amount
             ? `$${Number(booking.security_deposit_amount).toFixed(2)}`
             : "$0.00",
@@ -330,6 +343,35 @@ const Bookings = () => {
             }}
           >
             {status}
+          </Tag>
+        );
+      },
+    },
+    {
+      title: "PAYMENT STATUS",
+      dataIndex: "paymentStatus",
+      key: "paymentStatus",
+      render: (status) => {
+        const normalized = String(status || "pending").toLowerCase();
+        const tagColor =
+          normalized === "paid"
+            ? "green"
+            : normalized === "failed" || normalized === "rejected"
+              ? "red"
+              : normalized === "processing"
+                ? "blue"
+                : "gold";
+
+        return (
+          <Tag
+            color={tagColor}
+            style={{
+              borderRadius: 6,
+              fontWeight: 700,
+              textTransform: "uppercase",
+            }}
+          >
+            {normalized === "failed" ? "REJECTED" : normalized}
           </Tag>
         );
       },
