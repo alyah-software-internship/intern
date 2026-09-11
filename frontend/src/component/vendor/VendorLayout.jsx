@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { Badge, Button, Card, Space, Tag, Tooltip, Typography } from "antd";
@@ -70,7 +70,7 @@ const VendorLayout = () => {
       return null;
     }
   });
-  const unreadNotifications = 3;
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [pendingBookings, setPendingBookings] = useState(0);
   const sidebarVisible = !isMobile || sidebarOpen;
 
@@ -111,36 +111,46 @@ const VendorLayout = () => {
     return () => controller.abort();
   }, [backendUrl]);
 
-  useEffect(() => {
-    let isCurrent = true;
+  const refreshVendorCounters = useCallback(async () => {
     const headers = {
       Authorization: `Bearer ${localStorage.getItem("authToken")}`,
     };
 
-    axios
-      .get(`${backendUrl}/vendor/bookings`, { headers })
-      .then((bookingResponse) => {
-        if (!isCurrent) return;
+    try {
+      const [notificationResponse, bookingResponse] = await Promise.all([
+        axios.get(`${backendUrl}/notifications/unread-count`, { headers }),
+        axios.get(`${backendUrl}/vendor/bookings`, { headers }),
+      ]);
+      setUnreadNotifications(
+        Number(notificationResponse.data?.unread_count || 0),
+      );
+      const bookings =
+        bookingResponse.data?.bookings || bookingResponse.data?.data || [];
+      setPendingBookings(
+        Array.isArray(bookings)
+          ? bookings.filter(
+              (booking) => String(booking.status).toLowerCase() === "pending",
+            ).length
+          : 0,
+      );
+    } catch {
+      setUnreadNotifications(0);
+      setPendingBookings(0);
+    }
+  }, [backendUrl]);
 
-        const bookings =
-          bookingResponse.data?.bookings || bookingResponse.data?.data || [];
-        setPendingBookings(
-          Array.isArray(bookings)
-            ? bookings.filter(
-                (booking) => String(booking.status).toLowerCase() === "pending",
-              ).length
-            : 0,
-        );
-      })
-      .catch(() => {
-        if (!isCurrent) return;
-        setPendingBookings(0);
-      });
+  useEffect(() => {
+    const initialRefresh = window.setTimeout(refreshVendorCounters, 0);
+    const refreshTimer = window.setInterval(refreshVendorCounters, 30000);
+    const handleFocus = () => refreshVendorCounters();
+    window.addEventListener("focus", handleFocus);
 
     return () => {
-      isCurrent = false;
+      window.clearTimeout(initialRefresh);
+      window.clearInterval(refreshTimer);
+      window.removeEventListener("focus", handleFocus);
     };
-  }, [backendUrl]);
+  }, [refreshVendorCounters]);
 
   const toggleSidebar = () => {
     if (isMobile) {
