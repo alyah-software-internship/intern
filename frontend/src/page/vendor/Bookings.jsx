@@ -23,21 +23,21 @@ import {
 } from "antd";
 import {
   CheckOutlined,
+  CheckCircleFilled,
+  CalendarOutlined,
+  ClockCircleOutlined,
+  CloseCircleFilled,
+  DollarOutlined,
+  DownloadOutlined,
   FileProtectOutlined,
   MessageOutlined,
+  SearchOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../../context/ThemeProvider.jsx";
 import { AppContext } from "../../context/AppContext.jsx";
 
 const { Title, Text } = Typography;
-
-const checkoutStatusColors = {
-  working_in_field: "green",
-  returned: "blue",
-  damaged: "red",
-  pending: "gold",
-};
 
 const Bookings = () => {
   const { theme } = useTheme();
@@ -50,6 +50,8 @@ const Bookings = () => {
   const [returningBookingId, setReturningBookingId] = useState(null);
   const [damageBooking, setDamageBooking] = useState(null);
   const [damageSubmitting, setDamageSubmitting] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [messageApi, contextHolder] = message.useMessage();
   const [damageForm] = Form.useForm();
 
@@ -122,6 +124,21 @@ const Bookings = () => {
       ).length,
     [bookingsList],
   );
+
+  const bookingStats = useMemo(() => {
+    const confirmed = bookingsList.filter(
+      (booking) => String(booking.status).toLowerCase() === "confirmed",
+    ).length;
+    const cancelled = bookingsList.filter(
+      (booking) => String(booking.status).toLowerCase() === "cancelled",
+    ).length;
+    const revenue = bookingsList.reduce(
+      (total, booking) => total + Number(booking.total_amount || 0),
+      0,
+    );
+
+    return { confirmed, cancelled, revenue };
+  }, [bookingsList]);
 
   const handleApprove = async (bookingId) => {
     if (approvingBookingId) return;
@@ -263,6 +280,10 @@ const Bookings = () => {
           checkoutStatus: booking.status || "pending",
           paymentStatus:
             booking.payment_status || booking.paymentStatus || "pending",
+          bookingReference:
+            booking.booking_reference ||
+            `BK-${String(booking.id).padStart(5, "0")}`,
+          amount: Number(booking.total_amount || booking.amount || 0),
           escrowHolding: booking.security_deposit_amount
             ? `$${Number(booking.security_deposit_amount).toFixed(2)}`
             : "$0.00",
@@ -271,7 +292,59 @@ const Bookings = () => {
     [bookingsList, normalizeImageUrl],
   );
 
+  const filteredRows = useMemo(() => {
+    const query = searchTerm.trim().toLowerCase();
+    return activeRows.filter((row) => {
+      const matchesSearch =
+        !query ||
+        [row.bookingReference, row.productName, row.customerName, row.bookingId]
+          .join(" ")
+          .toLowerCase()
+          .includes(query);
+      const matchesStatus =
+        statusFilter === "all" ||
+        String(row.checkoutStatus).toLowerCase() === statusFilter;
+      return matchesSearch && matchesStatus;
+    });
+  }, [activeRows, searchTerm, statusFilter]);
+
+  const handleExport = () => {
+    const header = [
+      "Booking ID",
+      "Product",
+      "Customer",
+      "Status",
+      "Payment",
+      "Amount",
+    ];
+    const rows = filteredRows.map((row) => [
+      row.bookingReference,
+      row.productName,
+      row.customerName,
+      row.checkoutStatus,
+      row.paymentStatus,
+      row.amount.toFixed(2),
+    ]);
+    const csv = [header, ...rows]
+      .map((row) =>
+        row.map((value) => `"${String(value).replace(/"/g, '""')}"`).join(","),
+      )
+      .join("\n");
+    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "vendor-bookings.csv";
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
   const columns = [
+    {
+      title: "BOOKING ID",
+      dataIndex: "bookingReference",
+      key: "bookingReference",
+      render: (value) => <Text className="vendor-booking-id">#{value}</Text>,
+    },
     {
       title: "RENTED PRODUCT",
       dataIndex: "productName",
@@ -310,6 +383,19 @@ const Bookings = () => {
       render: (_, record) => (
         <Text style={{ color: isDark ? "#cbd5e1" : "#374151" }}>
           {record.startDate} to {record.endDate}
+        </Text>
+      ),
+    },
+    {
+      title: "AMOUNT",
+      dataIndex: "amount",
+      key: "amount",
+      render: (value) => (
+        <Text strong style={{ color: isDark ? "#f8fafc" : "#16213b" }}>
+          ETB{" "}
+          {Number(value).toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+          })}
         </Text>
       ),
     },
@@ -447,93 +533,121 @@ const Bookings = () => {
   ];
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        padding: 28,
-        background: isDark ? "#060b17" : "#f4f8fd",
-      }}
-    >
+    <div className="vendor-booking-page">
       {contextHolder}
-      <Row gutter={[20, 20]}>
+      <Row className="vendor-booking-shell" gutter={[20, 20]}>
         <Col xs={24}>
-          <Title
-            level={2}
-            style={{ marginBottom: 4, color: isDark ? "#f8fafc" : "#0f172a" }}
-          >
-            Reservations Ledger
-          </Title>
-          <Text style={{ color: isDark ? "#94a3b8" : "#64748b", fontSize: 16 }}>
-            Approve or reject customer booking requests, change checkout states,
-            and assess returned damages.
-          </Text>
-        </Col>
-
-        <Col xs={24}>
-          <Card
-            style={{
-              borderRadius: 18,
-              background: isDark ? "#0f172a" : "#ffffff",
-              border: isDark
-                ? "1px solid rgba(255,255,255,0.08)"
-                : "1px solid rgba(15,23,42,0.08)",
-            }}
-          >
-            <Space align="center" size={10}>
-              <span
-                style={{
-                  width: 12,
-                  height: 12,
-                  borderRadius: "50%",
-                  background: "#f59e0b",
-                  display: "inline-block",
-                }}
-              />
-              <Text strong style={{ color: isDark ? "#f8fafc" : "#111827" }}>
-                INCOMING PENDING APPROVALS
-              </Text>
-            </Space>
-            <div
-              style={{
-                marginTop: 18,
-                paddingTop: 32,
-                textAlign: "center",
-                color: isDark ? "#94a3b8" : "#64748b",
-                fontStyle: "italic",
-              }}
-            >
-              {pendingCount > 0
-                ? `${pendingCount} customer request(s) pending approval.`
-                : "No pending customer requests at the moment."}
+          <div className="vendor-booking-hero">
+            <div className="vendor-booking-hero-icon">
+              <CalendarOutlined />
             </div>
-          </Card>
+            <div>
+              <Title level={2}>Bookings</Title>
+              <Text>
+                Manage and track all reservations across your listings.
+              </Text>
+            </div>
+            <Button
+              className="vendor-booking-export"
+              icon={<DownloadOutlined />}
+              onClick={handleExport}
+            >
+              Export
+            </Button>
+          </div>
         </Col>
 
         <Col xs={24}>
-          <Card
-            style={{
-              borderRadius: 18,
-              background: isDark ? "#0f172a" : "#ffffff",
-              border: isDark
-                ? "1px solid rgba(255,255,255,0.08)"
-                : "1px solid rgba(15,23,42,0.08)",
-            }}
-          >
-            <Text strong style={{ color: isDark ? "#f8fafc" : "#111827" }}>
-              ACTIVE FIELD LEASES & PICKUPS
-            </Text>
+          <div className="vendor-booking-stat-grid">
+            <div className="vendor-booking-stat stat-blue">
+              <span>
+                <CalendarOutlined />
+              </span>
+              <small>Total Bookings</small>
+              <strong>{bookingsList.length}</strong>
+            </div>
+            <div className="vendor-booking-stat stat-green">
+              <span>
+                <CheckCircleFilled />
+              </span>
+              <small>Confirmed</small>
+              <strong>{bookingStats.confirmed}</strong>
+            </div>
+            <div className="vendor-booking-stat stat-orange">
+              <span>
+                <ClockCircleOutlined />
+              </span>
+              <small>Pending</small>
+              <strong>{pendingCount}</strong>
+            </div>
+            <div className="vendor-booking-stat stat-red">
+              <span>
+                <CloseCircleFilled />
+              </span>
+              <small>Cancelled</small>
+              <strong>{bookingStats.cancelled}</strong>
+            </div>
+            <div className="vendor-booking-stat stat-purple">
+              <span>
+                <DollarOutlined />
+              </span>
+              <small>Total Revenue</small>
+              <strong>
+                ETB{" "}
+                {bookingStats.revenue.toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                })}
+              </strong>
+            </div>
+          </div>
+        </Col>
 
-            <div style={{ marginTop: 16 }}>
+        <Col xs={24}>
+          <Card className="vendor-booking-ledger-card">
+            <div className="vendor-booking-ledger-heading">
+              <div>
+                <Title level={4}>Reservations Ledger</Title>
+                <Text>
+                  A detailed record of all reservations, status, and payment
+                  information.
+                </Text>
+              </div>
+              <Text className="vendor-booking-pending-note">
+                {pendingCount} pending approval{pendingCount === 1 ? "" : "s"}
+              </Text>
+            </div>
+            <div className="vendor-booking-toolbar">
+              <Input
+                prefix={<SearchOutlined />}
+                placeholder="Search by product, customer, or booking ID..."
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.target.value)}
+              />
+              <select
+                value={statusFilter}
+                onChange={(event) => setStatusFilter(event.target.value)}
+                aria-label="Filter booking status"
+              >
+                <option value="all">All statuses</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="pending">Pending</option>
+                <option value="completed">Completed</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </div>
+            <div className="vendor-booking-table-wrap">
               <Table
                 columns={columns}
-                dataSource={activeRows}
+                dataSource={filteredRows}
                 loading={loading}
                 pagination={false}
                 rowKey="key"
                 scroll={{ x: 900 }}
                 locale={{ emptyText: "No bookings found." }}
-                style={{ background: isDark ? "#0f172a" : "#ffffff" }}
               />
+            </div>
+            <div className="vendor-booking-ledger-footer">
+              Showing {filteredRows.length} of {bookingsList.length} bookings
             </div>
           </Card>
         </Col>
