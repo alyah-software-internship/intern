@@ -141,9 +141,18 @@ const AdminPaymentsPage = () => {
     payment.vendor?.business_name ||
     payment.vendor?.user?.full_name ||
     "Unknown vendor";
-  const proofUrl = selectedPayment?.payment_proof_path
-    ? `${backendUrl.replace(/\/api\/?$/i, "")}/storage/${selectedPayment.payment_proof_path}`
-    : null;
+  const proofUrl = (() => {
+    const proofPath = selectedPayment?.payment_proof_path;
+    if (!proofPath) return null;
+    if (/^https?:\/\//i.test(proofPath)) return proofPath;
+
+    const apiOrigin = backendUrl.replace(/\/api\/?$/i, "").replace(/\/$/, "");
+    const normalizedPath = String(proofPath)
+      .replace(/^public\//i, "")
+      .replace(/^\/?storage\//i, "");
+
+    return `${apiOrigin}/storage/${normalizedPath}`;
+  })();
   const pendingCount = payments.filter(
     (payment) =>
       payment.payment_status === "pending" ||
@@ -486,7 +495,16 @@ const AdminPaymentsPage = () => {
                     className="payment-proof-image"
                     src={proofUrl}
                     alt="Uploaded customer payment proof"
+                    onError={(event) => {
+                      event.currentTarget.style.display = "none";
+                      event.currentTarget.nextElementSibling?.classList.add(
+                        "is-visible",
+                      );
+                    }}
                   />
+                  <div className="proof-image-error">
+                    Payment proof could not be loaded.
+                  </div>
                   <a
                     className="proof-image-link"
                     href={proofUrl}

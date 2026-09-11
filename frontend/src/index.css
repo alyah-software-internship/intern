@@ -1805,6 +1805,17 @@ html.dark .text-slate-500,
   object-fit: contain;
   background: #f6f9fc;
 }
+.proof-image-error {
+  display: none;
+  padding: 14px;
+  color: #8ca0b6;
+  background: #f7fafc;
+  font-size: 10px;
+  text-align: center;
+}
+.proof-image-error.is-visible {
+  display: block;
+}
 .proof-image-link {
   display: inline-flex;
   gap: 5px;
