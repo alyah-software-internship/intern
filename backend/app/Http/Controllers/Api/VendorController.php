@@ -238,7 +238,7 @@ class VendorController extends Controller
             ]);
 
             $vendor->update([
-                'identity_verified' => true,
+                'identity_verified' => false,
                 'verification_status' => 'pending',
                 'is_active' => false,
                 'verification_approved_at' => null,

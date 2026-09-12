@@ -151,6 +151,15 @@ class IdentityDocument extends Model
             'identity_verified' => true,
             'identity_verified_at' => now(),
         ]);
+
+        if ($this->user->vendorProfile) {
+            $this->user->vendorProfile->update([
+                'identity_verified' => true,
+                'verification_status' => 'approved',
+                'is_active' => true,
+                'verification_approved_at' => now(),
+            ]);
+        }
     }
 
     public function reject($adminId, $reason)
@@ -161,6 +170,14 @@ class IdentityDocument extends Model
             'verified_at' => now(),
             'rejection_reason' => $reason,
         ]);
+
+        if ($this->user->vendorProfile) {
+            $this->user->vendorProfile->update([
+                'identity_verified' => false,
+                'verification_status' => 'rejected',
+                'is_active' => false,
+            ]);
+        }
     }
 
     public function setAsPrimary()

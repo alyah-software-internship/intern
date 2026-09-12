@@ -460,17 +460,18 @@ const Vendor = () => {
         items={[
           {
             key: "pending",
-            label: `Pending Vendors (${filteredPendingVendors.length})`,
+            label: `Pending Verification (${filteredPendingVendors.length})`,
             children: (
               <Card className="admin-vendors-card">
                 <div className="admin-vendors-heading">
                   <div>
                     <Text className="admin-vendors-eyebrow">
-                      VENDOR APPLICATIONS
+                      VERIFICATION QUEUE
                     </Text>
-                    <Title level={2}>Pending Registrations</Title>
+                    <Title level={2}>Pending Verification</Title>
                     <Text type="secondary">
-                      Review and approve or reject new vendor applications.
+                      Review submitted documents and approve or reject
+                      verification.
                     </Text>
                   </div>
                   <Space>
@@ -497,7 +498,7 @@ const Vendor = () => {
                   loading={loading}
                   pagination={{ pageSize: 10 }}
                   scroll={{ x: 1000 }}
-                  locale={{ emptyText: "No pending vendors." }}
+                  locale={{ emptyText: "No pending verification requests." }}
                 />
               </Card>
             ),
@@ -551,7 +552,7 @@ const Vendor = () => {
 
       {/* Reject Modal */}
       <Modal
-        title="Reject Vendor Application"
+        title="Reject Verification"
         open={rejectModal.visible}
         onOk={handleRejectVendor}
         onCancel={() => {
@@ -574,7 +575,7 @@ const Vendor = () => {
           >
             <Input.TextArea
               rows={4}
-              placeholder="Explain why this vendor application is being rejected..."
+              placeholder="Explain why this verification is being rejected..."
             />
           </Form.Item>
         </Form>
