@@ -513,7 +513,8 @@ const VerificationCard = ({
   onSubmit,
   onView,
 }) => {
-  const verified = status === "verified";
+  const hasDocuments = Array.isArray(documents) && documents.length > 0;
+  const verified = status === "verified" && hasDocuments;
   const pending = status === "pending" || status === "under_review";
   const items =
     verified || pending
