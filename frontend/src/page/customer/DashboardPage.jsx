@@ -1,15 +1,73 @@
-import { Row, Col, Card, Typography, Space, Button } from "antd";
+import { useContext, useEffect, useState } from "react";
+import axios from "axios";
+import { Row, Col, Card, Typography, Space, Button, message, Spin } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "../../component/LanguageProvider.jsx";
 import { useTheme } from "../../context/ThemeProvider.jsx";
+import { AppContext } from "../../context/AppContext.jsx";
 
 const { Title, Text, Paragraph } = Typography;
 
 const DashboardPage = () => {
   const navigate = useNavigate();
   const { translation: t } = useTranslation();
+  const { backendUrl, user } = useContext(AppContext);
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const [dashboardData, setDashboardData] = useState({
+    stats: null,
+    bookings: [],
+    wishlistCount: 0,
+  });
+  const [loading, setLoading] = useState(true);
+  const [messageApi, contextHolder] = message.useMessage();
+
+  useEffect(() => {
+    const loadDashboard = async () => {
+      const token = localStorage.getItem("authToken");
+      if (!token || !backendUrl) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const headers = { Authorization: `Bearer ${token}` };
+        const [statsResponse, bookingsResponse, wishlistResponse] =
+          await Promise.all([
+            axios.get(`${backendUrl}/user/stats`, { headers }),
+            axios.get(`${backendUrl}/user/bookings`, { headers }),
+            axios.get(`${backendUrl}/wishlist`, { headers }),
+          ]);
+
+        setDashboardData({
+          stats: statsResponse.data?.stats || null,
+          bookings: Array.isArray(bookingsResponse.data?.bookings)
+            ? bookingsResponse.data.bookings
+            : [],
+          wishlistCount:
+            wishlistResponse.data?.count ??
+            wishlistResponse.data?.wishlist?.length ??
+            0,
+        });
+      } catch (error) {
+        messageApi.error(
+          error.response?.data?.message || "Unable to load dashboard data.",
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadDashboard();
+  }, [backendUrl, messageApi]);
+
+  const activeBookings = dashboardData.bookings.filter((booking) =>
+    ["confirmed", "active", "in_progress"].includes(
+      String(booking.status || "").toLowerCase(),
+    ),
+  ).length;
+  const recentBookings = dashboardData.bookings.slice(0, 2);
+  const displayName = user?.first_name || user?.display_name || "";
 
   const quickActions = [
     {
@@ -39,6 +97,7 @@ const DashboardPage = () => {
         background: isDark ? "#040b1a" : "#f8fbff",
       }}
     >
+      {contextHolder}
       <div style={{ maxWidth: 1200, margin: "0 auto" }}>
         <div
           style={{
@@ -72,7 +131,7 @@ const DashboardPage = () => {
             >
               {t.home?.dashboardWelcome || "Welcome back"}{" "}
               <Text style={{ color: "#2563eb" }}>
-                {t.home?.dashboardWelcomeName || "Marcus!"}
+                {displayName ? `${displayName}!` : ""}
               </Text>
             </Title>
             <Paragraph
@@ -124,7 +183,11 @@ const DashboardPage = () => {
                     level={2}
                     style={{ color: isDark ? "#f8fafc" : "#0f172a" }}
                   >
-                    {t.home?.yourActiveBookingsCount || "4 contracts"}
+                    {loading ? (
+                      <Spin size="small" />
+                    ) : (
+                      `${activeBookings} contracts`
+                    )}
                   </Title>
                   <Paragraph
                     style={{
@@ -162,7 +225,11 @@ const DashboardPage = () => {
                     level={2}
                     style={{ color: isDark ? "#f8fafc" : "#0f172a" }}
                   >
-                    {"3 saved items"}
+                    {loading ? (
+                      <Spin size="small" />
+                    ) : (
+                      `${dashboardData.wishlistCount} saved items`
+                    )}
                   </Title>
                   <Paragraph
                     style={{
@@ -209,55 +276,45 @@ const DashboardPage = () => {
                   }
                 </Paragraph>
                 <Row gutter={[16, 16]}>
-                  {[
-                    {
-                      category:
-                        t.home?.recentlyViewed?.categories?.construction ||
-                        "Construction & Tools",
-                      badge:
-                        t.home?.recentlyViewed?.buttons?.construction ||
-                        "Construction & Tools",
-                    },
-                    {
-                      category:
-                        t.home?.recentlyViewed?.categories?.agriculture ||
-                        "Agriculture & Tractors",
-                      badge:
-                        t.home?.recentlyViewed?.buttons?.beauty ||
-                        "Beauty & Wellness",
-                    },
-                  ].map((item, index) => (
-                    <Col xs={24} md={12} key={index}>
-                      <Card
-                        type="inner"
-                        style={{
-                          borderRadius: 20,
-                          border: isDark
-                            ? "1px solid rgba(255,255,255,0.08)"
-                            : "1px solid rgba(15,23,42,0.08)",
-                          background: isDark ? "#081122" : "#f8fbff",
-                        }}
-                      >
-                        <Text
-                          strong
-                          style={{
-                            display: "block",
-                            marginBottom: 8,
-                            color: isDark ? "#f8fafc" : "#0f172a",
-                          }}
-                        >
-                          {item.category}
-                        </Text>
-                        <Text
-                          style={{
-                            color: isDark ? "#94a3b8" : "#64748b",
-                          }}
-                        >
-                          {item.badge}
-                        </Text>
-                      </Card>
-                    </Col>
-                  ))}
+                  {recentBookings.length === 0 && !loading ? (
+                    <Text type="secondary">No recent rental activity.</Text>
+                  ) : (
+                    recentBookings.map((booking, index) => {
+                      const product = booking.product || {};
+                      return (
+                        <Col xs={24} md={12} key={index}>
+                          <Card
+                            type="inner"
+                            style={{
+                              borderRadius: 20,
+                              border: isDark
+                                ? "1px solid rgba(255,255,255,0.08)"
+                                : "1px solid rgba(15,23,42,0.08)",
+                              background: isDark ? "#081122" : "#f8fbff",
+                            }}
+                          >
+                            <Text
+                              strong
+                              style={{
+                                display: "block",
+                                marginBottom: 8,
+                                color: isDark ? "#f8fafc" : "#0f172a",
+                              }}
+                            >
+                              {product.name || "Rental booking"}
+                            </Text>
+                            <Text
+                              style={{
+                                color: isDark ? "#94a3b8" : "#64748b",
+                              }}
+                            >
+                              {booking.status || "Booking"}
+                            </Text>
+                          </Card>
+                        </Col>
+                      );
+                    })
+                  )}
                 </Row>
               </Space>
             </Card>
