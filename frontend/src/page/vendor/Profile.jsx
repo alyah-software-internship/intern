@@ -107,7 +107,7 @@ const statusTag = (value) => {
   return <Tag color={color}>{label}</Tag>;
 };
 
-const mapVendor = (data, documents = []) => ({
+const mapVendor = (data = {}, documents = []) => ({
   ...emptyVendor,
   businessName: data.business_name || "",
   businessNameAm: data.business_name_am || "",
@@ -172,7 +172,8 @@ const VendorProfile = () => {
         response.data.identity_documents,
       );
       setVendor(nextVendor);
-      setProfileExists(true);
+      setProfileExists(Boolean(response.data.vendor));
+      if (!response.data.vendor) setBusinessOpen(true);
       localStorage.setItem(
         "vendorProfile",
         JSON.stringify(response.data.vendor),

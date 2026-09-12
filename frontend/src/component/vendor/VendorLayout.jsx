@@ -112,6 +112,12 @@ const VendorLayout = () => {
   }, [backendUrl]);
 
   const refreshVendorCounters = useCallback(async () => {
+    if (!vendor?.id) {
+      setUnreadNotifications(0);
+      setPendingBookings(0);
+      return;
+    }
+
     const headers = {
       Authorization: `Bearer ${localStorage.getItem("authToken")}`,
     };
@@ -137,7 +143,7 @@ const VendorLayout = () => {
       setUnreadNotifications(0);
       setPendingBookings(0);
     }
-  }, [backendUrl]);
+  }, [backendUrl, vendor]);
 
   useEffect(() => {
     const initialRefresh = window.setTimeout(refreshVendorCounters, 0);
