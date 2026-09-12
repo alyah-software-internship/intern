@@ -188,15 +188,38 @@ class AuthController extends Controller
             ], 404);
         }
 
+        if (config('mail.default') === 'log') {
+            Log::error('Temporary password email was not sent because the mailer is configured for logging.', [
+                'email' => $user->email,
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Email service is not configured. Please contact support.',
+            ], 503);
+        }
+
         $temporaryPassword = Str::random(12);
 
-        Mail::raw(
-            "Your temporary i-Share password is: {$temporaryPassword}\n\nSign in with this password, then change it from Settings.",
-            function ($message) use ($user) {
-                $message->to($user->email)
-                    ->subject('Your i-Share temporary password');
-            }
-        );
+        try {
+            Mail::raw(
+                "Your temporary i-Share password is: {$temporaryPassword}\n\nSign in with this password, then change it from Settings.",
+                function ($message) use ($user) {
+                    $message->to($user->email)
+                        ->subject('Your i-Share temporary password');
+                }
+            );
+        } catch (\Throwable $exception) {
+            Log::error('Temporary password email failed.', [
+                'email' => $user->email,
+                'error' => $exception->getMessage(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Unable to send the temporary password. Please try again later.',
+            ], 503);
+        }
 
         $user->forceFill(['password' => $temporaryPassword])->save();
 
