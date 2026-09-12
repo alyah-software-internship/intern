@@ -171,6 +171,7 @@ class AuthController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'access_token' => 'required|string',
+            'role' => 'nullable|in:customer,vendor,operator',
         ]);
 
         if ($validator->fails()) {
@@ -209,7 +210,7 @@ class AuthController extends Controller
                     'last_name' => $lastName,
                     'avatar_url' => $googleUser['picture'] ?? null,
                     'email_verified_at' => now(),
-                    'role' => 'customer',
+                    'role' => $request->input('role', 'customer'),
                     'is_active' => true,
                 ]);
             }

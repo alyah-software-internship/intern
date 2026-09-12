@@ -35,6 +35,57 @@ const Signup = () => {
   const navigate = useNavigate();
   const [messageApi, contextHolder] = message.useMessage();
 
+  const navigateAfterGoogleSignup = (user) => {
+    if (user?.role === "vendor") {
+      navigate("/vendor/profile");
+    } else if (user?.role === "operator") {
+      navigate("/operator");
+    } else {
+      navigate("/dashboard");
+    }
+  };
+
+  const handleGoogleSignup = () => {
+    if (!window.google?.accounts?.oauth2) {
+      messageApi.error(
+        "Google sign-up is not available. Please try again later.",
+      );
+      return;
+    }
+
+    setLoading(true);
+    const tokenClient = window.google.accounts.oauth2.initTokenClient({
+      client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+      scope: "openid email profile",
+      callback: async (tokenResponse) => {
+        if (tokenResponse.error) {
+          messageApi.error("Google sign-up was cancelled.");
+          setLoading(false);
+          return;
+        }
+
+        try {
+          const response = await axios.post(`${backendUrl}/google-login`, {
+            access_token: tokenResponse.access_token,
+            role,
+          });
+          signIn(response.data.user, response.data.token);
+          messageApi.success("Account created successfully");
+          navigateAfterGoogleSignup(response.data.user);
+        } catch (error) {
+          messageApi.error(
+            error.response?.data?.message ||
+              "Unable to create your account with Google.",
+          );
+        } finally {
+          setLoading(false);
+        }
+      },
+    });
+
+    tokenClient.requestAccessToken();
+  };
+
   const onFinish = async (values) => {
     setLoading(true);
 
@@ -389,6 +440,8 @@ const Signup = () => {
                     </span>
                     <Button
                       icon={<GoogleOutlined />}
+                      onClick={handleGoogleSignup}
+                      loading={loading}
                       className="h-14 rounded-[18px] border border-slate-200 bg-white text-slate-700 shadow-sm hover:shadow"
                       block
                     >
