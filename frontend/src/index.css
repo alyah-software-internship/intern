@@ -19,6 +19,30 @@ body {
   box-sizing: border-box;
 }
 
+.auth-page-shell {
+  display: grid;
+  min-height: 100vh;
+  padding: 24px;
+  place-items: center;
+  background: #f4f8fd;
+}
+
+.auth-form-card {
+  width: min(100%, 460px);
+  border-radius: 18px;
+}
+
+.auth-form-card h2 {
+  margin-bottom: 8px;
+}
+
+.auth-secondary-link {
+  display: inline-block;
+  margin-top: 20px;
+  color: #1671dc;
+  font-weight: 600;
+}
+
 .vendor-booking-product-image {
   border-radius: 10px;
   object-fit: cover;

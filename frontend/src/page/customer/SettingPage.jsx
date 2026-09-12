@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import { useContext, useState } from "react";
+import axios from "axios";
 import {
   Row,
   Col,
@@ -9,15 +10,18 @@ import {
   Input,
   Button,
   Divider,
+  message,
 } from "antd";
 import { useTheme } from "../../context/ThemeProvider.jsx";
 import { useTranslation } from "../../component/LanguageProvider.jsx";
+import { AppContext } from "../../context/AppContext.jsx";
 
 const { Title, Text } = Typography;
 
 const SettingPage = () => {
   const { theme, toggleTheme } = useTheme();
   const { translation: t } = useTranslation();
+  const { backendUrl } = useContext(AppContext);
   const isDark = theme === "dark";
 
   const [currency, setCurrency] = useState("USD ($)");
@@ -27,6 +31,34 @@ const SettingPage = () => {
   const [twoFactorAuth, setTwoFactorAuth] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [passwordConfirmation, setPasswordConfirmation] = useState("");
+  const [passwordLoading, setPasswordLoading] = useState(false);
+
+  const handlePasswordChange = async () => {
+    setPasswordLoading(true);
+    try {
+      const token = localStorage.getItem("authToken");
+      await axios.post(
+        `${backendUrl}/change-password`,
+        {
+          current_password: currentPassword,
+          password: newPassword,
+          password_confirmation: passwordConfirmation,
+        },
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+      message.success("Password changed successfully.");
+      setCurrentPassword("");
+      setNewPassword("");
+      setPasswordConfirmation("");
+    } catch (error) {
+      message.error(
+        error.response?.data?.message || "Unable to change password.",
+      );
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
 
   return (
     <div
@@ -369,6 +401,12 @@ const SettingPage = () => {
                     borderColor: isDark ? "rgba(255,255,255,0.12)" : undefined,
                   }}
                 />
+                <Input.Password
+                  placeholder="Confirm New Password"
+                  value={passwordConfirmation}
+                  onChange={(e) => setPasswordConfirmation(e.target.value)}
+                  style={{ marginBottom: 24, borderRadius: 12 }}
+                />
                 <Button
                   type="primary"
                   block
@@ -377,6 +415,8 @@ const SettingPage = () => {
                     background: "#111827",
                     borderColor: "#111827",
                   }}
+                  loading={passwordLoading}
+                  onClick={handlePasswordChange}
                 >
                   {t.settingsPage?.updateSecurityPassword ||
                     "Update Security Password"}

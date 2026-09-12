@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import { useContext, useState } from "react";
+import axios from "axios";
 import {
   Row,
   Col,
@@ -13,12 +14,14 @@ import {
 } from "antd";
 import { useTranslation } from "../../component/LanguageProvider.jsx";
 import { useTheme } from "../../context/ThemeProvider.jsx";
+import { AppContext } from "../../context/AppContext.jsx";
 
 const { Title, Text } = Typography;
 
 const Settings = () => {
   const { translation: t, lang, setLanguage, languages } = useTranslation();
-  const { theme, toggleTheme, setThemeMode } = useTheme();
+  const { theme, setThemeMode } = useTheme();
+  const { backendUrl } = useContext(AppContext);
 
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [smsAlerts, setSmsAlerts] = useState(false);
@@ -26,6 +29,8 @@ const Settings = () => {
   const [twoFactor, setTwoFactor] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [passwordConfirmation, setPasswordConfirmation] = useState("");
+  const [passwordLoading, setPasswordLoading] = useState(false);
   const [currency, setCurrency] = useState("USD");
 
   const handleLanguageChange = (value) => {
@@ -38,6 +43,32 @@ const Settings = () => {
 
   const handleSave = () => {
     window.alert(t.settingsPage?.settingsSaved || "Settings saved.");
+  };
+
+  const handlePasswordChange = async () => {
+    setPasswordLoading(true);
+    try {
+      const token = localStorage.getItem("authToken");
+      await axios.post(
+        `${backendUrl}/change-password`,
+        {
+          current_password: currentPassword,
+          password: newPassword,
+          password_confirmation: passwordConfirmation,
+        },
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+      window.alert("Password changed successfully.");
+      setCurrentPassword("");
+      setNewPassword("");
+      setPasswordConfirmation("");
+    } catch (error) {
+      window.alert(
+        error.response?.data?.message || "Unable to change password.",
+      );
+    } finally {
+      setPasswordLoading(false);
+    }
   };
 
   const currencyOptions = [
@@ -267,11 +298,19 @@ const Settings = () => {
                     }
                     style={{ marginTop: 16 }}
                   />
+                  <Input
+                    type="password"
+                    value={passwordConfirmation}
+                    onChange={(e) => setPasswordConfirmation(e.target.value)}
+                    placeholder="Confirm New Password"
+                    style={{ marginTop: 16 }}
+                  />
                   <Button
                     type="primary"
                     block
                     style={{ marginTop: 24, borderRadius: 14 }}
-                    onClick={handleSave}
+                    onClick={handlePasswordChange}
+                    loading={passwordLoading}
                   >
                     {t.settingsPage?.updateSecurityPassword ||
                       "Update Security Password"}

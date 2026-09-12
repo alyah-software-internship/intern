@@ -9,6 +9,10 @@ use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
@@ -155,6 +159,122 @@ class AuthController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Generate and email a temporary password without revealing whether an email exists.
+     */
+    public function forgotPassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please provide a valid email address.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $user = \App\Models\User::where('email', $request->email)->first();
+
+        if ($user) {
+            $temporaryPassword = Str::random(12);
+
+            $user->forceFill(['password' => $temporaryPassword])->save();
+
+            Mail::raw(
+                "Your temporary i-Share password is: {$temporaryPassword}\n\nSign in with this password, then change it from Settings.",
+                function ($message) use ($user) {
+                    $message->to($user->email)
+                        ->subject('Your i-Share temporary password');
+                }
+            );
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'If an account exists for that email, a temporary password has been sent.',
+        ]);
+    }
+
+    /**
+     * Replace the currently authenticated password.
+     */
+    public function changePassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'current_password' => 'required|string',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please check your password details.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $user = $request->user();
+
+        if (!Hash::check($request->current_password, $user->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'The current password is incorrect.',
+            ], 422);
+        }
+
+        $user->forceFill(['password' => $request->password])->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Password changed successfully.',
+        ]);
+    }
+
+    /**
+     * Complete a password reset using the emailed token.
+     */
+    public function resetPassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'token' => 'required|string',
+            'email' => 'required|email',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please check the reset details and try again.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $status = Password::reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function ($user, $password) {
+                $user->forceFill([
+                    'password' => $password,
+                    'remember_token' => Str::random(60),
+                ])->save();
+            }
+        );
+
+        if ($status !== Password::PASSWORD_RESET) {
+            return response()->json([
+                'success' => false,
+                'message' => __($status),
+            ], 422);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Password reset successfully. You can now sign in.',
+        ]);
     }
 
     /**

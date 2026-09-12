@@ -70,6 +70,8 @@ Route::get('/health', function () {
 // Auth Routes
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
 // Product Routes (Public)
 Route::get('/products', [ProductController::class, 'index']);
@@ -95,6 +97,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // ========== AUTH ROUTES ==========
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'user']);
+    Route::post('/change-password', [AuthController::class, 'changePassword']);
     
     // ========== USER ROUTES ==========
     Route::prefix('user')->group(function () {

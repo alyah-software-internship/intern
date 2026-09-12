@@ -39,6 +39,15 @@ Route::get('/health', function () {
     ]);
 });
 
+Route::get('/reset-password/{token}', function (Request $request, string $token) {
+    $frontendUrl = rtrim(env('FRONTEND_URL', 'http://localhost:5173'), '/');
+
+    return redirect()->away($frontendUrl . '/reset-password?' . http_build_query([
+        'token' => $token,
+        'email' => $request->query('email'),
+    ]));
+})->name('password.reset');
+
 // Fallback route - redirect to frontend
 Route::fallback(function () {
     return redirect('/');

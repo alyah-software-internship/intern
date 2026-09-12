@@ -9,6 +9,8 @@ import Footer from "./component/Footer.jsx";
 
 const Home = lazy(() => import("./page/public/Home"));
 const Login = lazy(() => import("./page/auth/Login"));
+const ForgotPassword = lazy(() => import("./page/auth/ForgotPassword"));
+const ResetPassword = lazy(() => import("./page/auth/ResetPassword"));
 const Signup = lazy(() => import("./page/auth/Signup"));
 const Rentals = lazy(() => import("./page/public/Rentals"));
 const Categories = lazy(() => import("./page/public/Categories"));
@@ -127,6 +129,8 @@ const App = () => {
           <Routes location={location} key={location.pathname}>
             <Route path="/" element={<Home />} />
             <Route path="/signin" element={<Login />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/rentals" element={<Rentals />} />
             <Route path="/rentals/:id" element={<DetailPage />} />
