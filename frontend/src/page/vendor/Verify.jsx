@@ -304,6 +304,7 @@ const VerificationForm = ({ onSubmit, isDark }) => {
   const [form] = Form.useForm();
   const [submitState, setSubmitState] = useState("idle");
   const [error, setError] = useState(null);
+  const [step, setStep] = useState(1);
 
   const handleSubmit = async (values) => {
     setSubmitState("submitting");
@@ -312,9 +313,24 @@ const VerificationForm = ({ onSubmit, isDark }) => {
       await onSubmit(values);
       setSubmitState("submitted");
       form.resetFields();
+      setStep(1);
     } catch (err) {
       setError(err.message || "Submission failed");
       setSubmitState("error");
+    }
+  };
+
+  const handleNext = async () => {
+    try {
+      await form.validateFields([
+        "documentType",
+        "documentNumber",
+        "documentCountry",
+      ]);
+      setStep(2);
+      setError(null);
+    } catch {
+      setError("Please complete the document information first.");
     }
   };
 
@@ -406,57 +422,50 @@ const VerificationForm = ({ onSubmit, isDark }) => {
             </Form.Item>
           </Col>
 
-          <Col xs={24} sm={12} md={8}>
-            <Form.Item
-              label="Document Front Image"
-              name="documentFrontUrl"
-              valuePropName="fileList"
-              getValueFromEvent={normFile}
-              rules={[{ required: true, message: "Please upload front image" }]}
-            >
-              <Upload
-                beforeUpload={() => false}
-                maxCount={1}
-                style={{ width: "100%" }}
-              >
-                <Button block={screens.xs}>Upload Front</Button>
-              </Upload>
-            </Form.Item>
-          </Col>
+          {step === 2 && (
+            <>
+              <Col xs={24}>
+                <Divider
+                  titlePlacement="left"
+                  style={{ fontSize: screens.xs ? "14px" : "16px" }}
+                >
+                  <FileOutlined /> Upload Document Photos
+                </Divider>
+              </Col>
 
-          <Col xs={24} sm={12} md={8}>
-            <Form.Item
-              label="Document Back Image"
-              name="documentBackUrl"
-              valuePropName="fileList"
-              getValueFromEvent={normFile}
-            >
-              <Upload
-                beforeUpload={() => false}
-                maxCount={1}
-                style={{ width: "100%" }}
-              >
-                <Button block={screens.xs}>Upload Back</Button>
-              </Upload>
-            </Form.Item>
-          </Col>
+              <Col xs={24} sm={12}>
+                <Form.Item
+                  label="Document Front Image"
+                  name="documentFrontUrl"
+                  valuePropName="fileList"
+                  getValueFromEvent={normFile}
+                  rules={[
+                    { required: true, message: "Please upload front image" },
+                  ]}
+                >
+                  <Upload beforeUpload={() => false} maxCount={1}>
+                    <Button block={screens.xs}>Upload Front</Button>
+                  </Upload>
+                </Form.Item>
+              </Col>
 
-          <Col xs={24} sm={12} md={8}>
-            <Form.Item
-              label="Selfie With Document"
-              name="selfieWithDocumentUrl"
-              valuePropName="fileList"
-              getValueFromEvent={normFile}
-            >
-              <Upload
-                beforeUpload={() => false}
-                maxCount={1}
-                style={{ width: "100%" }}
-              >
-                <Button block={screens.xs}>Upload Selfie</Button>
-              </Upload>
-            </Form.Item>
-          </Col>
+              <Col xs={24} sm={12}>
+                <Form.Item
+                  label="Document Back Image"
+                  name="documentBackUrl"
+                  valuePropName="fileList"
+                  getValueFromEvent={normFile}
+                  rules={[
+                    { required: true, message: "Please upload back image" },
+                  ]}
+                >
+                  <Upload beforeUpload={() => false} maxCount={1}>
+                    <Button block={screens.xs}>Upload Back</Button>
+                  </Upload>
+                </Form.Item>
+              </Col>
+            </>
+          )}
 
           {showAdditionalVerificationFields && (
             <>
@@ -642,15 +651,36 @@ const VerificationForm = ({ onSubmit, isDark }) => {
                 size={16}
                 style={{ width: screens.xs ? "100%" : "auto" }}
               >
+                {step === 1 ? (
+                  <Button
+                    type="primary"
+                    onClick={handleNext}
+                    block={screens.xs}
+                  >
+                    Next
+                  </Button>
+                ) : (
+                  <>
+                    <Button onClick={() => setStep(1)} block={screens.xs}>
+                      Back
+                    </Button>
+                    <Button
+                      type="primary"
+                      htmlType="submit"
+                      loading={submitState === "submitting"}
+                      block={screens.xs}
+                    >
+                      Submit Verification
+                    </Button>
+                  </>
+                )}
                 <Button
-                  type="primary"
-                  htmlType="submit"
-                  loading={submitState === "submitting"}
+                  onClick={() => {
+                    form.resetFields();
+                    setStep(1);
+                  }}
                   block={screens.xs}
                 >
-                  Submit Verification
-                </Button>
-                <Button onClick={() => form.resetFields()} block={screens.xs}>
                   Reset
                 </Button>
               </Space>

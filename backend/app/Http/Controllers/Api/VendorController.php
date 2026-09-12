@@ -63,7 +63,7 @@ class VendorController extends Controller
                 ], 400);
             }
 
-            // Create vendor profile with AUTO-APPROVED status (for testing)
+            // New vendor profiles remain pending until an administrator reviews them.
             $vendor = VendorProfile::create([
                 'user_id' => $request->user()->id,
                 'business_name' => $request->business_name,
@@ -81,8 +81,8 @@ class VendorController extends Controller
                 'website' => $request->website,
                 'tax_id' => $request->tax_id,
                 'registration_number' => $request->registration_number,
-                'verification_status' => 'approved', // ✅ Auto-approve for testing
-                'is_active' => true,
+                'verification_status' => 'pending',
+                'is_active' => false,
                 'joined_date' => now(),
             ]);
 
