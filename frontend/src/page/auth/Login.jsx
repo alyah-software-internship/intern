@@ -31,6 +31,63 @@ const Login = () => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
+  const navigateAfterLogin = (user) => {
+    const role = (user?.role || "customer").toLowerCase();
+
+    if (user?.must_change_password) {
+      navigate(
+        role === "vendor"
+          ? "/vendor/settings"
+          : role === "operator"
+            ? "/operator/settings"
+            : "/settings",
+      );
+    } else if (role === "admin") {
+      navigate("/admin");
+    } else if (role === "vendor") {
+      navigate("/vendor/dashboard");
+    } else if (role === "operator") {
+      navigate("/operator");
+    } else {
+      navigate("/dashboard");
+    }
+  };
+
+  const handleGoogleLogin = () => {
+    if (!window.google?.accounts?.oauth2) {
+      messageApi.error(
+        "Google sign-in is not available. Please try again later.",
+      );
+      return;
+    }
+
+    const tokenClient = window.google.accounts.oauth2.initTokenClient({
+      client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+      scope: "openid email profile",
+      callback: async (tokenResponse) => {
+        if (tokenResponse.error) {
+          messageApi.error("Google sign-in was cancelled.");
+          return;
+        }
+
+        try {
+          const response = await axios.post(`${backendUrl}/google-login`, {
+            access_token: tokenResponse.access_token,
+          });
+          signIn(response.data.user, response.data.token);
+          messageApi.success(response.data.message || "Login successful");
+          navigateAfterLogin(response.data.user);
+        } catch (error) {
+          messageApi.error(
+            error.response?.data?.message || "Unable to sign in with Google.",
+          );
+        }
+      },
+    });
+
+    tokenClient.requestAccessToken();
+  };
+
   const onFinish = async (values) => {
     setLoading(true);
 
@@ -43,28 +100,7 @@ const Login = () => {
       signIn(response.data.user, response.data.token);
       messageApi.success(response.data.message || "Login successful");
 
-      const role = (
-        response.data.user?.role ||
-        response.data.role ||
-        "customer"
-      ).toLowerCase();
-      if (response.data.user?.must_change_password) {
-        if (role === "vendor") {
-          navigate("/vendor/settings");
-        } else if (role === "operator") {
-          navigate("/operator/settings");
-        } else {
-          navigate("/settings");
-        }
-      } else if (role === "admin") {
-        navigate("/admin");
-      } else if (role === "vendor") {
-        navigate("/vendor/dashboard");
-      } else if (role === "operator") {
-        navigate("/operator");
-      } else {
-        navigate("/dashboard");
-      }
+      navigateAfterLogin(response.data.user);
     } catch (error) {
       const validationErrors = error.response?.data?.errors;
       const firstValidationError = validationErrors
@@ -448,6 +484,7 @@ const Login = () => {
 
                   <Button
                     icon={<GoogleOutlined />}
+                    onClick={handleGoogleLogin}
                     block
                     style={{
                       height: 56,

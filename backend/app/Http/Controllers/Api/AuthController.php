@@ -165,6 +165,92 @@ class AuthController extends Controller
     }
 
     /**
+     * Sign in with a Google access token issued by Google Identity Services.
+     */
+    public function googleLogin(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'access_token' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Google sign-in token is required.',
+            ], 422);
+        }
+
+        try {
+            $googleResponse = Http::withToken($request->access_token)
+                ->timeout(10)
+                ->get('https://www.googleapis.com/oauth2/v3/userinfo');
+
+            if ($googleResponse->failed() || !$googleResponse->json('email_verified')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unable to verify your Google account.',
+                ], 401);
+            }
+
+            $googleUser = $googleResponse->json();
+            $user = User::where('email', $googleUser['email'])->first();
+
+            if (!$user) {
+                $nameParts = preg_split('/\s+/', trim($googleUser['name'] ?? 'Google User'));
+                $firstName = $nameParts[0] ?? 'Google';
+                $lastName = count($nameParts) > 1 ? array_pop($nameParts) : 'User';
+                $middleName = count($nameParts) > 1 ? implode(' ', array_slice($nameParts, 1)) : $lastName;
+
+                $user = User::create([
+                    'email' => $googleUser['email'],
+                    'password' => Str::random(40),
+                    'first_name' => $firstName,
+                    'middle_name' => $middleName,
+                    'last_name' => $lastName,
+                    'avatar_url' => $googleUser['picture'] ?? null,
+                    'email_verified_at' => now(),
+                    'role' => 'customer',
+                    'is_active' => true,
+                ]);
+            }
+
+            if (!$user->is_active || $user->is_banned) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Your account is not available.',
+                ], 403);
+            }
+
+            $user->update(['last_login_at' => now(), 'last_login_ip' => $request->ip()]);
+            $token = $user->createToken('auth_token')->plainTextToken;
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Login successful',
+                'user' => [
+                    'id' => $user->id,
+                    'email' => $user->email,
+                    'first_name' => $user->first_name,
+                    'middle_name' => $user->middle_name,
+                    'last_name' => $user->last_name,
+                    'role' => $user->role,
+                    'is_active' => $user->is_active,
+                    'must_change_password' => (bool) $user->must_change_password,
+                ],
+                'token' => $token,
+                'role' => $user->role,
+            ]);
+        } catch (\Throwable $exception) {
+            Log::error('Google login failed', ['error' => $exception->getMessage()]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Google sign-in is temporarily unavailable.',
+            ], 503);
+        }
+    }
+
+    /**
      * Generate and email a temporary password for an existing user.
      */
     public function forgotPassword(Request $request)
