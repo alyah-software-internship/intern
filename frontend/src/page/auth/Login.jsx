@@ -482,21 +482,40 @@ const Login = () => {
                     {t.orContinue}
                   </Divider>
 
-                  <Button
-                    icon={<GoogleOutlined />}
-                    onClick={handleGoogleLogin}
-                    block
-                    style={{
-                      height: 56,
-                      borderRadius: 18,
-                      background: isDark ? "#1f2937" : "#fff",
-                      color: isDark ? "#f8fafc" : "#0f172a",
-                      borderColor: isDark ? "#374151" : "#d1d5db",
-                      fontWeight: 700,
-                    }}
-                  >
-                    {t.continueWithGoogle}
-                  </Button>
+                  <div style={{ position: "relative" }}>
+                    <span
+                      style={{
+                        position: "absolute",
+                        top: -10,
+                        right: 18,
+                        zIndex: 1,
+                        padding: "2px 10px",
+                        borderRadius: 999,
+                        background: "#0ea5e9",
+                        color: "#fff",
+                        fontSize: 11,
+                        fontWeight: 700,
+                        letterSpacing: "0.04em",
+                      }}
+                    >
+                      Recommended
+                    </span>
+                    <Button
+                      icon={<GoogleOutlined />}
+                      onClick={handleGoogleLogin}
+                      block
+                      style={{
+                        height: 56,
+                        borderRadius: 18,
+                        background: isDark ? "#1f2937" : "#fff",
+                        color: isDark ? "#f8fafc" : "#0f172a",
+                        borderColor: isDark ? "#374151" : "#d1d5db",
+                        fontWeight: 700,
+                      }}
+                    >
+                      {t.continueWithGoogle}
+                    </Button>
+                  </div>
 
                   <Paragraph
                     style={{
