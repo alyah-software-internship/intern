@@ -178,14 +178,11 @@ const VendorProfile = () => {
     } catch (error) {
       if (error.response?.status === 404) {
         setBusinessOpen(true);
-      } else
-        messageApi.error(
-          error.response?.data?.message || "Unable to load your profile.",
-        );
+      }
     } finally {
       setLoading(false);
     }
-  }, [backendUrl, businessForm, messageApi]);
+  }, [backendUrl, businessForm]);
   useEffect(() => {
     const fetchProfile = async () => {
       await loadProfile();
