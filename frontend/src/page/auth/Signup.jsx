@@ -383,13 +383,18 @@ const Signup = () => {
                     {t.orContinue}
                   </Divider>
 
-                  <Button
-                    icon={<GoogleOutlined />}
-                    className="h-14 rounded-[18px] border border-slate-200 bg-white text-slate-700 shadow-sm hover:shadow"
-                    block
-                  >
-                    {t.continueWithGoogle}
-                  </Button>
+                  <div className="relative">
+                    <span className="absolute -top-2.5 right-5 z-10 rounded-full bg-sky-500 px-2.5 py-0.5 text-[11px] font-bold tracking-wide text-white">
+                      Recommended
+                    </span>
+                    <Button
+                      icon={<GoogleOutlined />}
+                      className="h-14 rounded-[18px] border border-slate-200 bg-white text-slate-700 shadow-sm hover:shadow"
+                      block
+                    >
+                      {t.continueWithGoogle}
+                    </Button>
+                  </div>
 
                   <Paragraph className="mt-8 text-center text-sm text-slate-500">
                     {t.haveAccount}{" "}
