@@ -91,6 +91,8 @@ class VendorPaymentMethod extends Model
             'stripe' => 'Stripe',
             'chapa' => 'Chapa',
             'telebirr' => 'Telebirr',
+            'cbe' => 'CBE',
+            'boa' => 'BOA',
             'other' => 'Other',
         ];
         return $types[$this->payment_type] ?? $this->payment_type;
