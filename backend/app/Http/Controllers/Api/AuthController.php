@@ -163,7 +163,7 @@ class AuthController extends Controller
     }
 
     /**
-     * Generate and email a temporary password without revealing whether an email exists.
+     * Generate and email a temporary password for an existing user.
      */
     public function forgotPassword(Request $request)
     {
@@ -181,19 +181,24 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        if ($user) {
-            $temporaryPassword = Str::random(12);
-
-            Mail::raw(
-                "Your temporary i-Share password is: {$temporaryPassword}\n\nSign in with this password, then change it from Settings.",
-                function ($message) use ($user) {
-                    $message->to($user->email)
-                        ->subject('Your i-Share temporary password');
-                }
-            );
-
-            $user->forceFill(['password' => $temporaryPassword])->save();
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => "User doesn't exist.",
+            ], 404);
         }
+
+        $temporaryPassword = Str::random(12);
+
+        Mail::raw(
+            "Your temporary i-Share password is: {$temporaryPassword}\n\nSign in with this password, then change it from Settings.",
+            function ($message) use ($user) {
+                $message->to($user->email)
+                    ->subject('Your i-Share temporary password');
+            }
+        );
+
+        $user->forceFill(['password' => $temporaryPassword])->save();
 
         return response()->json([
             'success' => true,
