@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
@@ -200,15 +201,26 @@ class AuthController extends Controller
         }
 
         $temporaryPassword = Str::random(12);
+        $subject = 'Your i-Share temporary password';
+        $body = "Your temporary i-Share password is: {$temporaryPassword}\n\nSign in with this password, then change it from Settings.";
 
         try {
-            Mail::raw(
-                "Your temporary i-Share password is: {$temporaryPassword}\n\nSign in with this password, then change it from Settings.",
-                function ($message) use ($user) {
-                    $message->to($user->email)
-                        ->subject('Your i-Share temporary password');
-                }
-            );
+            if (filled(config('services.resend.key'))) {
+                $response = Http::withToken(config('services.resend.key'))
+                    ->timeout(15)
+                    ->post('https://api.resend.com/emails', [
+                        'from' => config('mail.from.address'),
+                        'to' => [$user->email],
+                        'subject' => $subject,
+                        'text' => $body,
+                    ]);
+
+                $response->throw();
+            } else {
+                Mail::raw($body, function ($message) use ($user, $subject) {
+                    $message->to($user->email)->subject($subject);
+                });
+            }
         } catch (\Throwable $exception) {
             Log::error('Temporary password email failed.', [
                 'email' => $user->email,
