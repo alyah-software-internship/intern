@@ -62,6 +62,7 @@ class User extends Authenticatable implements CanResetPassword
         'trust_score',
         'total_spent',
         'notification_preferences',
+        'must_change_password',
     ];
 
     protected $hidden = [
@@ -90,6 +91,7 @@ class User extends Authenticatable implements CanResetPassword
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',
+        'must_change_password' => 'boolean',
     ];
 
     // ========== ACCESSORS ==========

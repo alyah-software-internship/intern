@@ -148,6 +148,7 @@ class AuthController extends Controller
                     'last_name' => $user->last_name,
                     'role' => $user->role,
                     'is_active' => $user->is_active,
+                    'must_change_password' => (bool) $user->must_change_password,
                 ],
                 'token' => $token,
                 'role' => $user->role,
@@ -249,7 +250,10 @@ class AuthController extends Controller
             ], 503);
         }
 
-        $user->forceFill(['password' => $temporaryPassword])->save();
+        $user->forceFill([
+            'password' => $temporaryPassword,
+            'must_change_password' => true,
+        ])->save();
 
         return response()->json([
             'success' => true,
@@ -284,7 +288,10 @@ class AuthController extends Controller
             ], 422);
         }
 
-        $user->forceFill(['password' => $request->password])->save();
+        $user->forceFill([
+            'password' => $request->password,
+            'must_change_password' => false,
+        ])->save();
 
         return response()->json([
             'success' => true,

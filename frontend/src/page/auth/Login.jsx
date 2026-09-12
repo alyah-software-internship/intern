@@ -48,7 +48,15 @@ const Login = () => {
         response.data.role ||
         "customer"
       ).toLowerCase();
-      if (role === "admin") {
+      if (response.data.user?.must_change_password) {
+        if (role === "vendor") {
+          navigate("/vendor/settings");
+        } else if (role === "operator") {
+          navigate("/operator/settings");
+        } else {
+          navigate("/settings");
+        }
+      } else if (role === "admin") {
         navigate("/admin");
       } else if (role === "vendor") {
         navigate("/vendor/dashboard");
