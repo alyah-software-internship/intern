@@ -41,13 +41,9 @@ import { AppContext } from "../../context/AppContext.jsx";
 
 const { Title, Text, Paragraph } = Typography;
 const PAYMENT_TYPES = [
-  { value: "bank_transfer", label: "Bank Transfer" },
-  { value: "mobile_money", label: "Mobile Money" },
-  { value: "paypal", label: "PayPal" },
-  { value: "stripe", label: "Stripe" },
-  { value: "chapa", label: "Chapa" },
   { value: "telebirr", label: "Telebirr" },
-  { value: "other", label: "Other" },
+  { value: "cbe", label: "CBE" },
+  { value: "boa", label: "BOA" },
 ];
 const DOCUMENT_LABELS = {
   national_id: "National ID",
@@ -269,7 +265,7 @@ const VendorProfile = () => {
             isPrimary: item.is_primary,
           }
         : {
-            paymentType: "bank_transfer",
+            paymentType: "telebirr",
             isPrimary: vendor.paymentMethods.length === 0,
           },
     );
@@ -281,9 +277,6 @@ const VendorProfile = () => {
       payment_type: values.paymentType,
       account_name: values.accountName,
       account_number: values.accountNumber,
-      bank_name: values.bankName,
-      bank_branch: values.bankBranch,
-      mobile_provider: values.mobileProvider,
       mobile_number: values.mobileNumber,
       is_primary: values.isPrimary || false,
       is_active: true,
@@ -750,9 +743,6 @@ const PaymentModal = ({ open, form, saving, editing, onCancel, onSubmit }) => (
         </Col>
         <Field name="accountName" label="Account Name" required />
         <Field name="accountNumber" label="Account Number" required />
-        <Field name="bankName" label="Bank" />
-        <Field name="bankBranch" label="Bank Branch" />
-        <Field name="mobileProvider" label="Provider" />
         <Field name="mobileNumber" label="Mobile Number" />
       </Row>
       <Form.Item name="isPrimary" valuePropName="checked">

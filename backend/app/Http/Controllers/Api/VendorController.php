@@ -307,7 +307,7 @@ class VendorController extends Controller
     private function validatePaymentMethod(Request $request): array
     {
         return Validator::make($request->all(), [
-            'payment_type' => 'required|in:bank_transfer,mobile_money,paypal,stripe,chapa,telebirr,other',
+            'payment_type' => 'required|in:telebirr,cbe,boa',
             'account_name' => 'required|string|max:255',
             'account_number' => 'required|string|max:100',
             'bank_name' => 'nullable|string|max:255',
