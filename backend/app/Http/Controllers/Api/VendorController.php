@@ -191,22 +191,6 @@ class VendorController extends Controller
             'document_front' => 'nullable|image|mimes:jpeg,jpg,png|max:5120',
             'document_back' => 'nullable|image|mimes:jpeg,jpg,png|max:5120',
             'selfie_with_document' => 'nullable|image|mimes:jpeg,jpg,png|max:5120',
-            'business_name' => 'required|string|max:255',
-            'business_type' => 'required|string|max:100',
-            'business_description' => 'nullable|string',
-            'business_address' => 'required|string|max:500',
-            'business_city' => 'required|string|max:100',
-            'business_phone' => 'required|string|max:50',
-            'business_email' => 'nullable|email|max:255',
-            'registration_number' => 'nullable|string|max:100',
-            'payment_type' => 'required|in:bank_transfer,mobile_money,paypal,stripe,chapa,telebirr',
-            'account_name' => 'required|string|max:255',
-            'account_number' => 'required|string|max:100',
-            'bank_name' => 'nullable|string|max:255',
-            'bank_branch' => 'nullable|string|max:255',
-            'mobile_provider' => 'nullable|string|max:100',
-            'mobile_number' => 'nullable|string|max:50',
-            'paypal_email' => 'nullable|email|max:255',
         ]);
 
         if ($validator->fails()) {
@@ -220,20 +204,10 @@ class VendorController extends Controller
         $vendor = VendorProfile::where('user_id', $request->user()->id)->first();
 
         if (!$vendor) {
-            $vendor = VendorProfile::create([
-                'user_id' => $request->user()->id,
-                'business_name' => $request->business_name,
-                'business_type' => $request->business_type,
-                'description' => $request->business_description,
-                'address' => $request->business_address,
-                'city' => $request->business_city,
-                'phone' => $request->business_phone,
-                'email' => $request->business_email,
-                'registration_number' => $request->registration_number,
-                'verification_status' => 'pending',
-                'is_active' => true,
-                'joined_date' => now(),
-            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Please register your vendor profile before submitting verification.',
+            ], 422);
         }
 
         $vendor = DB::transaction(function () use ($request, $vendor) {
@@ -263,33 +237,8 @@ class VendorController extends Controller
                 'verified_at' => now(),
             ]);
 
-            $vendor->paymentMethods()->update(['is_primary' => false]);
-            $vendor->paymentMethods()->create([
-                'payment_type' => $request->payment_type,
-                'account_name' => $request->account_name,
-                'account_number' => $request->account_number,
-                'bank_name' => $request->bank_name,
-                'bank_branch' => $request->bank_branch,
-                'mobile_provider' => $request->mobile_provider,
-                'mobile_number' => $request->mobile_number,
-                'paypal_email' => $request->paypal_email,
-                'is_primary' => true,
-                'is_active' => true,
-                'verification_status' => 'verified',
-                'verified_at' => now(),
-            ]);
-
             $vendor->update([
-                'business_name' => $request->business_name,
-                'business_type' => $request->business_type,
-                'description' => $request->business_description,
-                'address' => $request->business_address,
-                'city' => $request->business_city,
-                'phone' => $request->business_phone,
-                'email' => $request->business_email,
-                'registration_number' => $request->registration_number,
                 'identity_verified' => true,
-                'payment_methods_verified' => true,
                 'verification_status' => 'pending',
                 'is_active' => false,
                 'verification_approved_at' => null,

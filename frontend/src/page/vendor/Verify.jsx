@@ -59,6 +59,8 @@ const PAYMENT_TYPES = [
   { value: "telebirr", label: "Telebirr" },
 ];
 
+const showAdditionalVerificationFields = false;
+
 // Utility functions
 const calculateVerificationProgress = (vendor) => {
   const items = [
@@ -452,159 +454,181 @@ const VerificationForm = ({ onSubmit, isDark }) => {
             </Form.Item>
           </Col>
 
-          {/* Payment Section */}
-          <Col xs={24}>
-            <Divider
-              titlePlacement="left"
-              style={{ fontSize: screens.xs ? "14px" : "16px" }}
-            >
-              <BankOutlined /> Payment Information
-            </Divider>
-          </Col>
+          {showAdditionalVerificationFields && (
+            <>
+              {/* Payment Section */}
+              <Col xs={24}>
+                <Divider
+                  titlePlacement="left"
+                  style={{ fontSize: screens.xs ? "14px" : "16px" }}
+                >
+                  <BankOutlined /> Payment Information
+                </Divider>
+              </Col>
 
-          <Col xs={24} sm={12} md={8}>
-            <Form.Item
-              label="Payment Type"
-              name="paymentType"
-              rules={[
-                { required: true, message: "Please select payment type" },
-              ]}
-            >
-              <Select options={PAYMENT_TYPES} />
-            </Form.Item>
-          </Col>
+              <Col xs={24} sm={12} md={8}>
+                <Form.Item
+                  label="Payment Type"
+                  name="paymentType"
+                  rules={[
+                    { required: true, message: "Please select payment type" },
+                  ]}
+                >
+                  <Select options={PAYMENT_TYPES} />
+                </Form.Item>
+              </Col>
 
-          <Col xs={24} sm={12} md={8}>
-            <Form.Item
-              label="Account Name"
-              name="accountName"
-              rules={[{ required: true, message: "Please enter account name" }]}
-            >
-              <Input placeholder="Sterling Constructions Ltd" />
-            </Form.Item>
-          </Col>
+              <Col xs={24} sm={12} md={8}>
+                <Form.Item
+                  label="Account Name"
+                  name="accountName"
+                  rules={[
+                    { required: true, message: "Please enter account name" },
+                  ]}
+                >
+                  <Input placeholder="Sterling Constructions Ltd" />
+                </Form.Item>
+              </Col>
 
-          <Col xs={24} sm={12} md={8}>
-            <Form.Item
-              label="Account Number"
-              name="accountNumber"
-              rules={[
-                { required: true, message: "Please enter account number" },
-              ]}
-            >
-              <Input placeholder="1000002468" />
-            </Form.Item>
-          </Col>
+              <Col xs={24} sm={12} md={8}>
+                <Form.Item
+                  label="Account Number"
+                  name="accountNumber"
+                  rules={[
+                    { required: true, message: "Please enter account number" },
+                  ]}
+                >
+                  <Input placeholder="1000002468" />
+                </Form.Item>
+              </Col>
 
-          <Col xs={24} sm={12} md={8}>
-            <Form.Item label="Bank Name" name="bankName">
-              <Input placeholder="Commercial Bank of Ethiopia" />
-            </Form.Item>
-          </Col>
+              <Col xs={24} sm={12} md={8}>
+                <Form.Item label="Bank Name" name="bankName">
+                  <Input placeholder="Commercial Bank of Ethiopia" />
+                </Form.Item>
+              </Col>
 
-          <Col xs={24} sm={12} md={8}>
-            <Form.Item label="Bank Branch" name="bankBranch">
-              <Input placeholder="Addis Ababa Main Branch" />
-            </Form.Item>
-          </Col>
+              <Col xs={24} sm={12} md={8}>
+                <Form.Item label="Bank Branch" name="bankBranch">
+                  <Input placeholder="Addis Ababa Main Branch" />
+                </Form.Item>
+              </Col>
 
-          <Col xs={24} sm={12} md={8}>
-            <Form.Item label="Mobile Provider" name="mobileProvider">
-              <Input placeholder="Telebirr" />
-            </Form.Item>
-          </Col>
+              <Col xs={24} sm={12} md={8}>
+                <Form.Item label="Mobile Provider" name="mobileProvider">
+                  <Input placeholder="Telebirr" />
+                </Form.Item>
+              </Col>
 
-          <Col xs={24} sm={12} md={8}>
-            <Form.Item label="Mobile Number" name="mobileNumber">
-              <Input placeholder="+251-900-111-222" />
-            </Form.Item>
-          </Col>
+              <Col xs={24} sm={12} md={8}>
+                <Form.Item label="Mobile Number" name="mobileNumber">
+                  <Input placeholder="+251-900-111-222" />
+                </Form.Item>
+              </Col>
+            </>
+          )}
 
-          {/* Business Section */}
-          <Col xs={24}>
-            <Divider
-              titlePlacement="left"
-              style={{ fontSize: screens.xs ? "14px" : "16px" }}
-            >
-              <BankOutlined /> Business Information
-            </Divider>
-          </Col>
+          {showAdditionalVerificationFields && (
+            <>
+              {/* Business Section */}
+              <Col xs={24}>
+                <Divider
+                  titlePlacement="left"
+                  style={{ fontSize: screens.xs ? "14px" : "16px" }}
+                >
+                  <BankOutlined /> Business Information
+                </Divider>
+              </Col>
 
-          <Col xs={24} sm={12} md={8}>
-            <Form.Item
-              label="Business Name"
-              name="businessName"
-              rules={[
-                { required: true, message: "Please enter business name" },
-              ]}
-            >
-              <Input placeholder="Sterling Constructions Ltd" />
-            </Form.Item>
-          </Col>
+              <Col xs={24} sm={12} md={8}>
+                <Form.Item
+                  label="Business Name"
+                  name="businessName"
+                  rules={[
+                    { required: true, message: "Please enter business name" },
+                  ]}
+                >
+                  <Input placeholder="Sterling Constructions Ltd" />
+                </Form.Item>
+              </Col>
 
-          <Col xs={24} sm={12} md={8}>
-            <Form.Item
-              label="Business Type"
-              name="businessType"
-              rules={[
-                { required: true, message: "Please enter business type" },
-              ]}
-            >
-              <Input placeholder="Equipment rental" />
-            </Form.Item>
-          </Col>
+              <Col xs={24} sm={12} md={8}>
+                <Form.Item
+                  label="Business Type"
+                  name="businessType"
+                  rules={[
+                    { required: true, message: "Please enter business type" },
+                  ]}
+                >
+                  <Input placeholder="Equipment rental" />
+                </Form.Item>
+              </Col>
 
-          <Col xs={24} sm={12} md={8}>
-            <Form.Item
-              label="Business Phone"
-              name="businessPhone"
-              rules={[
-                { required: true, message: "Please enter business phone" },
-              ]}
-            >
-              <Input placeholder="+251-900-111-222" />
-            </Form.Item>
-          </Col>
+              <Col xs={24} sm={12} md={8}>
+                <Form.Item
+                  label="Business Phone"
+                  name="businessPhone"
+                  rules={[
+                    { required: true, message: "Please enter business phone" },
+                  ]}
+                >
+                  <Input placeholder="+251-900-111-222" />
+                </Form.Item>
+              </Col>
 
-          <Col xs={24} sm={12} md={8}>
-            <Form.Item label="Business Email" name="businessEmail">
-              <Input type="email" placeholder="business@example.com" />
-            </Form.Item>
-          </Col>
+              <Col xs={24} sm={12} md={8}>
+                <Form.Item label="Business Email" name="businessEmail">
+                  <Input type="email" placeholder="business@example.com" />
+                </Form.Item>
+              </Col>
 
-          <Col xs={24} sm={12} md={8}>
-            <Form.Item
-              label="Address"
-              name="businessAddress"
-              rules={[
-                { required: true, message: "Please enter business address" },
-              ]}
-            >
-              <Input placeholder="Bole, Addis Ababa" />
-            </Form.Item>
-          </Col>
+              <Col xs={24} sm={12} md={8}>
+                <Form.Item
+                  label="Address"
+                  name="businessAddress"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please enter business address",
+                    },
+                  ]}
+                >
+                  <Input placeholder="Bole, Addis Ababa" />
+                </Form.Item>
+              </Col>
 
-          <Col xs={24} sm={12} md={8}>
-            <Form.Item
-              label="City"
-              name="businessCity"
-              rules={[{ required: true, message: "Please enter city" }]}
-            >
-              <Input placeholder="Addis Ababa" />
-            </Form.Item>
-          </Col>
+              <Col xs={24} sm={12} md={8}>
+                <Form.Item
+                  label="City"
+                  name="businessCity"
+                  rules={[{ required: true, message: "Please enter city" }]}
+                >
+                  <Input placeholder="Addis Ababa" />
+                </Form.Item>
+              </Col>
 
-          <Col xs={24}>
-            <Form.Item label="Business Description" name="businessDescription">
-              <Input.TextArea rows={3} placeholder="Describe your business" />
-            </Form.Item>
-          </Col>
+              <Col xs={24}>
+                <Form.Item
+                  label="Business Description"
+                  name="businessDescription"
+                >
+                  <Input.TextArea
+                    rows={3}
+                    placeholder="Describe your business"
+                  />
+                </Form.Item>
+              </Col>
 
-          <Col xs={24} sm={12} md={8}>
-            <Form.Item label="Registration Number" name="registrationNumber">
-              <Input placeholder="REG-2044-ET" />
-            </Form.Item>
-          </Col>
+              <Col xs={24} sm={12} md={8}>
+                <Form.Item
+                  label="Registration Number"
+                  name="registrationNumber"
+                >
+                  <Input placeholder="REG-2044-ET" />
+                </Form.Item>
+              </Col>
+            </>
+          )}
 
           {/* Form Actions */}
           <Col xs={24}>
@@ -717,22 +741,6 @@ const Verify = () => {
       document_type: values.documentType,
       document_number: values.documentNumber,
       document_country: values.documentCountry,
-      business_name: values.businessName,
-      business_type: values.businessType,
-      business_description: values.businessDescription,
-      business_address: values.businessAddress,
-      business_city: values.businessCity,
-      business_phone: values.businessPhone,
-      business_email: values.businessEmail,
-      registration_number: values.registrationNumber,
-      payment_type: values.paymentType,
-      account_name: values.accountName,
-      account_number: values.accountNumber,
-      bank_name: values.bankName,
-      bank_branch: values.bankBranch,
-      mobile_provider: values.mobileProvider,
-      mobile_number: values.mobileNumber,
-      paypal_email: values.paypalEmail,
     };
     Object.entries(fields).forEach(([key, value]) => {
       if (value !== undefined && value !== "") requestData.append(key, value);
