@@ -179,7 +179,7 @@ const DocumentList = ({ documents, isDark }) => {
         <div>
           {documents.map((item) => (
             <div
-              key={`${item.type}-${item.number}`}
+              key={`${item.type || item.document_type || "document"}-${item.number || item.document_number || "unknown"}`}
               style={{
                 padding: screens.xs ? "8px 0" : "12px 0",
                 borderBottom: "1px solid rgba(0,0,0,0.06)",
@@ -197,7 +197,9 @@ const DocumentList = ({ documents, isDark }) => {
                     strong
                     style={{ fontSize: screens.xs ? "14px" : "16px" }}
                   >
-                    {item.type.replace("_", " ").toUpperCase()}
+                    {(item.type || item.document_type || "Document")
+                      .replaceAll("_", " ")
+                      .toUpperCase()}
                   </Text>
                   <Tag
                     color={STATUS_COLORS[item.status] || "default"}
@@ -250,7 +252,7 @@ const PaymentMethodsList = ({ payments, isDark }) => {
         <div>
           {payments.map((item) => (
             <div
-              key={`${item.type}-${item.accountNumber}`}
+              key={`${item.type || item.payment_type || "payment"}-${item.accountNumber || item.account_number || "unknown"}`}
               style={{
                 padding: screens.xs ? "8px 0" : "12px 0",
                 borderBottom: "1px solid rgba(0,0,0,0.06)",
@@ -268,7 +270,9 @@ const PaymentMethodsList = ({ payments, isDark }) => {
                     strong
                     style={{ fontSize: screens.xs ? "14px" : "16px" }}
                   >
-                    {item.type.replace("_", " ").toUpperCase()}
+                    {(item.type || item.payment_type || "Payment")
+                      .replaceAll("_", " ")
+                      .toUpperCase()}
                   </Text>
                   <Tag
                     color={STATUS_COLORS[item.status] || "default"}
