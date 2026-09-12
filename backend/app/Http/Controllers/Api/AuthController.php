@@ -215,7 +215,23 @@ class AuthController extends Controller
                         'text' => $body,
                     ]);
 
-                $response->throw();
+                if ($response->failed()) {
+                    Log::error('Resend rejected temporary password email.', [
+                        'email' => $user->email,
+                        'status' => $response->status(),
+                        'response' => $response->json() ?: $response->body(),
+                    ]);
+
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Email provider rejected the message. Please check the Resend sender and API key.',
+                    ], 503);
+                }
+            } elseif (config('mail.default') === 'resend') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Resend API key is not configured. Please contact support.',
+                ], 503);
             } else {
                 Mail::raw($body, function ($message) use ($user, $subject) {
                     $message->to($user->email)->subject($subject);
