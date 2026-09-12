@@ -343,6 +343,13 @@ const VendorLayout = () => {
                   fontWeight: 700,
                   paddingInline: 10,
                   fontSize: 11,
+                  cursor:
+                    verificationStatus === "approved" ? "default" : "pointer",
+                }}
+                onClick={() => {
+                  if (verificationStatus !== "approved") {
+                    navigate("/vendor/verify");
+                  }
                 }}
               >
                 {verificationStatus === "approved"
