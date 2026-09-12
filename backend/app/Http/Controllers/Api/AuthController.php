@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Services\AuthService;
 use App\Services\UserService;
 use App\Services\NotificationService;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
@@ -178,12 +179,10 @@ class AuthController extends Controller
             ], 422);
         }
 
-        $user = \App\Models\User::where('email', $request->email)->first();
+        $user = User::where('email', $request->email)->first();
 
         if ($user) {
             $temporaryPassword = Str::random(12);
-
-            $user->forceFill(['password' => $temporaryPassword])->save();
 
             Mail::raw(
                 "Your temporary i-Share password is: {$temporaryPassword}\n\nSign in with this password, then change it from Settings.",
@@ -192,6 +191,8 @@ class AuthController extends Controller
                         ->subject('Your i-Share temporary password');
                 }
             );
+
+            $user->forceFill(['password' => $temporaryPassword])->save();
         }
 
         return response()->json([
