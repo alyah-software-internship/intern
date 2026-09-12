@@ -232,9 +232,9 @@ class VendorController extends Controller
                 'document_number' => $request->document_number,
                 'document_country' => $request->document_country,
                 ...$documentUrls,
-                'verification_status' => 'verified',
+                'verification_status' => 'pending',
                 'is_primary' => true,
-                'verified_at' => now(),
+                'verified_at' => null,
             ]);
 
             $vendor->update([

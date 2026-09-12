@@ -677,55 +677,42 @@ const Verify = () => {
   const [verificationData, setVerificationData] = useState(null);
   const [error, setError] = useState(null);
 
-  // Mock data - in real app, fetch from API
-  const mockData = {
-    vendor: {
-      verificationStatus: "pending",
-      identityVerified: false,
-      paymentMethodsVerified: false,
-      businessName: "",
-      trustScore: 92,
-      totalDocs: 3,
-      reviewStage: "final review",
-    },
-    documents: [
-      {
-        type: "national_id",
-        number: "ET-909122867",
-        status: "verified",
-        country: "Ethiopia",
-      },
-      {
-        type: "passport",
-        number: "P-980421",
-        status: "under_review",
-        country: "Ethiopia",
-      },
-    ],
-    payments: [
-      {
-        type: "bank_transfer",
-        accountName: "Sterling Constructions Ltd",
-        accountNumber: "1000002468",
-        status: "verified",
-      },
-      {
-        type: "telebirr",
-        accountName: "Sterling Operations",
-        accountNumber: "+251-900-111-222",
-        status: "pending",
-      },
-    ],
-  };
-
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       setError(null);
       try {
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        setVerificationData(mockData);
+        const response = await axios.get(`${backendUrl}/vendor/profile`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+        });
+        const vendor = response.data.vendor;
+
+        if (!vendor) {
+          throw new Error("Please complete vendor registration first.");
+        }
+
+        setVerificationData({
+          vendor: {
+            verificationStatus: vendor.verification_status || "pending",
+            identityVerified: Boolean(vendor.identity_verified),
+            paymentMethodsVerified: Boolean(vendor.payment_methods_verified),
+            businessName: vendor.business_name || "",
+            trustScore: vendor.trust_score || 0,
+            totalDocs: response.data.identity_documents?.length || 0,
+            reviewStage: vendor.verification_status || "pending",
+          },
+          documents: (response.data.identity_documents || []).map(
+            (document) => ({
+              type: document.document_type,
+              number: document.document_number,
+              status: document.verification_status,
+              country: document.document_country,
+            }),
+          ),
+          payments: vendor.payment_methods || [],
+        });
       } catch (err) {
         setError(err.message);
       } finally {
@@ -733,7 +720,7 @@ const Verify = () => {
       }
     };
     fetchData();
-  }, []);
+  }, [backendUrl]);
 
   const handleFormSubmit = async (values) => {
     const requestData = new FormData();
@@ -773,7 +760,7 @@ const Verify = () => {
           ...current.vendor,
           verificationStatus: vendor.verification_status || "approved",
           identityVerified: true,
-          paymentMethodsVerified: true,
+          paymentMethodsVerified: false,
           businessName: vendor.business_name,
         },
       }));
