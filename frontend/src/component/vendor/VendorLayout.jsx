@@ -111,17 +111,16 @@ const VendorLayout = () => {
           signal: controller.signal,
         });
 
-        setVendor(response.data.vendor);
-        localStorage.setItem(
-          vendorProfileCacheKey,
-          JSON.stringify(response.data.vendor),
-        );
+        const vendorData = response.data.vendor || null;
+        setVendor(vendorData);
+        localStorage.setItem(vendorProfileCacheKey, JSON.stringify(vendorData));
       } catch (error) {
         if (!axios.isCancel(error)) return;
       }
     };
 
     loadProfile();
+    const refreshTimer = window.setInterval(loadProfile, 15000);
 
     const handleVendorStatusUpdate = (event) => {
       const payload =
@@ -155,6 +154,7 @@ const VendorLayout = () => {
 
     return () => {
       controller.abort();
+      window.clearInterval(refreshTimer);
       window.removeEventListener(
         vendorStatusUpdateEvent,
         handleVendorStatusUpdate,
