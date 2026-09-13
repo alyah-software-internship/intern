@@ -211,6 +211,7 @@ const VendorDetail = () => {
 
   const vendorStatus = vendor.verification_status || "pending";
   const isApprovedVendor = ["approved", "verified"].includes(vendorStatus);
+  const identityDocuments = user.identity_documents || [];
 
   return (
     <div
@@ -503,65 +504,61 @@ const VendorDetail = () => {
       </Card>
 
       {/* Identity Documents */}
-      {user.identity_documents && user.identity_documents.length > 0 && (
-        <Card title="Identity Documents" style={{ marginBottom: 24 }}>
-          <List
-            dataSource={user.identity_documents}
-            locale={{ emptyText: "No identity documents submitted." }}
-            renderItem={(document) => (
-              <List.Item>
-                <Space align="start" style={{ width: "100%" }}>
-                  <div>
-                    {[
-                      ["Front", document.document_front_url],
-                      ["Back", document.document_back_url],
-                      ["Selfie", document.selfie_with_document_url],
-                    ]
-                      .filter(([, url]) => Boolean(url))
-                      .map(([label, url]) => (
-                        <div key={url} style={{ marginBottom: 8 }}>
-                          <Image
-                            width={120}
-                            height={80}
-                            src={url}
-                            style={{ objectFit: "cover", borderRadius: 6 }}
-                          />
-                          <Text type="secondary" style={{ fontSize: 11 }}>
-                            {label}
-                          </Text>
-                        </div>
-                      ))}
-                  </div>
-                  <Space direction="vertical" size={2}>
-                    <Text strong>
-                      {document.document_type
-                        ?.replaceAll("_", " ")
-                        .toUpperCase()}
-                    </Text>
-                    <Text type="secondary" style={{ fontSize: 12 }}>
-                      {document.document_number || "Number unavailable"}
-                    </Text>
-                    <Text type="secondary" style={{ fontSize: 12 }}>
-                      {document.document_country || "Country unavailable"}
-                    </Text>
-                    <Tag
-                      color={
-                        document.verification_status === "verified"
-                          ? "green"
-                          : document.verification_status === "rejected"
-                            ? "red"
-                            : "gold"
-                      }
-                    >
-                      {document.verification_status || "Pending"}
-                    </Tag>
-                  </Space>
+      <Card title="Identity Documents" style={{ marginBottom: 24 }}>
+        <List
+          dataSource={identityDocuments}
+          locale={{ emptyText: "No identity documents submitted." }}
+          renderItem={(document) => (
+            <List.Item>
+              <Space align="start" style={{ width: "100%" }}>
+                <div>
+                  {[
+                    ["Front", document.document_front_url],
+                    ["Back", document.document_back_url],
+                    ["Selfie", document.selfie_with_document_url],
+                  ]
+                    .filter(([, url]) => Boolean(url))
+                    .map(([label, url]) => (
+                      <div key={url} style={{ marginBottom: 8 }}>
+                        <Image
+                          width={120}
+                          height={80}
+                          src={url}
+                          style={{ objectFit: "cover", borderRadius: 6 }}
+                        />
+                        <Text type="secondary" style={{ fontSize: 11 }}>
+                          {label}
+                        </Text>
+                      </div>
+                    ))}
+                </div>
+                <Space direction="vertical" size={2}>
+                  <Text strong>
+                    {document.document_type?.replaceAll("_", " ").toUpperCase()}
+                  </Text>
+                  <Text type="secondary" style={{ fontSize: 12 }}>
+                    {document.document_number || "Number unavailable"}
+                  </Text>
+                  <Text type="secondary" style={{ fontSize: 12 }}>
+                    {document.document_country || "Country unavailable"}
+                  </Text>
+                  <Tag
+                    color={
+                      document.verification_status === "verified"
+                        ? "green"
+                        : document.verification_status === "rejected"
+                          ? "red"
+                          : "gold"
+                    }
+                  >
+                    {document.verification_status || "Pending"}
+                  </Tag>
                 </Space>
-              </List.Item>
-            )}
-          />
-        </Card>
-      )}
+              </Space>
+            </List.Item>
+          )}
+        />
+      </Card>
 
       {/* Payment Methods */}
       {vendor.payment_methods && vendor.payment_methods.length > 0 && (
