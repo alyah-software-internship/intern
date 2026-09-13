@@ -80,7 +80,7 @@ class VendorService
     /**
      * Update vendor verification status (Admin only)
      */
-    public function updateVerificationStatus(int $vendorId, string $status, string $notes = null): VendorProfile
+    public function updateVerificationStatus(int $vendorId, string $status, ?string $notes = null): VendorProfile
     {
         $vendor = VendorProfile::findOrFail($vendorId);
         $approvedAt = $status === 'approved' ? now() : null;
