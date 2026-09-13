@@ -218,14 +218,19 @@ const VendorProfile = () => {
       }
     };
 
+    const refreshTimer = window.setInterval(() => {
+      loadProfile();
+    }, 15000);
+
     window.addEventListener("vendorStatusUpdated", refreshFromAdminUpdate);
     window.addEventListener("storage", handleStorageUpdate);
 
     return () => {
+      window.clearInterval(refreshTimer);
       window.removeEventListener("vendorStatusUpdated", refreshFromAdminUpdate);
       window.removeEventListener("storage", handleStorageUpdate);
     };
-  }, [businessForm]);
+  }, [businessForm, loadProfile]);
 
   useEffect(() => {
     const fetchProfile = async () => {
