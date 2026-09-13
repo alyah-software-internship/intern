@@ -183,6 +183,50 @@ const VendorProfile = () => {
       setLoading(false);
     }
   }, [backendUrl, businessForm]);
+
+  useEffect(() => {
+    const refreshFromAdminUpdate = (event) => {
+      const payload =
+        event.detail ||
+        JSON.parse(localStorage.getItem("vendorStatusUpdated") || "null");
+      if (!payload?.vendor) return;
+      const nextVendor = mapVendor(
+        payload.vendor,
+        payload.vendor.identity_documents || [],
+      );
+      setVendor(nextVendor);
+      setProfileExists(Boolean(payload.vendor));
+      localStorage.setItem("vendorProfile", JSON.stringify(payload.vendor));
+      businessForm.setFieldsValue(businessValues(nextVendor));
+    };
+
+    const handleStorageUpdate = (event) => {
+      if (event.key !== "vendorStatusUpdated") return;
+      try {
+        const payload = JSON.parse(event.newValue || "null");
+        if (!payload?.vendor) return;
+        const nextVendor = mapVendor(
+          payload.vendor,
+          payload.vendor.identity_documents || [],
+        );
+        setVendor(nextVendor);
+        setProfileExists(Boolean(payload.vendor));
+        localStorage.setItem("vendorProfile", JSON.stringify(payload.vendor));
+        businessForm.setFieldsValue(businessValues(nextVendor));
+      } catch {
+        // ignore malformed payloads
+      }
+    };
+
+    window.addEventListener("vendorStatusUpdated", refreshFromAdminUpdate);
+    window.addEventListener("storage", handleStorageUpdate);
+
+    return () => {
+      window.removeEventListener("vendorStatusUpdated", refreshFromAdminUpdate);
+      window.removeEventListener("storage", handleStorageUpdate);
+    };
+  }, [businessForm]);
+
   useEffect(() => {
     const fetchProfile = async () => {
       await loadProfile();

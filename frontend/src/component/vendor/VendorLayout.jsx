@@ -54,6 +54,18 @@ const routeTitles = {
 };
 
 const vendorProfileCacheKey = "vendorProfile";
+const vendorStatusUpdateEvent = "vendorStatusUpdated";
+
+const broadcastVendorStatusUpdate = (vendor) => {
+  if (!vendor) return;
+
+  const payload = { vendorId: vendor.id, vendor, updatedAt: Date.now() };
+  localStorage.setItem(vendorProfileCacheKey, JSON.stringify(vendor));
+  localStorage.setItem(vendorStatusUpdateEvent, JSON.stringify(payload));
+  window.dispatchEvent(
+    new CustomEvent(vendorStatusUpdateEvent, { detail: payload }),
+  );
+};
 
 const VendorLayout = () => {
   const { theme } = useTheme();
@@ -90,25 +102,65 @@ const VendorLayout = () => {
   useEffect(() => {
     const controller = new AbortController();
 
-    axios
-      .get(`${backendUrl}/vendor/profile`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-        },
-        signal: controller.signal,
-      })
-      .then((response) => {
+    const loadProfile = async () => {
+      try {
+        const response = await axios.get(`${backendUrl}/vendor/profile`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+          signal: controller.signal,
+        });
+
         setVendor(response.data.vendor);
         localStorage.setItem(
           vendorProfileCacheKey,
           JSON.stringify(response.data.vendor),
         );
-      })
-      .catch((error) => {
+      } catch (error) {
         if (!axios.isCancel(error)) return;
-      });
+      }
+    };
 
-    return () => controller.abort();
+    loadProfile();
+
+    const handleVendorStatusUpdate = (event) => {
+      const payload =
+        event.detail ||
+        JSON.parse(localStorage.getItem(vendorStatusUpdateEvent) || "null");
+      if (!payload?.vendor) return;
+      setVendor(payload.vendor);
+      localStorage.setItem(
+        vendorProfileCacheKey,
+        JSON.stringify(payload.vendor),
+      );
+    };
+
+    const handleStorageUpdate = (event) => {
+      if (event.key !== vendorStatusUpdateEvent) return;
+      try {
+        const payload = JSON.parse(event.newValue || "null");
+        if (!payload?.vendor) return;
+        setVendor(payload.vendor);
+        localStorage.setItem(
+          vendorProfileCacheKey,
+          JSON.stringify(payload.vendor),
+        );
+      } catch {
+        // ignore malformed payloads
+      }
+    };
+
+    window.addEventListener(vendorStatusUpdateEvent, handleVendorStatusUpdate);
+    window.addEventListener("storage", handleStorageUpdate);
+
+    return () => {
+      controller.abort();
+      window.removeEventListener(
+        vendorStatusUpdateEvent,
+        handleVendorStatusUpdate,
+      );
+      window.removeEventListener("storage", handleStorageUpdate);
+    };
   }, [backendUrl]);
 
   const refreshVendorCounters = useCallback(async () => {

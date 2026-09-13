@@ -82,6 +82,21 @@ const VendorDetail = () => {
         { notes: "" },
         authConfig(),
       );
+
+      const updatedVendor = response.data.vendor || response.data;
+      if (updatedVendor) {
+        const payload = {
+          vendorId: updatedVendor.id,
+          vendor: updatedVendor,
+          updatedAt: Date.now(),
+        };
+        localStorage.setItem("vendorProfile", JSON.stringify(updatedVendor));
+        localStorage.setItem("vendorStatusUpdated", JSON.stringify(payload));
+        window.dispatchEvent(
+          new CustomEvent("vendorStatusUpdated", { detail: payload }),
+        );
+      }
+
       messageApi.success(response.data.message);
       setTimeout(() => navigate("/admin/vendors"), 1500);
     } catch (error) {
@@ -105,6 +120,21 @@ const VendorDetail = () => {
       );
       setVendor(response.data.vendor);
       setVerificationStatus(response.data.vendor.verification_status);
+
+      const payload = {
+        vendorId: response.data.vendor?.id,
+        vendor: response.data.vendor,
+        updatedAt: Date.now(),
+      };
+      localStorage.setItem(
+        "vendorProfile",
+        JSON.stringify(response.data.vendor),
+      );
+      localStorage.setItem("vendorStatusUpdated", JSON.stringify(payload));
+      window.dispatchEvent(
+        new CustomEvent("vendorStatusUpdated", { detail: payload }),
+      );
+
       messageApi.success(response.data.message);
     } catch (error) {
       messageApi.error(

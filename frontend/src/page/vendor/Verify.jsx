@@ -753,7 +753,39 @@ const Verify = () => {
         setLoading(false);
       }
     };
+
+    const handleAdminStatusUpdate = (event) => {
+      const payload =
+        event.detail ||
+        JSON.parse(localStorage.getItem("vendorStatusUpdated") || "null");
+      if (!payload?.vendor) return;
+      setVerificationData((current) => ({
+        ...current,
+        vendor: {
+          ...current?.vendor,
+          verificationStatus: payload.vendor.verification_status || "pending",
+          identityVerified: Boolean(payload.vendor.identity_verified),
+          paymentMethodsVerified: Boolean(
+            payload.vendor.payment_methods_verified,
+          ),
+          businessName:
+            payload.vendor.business_name || current?.vendor?.businessName || "",
+          trustScore:
+            payload.vendor.trust_score || current?.vendor?.trustScore || 0,
+          reviewStage: payload.vendor.verification_status || "pending",
+        },
+      }));
+    };
+
+    window.addEventListener("vendorStatusUpdated", handleAdminStatusUpdate);
     fetchData();
+
+    return () => {
+      window.removeEventListener(
+        "vendorStatusUpdated",
+        handleAdminStatusUpdate,
+      );
+    };
   }, [backendUrl]);
 
   const handleFormSubmit = async (values) => {
