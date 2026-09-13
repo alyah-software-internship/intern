@@ -83,12 +83,15 @@ class VendorService
     public function updateVerificationStatus(int $vendorId, string $status, string $notes = null): VendorProfile
     {
         $vendor = VendorProfile::findOrFail($vendorId);
+        $approvedAt = $status === 'approved' ? now() : null;
+
         $vendor->update([
             'verification_status' => $status,
             'verification_notes' => $notes,
-            'verified_at' => $status === 'approved' ? now() : null,
+            'verified_at' => $approvedAt,
+            'verification_approved_at' => $approvedAt,
         ]);
-        return $vendor;
+        return $vendor->fresh();
     }
 
     /**

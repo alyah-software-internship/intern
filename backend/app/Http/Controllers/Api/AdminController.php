@@ -517,6 +517,44 @@ class AdminController extends Controller
     }
 
     /**
+     * Update a vendor verification status.
+     */
+    public function updateVendorVerificationStatus($id, Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'status' => 'required|in:pending,under_review,approved,rejected,suspended',
+            'notes' => 'nullable|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        try {
+            $vendor = $this->vendorService->updateVerificationStatus(
+                $id,
+                $request->status,
+                $request->notes
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Vendor verification status updated successfully',
+                'vendor' => $vendor->fresh(['user']),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update vendor verification status',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
      * Suspend vendor
      */
     public function activateVendor($id, Request $request)

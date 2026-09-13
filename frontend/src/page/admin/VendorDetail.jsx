@@ -17,15 +17,14 @@ import {
   message,
   Form,
   Input,
+  Select,
 } from "antd";
 import {
   ArrowLeftOutlined,
   CheckOutlined,
   CloseOutlined,
-  FileTextOutlined,
   MailOutlined,
   PhoneOutlined,
-  ShopOutlined,
   StopOutlined,
 } from "@ant-design/icons";
 import { AppContext } from "../../context/AppContext.jsx";
@@ -47,6 +46,7 @@ const VendorDetail = () => {
   const [loading, setLoading] = useState(true);
   const [messageApi, contextHolder] = message.useMessage();
   const [actionLoading, setActionLoading] = useState(null);
+  const [verificationStatus, setVerificationStatus] = useState("pending");
   const [rejectModal, setRejectModal] = useState({ visible: false });
   const [suspendModal, setSuspendModal] = useState({ visible: false });
   const [form] = Form.useForm();
@@ -59,6 +59,9 @@ const VendorDetail = () => {
           authConfig(),
         );
         setVendor(response.data.vendor);
+        setVerificationStatus(
+          response.data.vendor.verification_status || "pending",
+        );
       } catch (error) {
         messageApi.error(
           error.response?.data?.message || "Unable to load vendor details.",
@@ -84,6 +87,29 @@ const VendorDetail = () => {
     } catch (error) {
       messageApi.error(
         error.response?.data?.message || "Unable to approve vendor.",
+      );
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleVerificationStatusUpdate = async (
+    nextStatus = verificationStatus,
+  ) => {
+    setActionLoading("verification-status");
+    try {
+      const response = await axios.put(
+        `${backendUrl}/admin/vendors/${id}/verification-status`,
+        { status: nextStatus },
+        authConfig(),
+      );
+      setVendor(response.data.vendor);
+      setVerificationStatus(response.data.vendor.verification_status);
+      messageApi.success(response.data.message);
+    } catch (error) {
+      messageApi.error(
+        error.response?.data?.message ||
+          "Unable to update vendor verification status.",
       );
     } finally {
       setActionLoading(null);
@@ -234,6 +260,46 @@ const VendorDetail = () => {
         </Space>
 
         {/* Action Buttons */}
+        <Space wrap>
+          <Select
+            value={verificationStatus}
+            onChange={setVerificationStatus}
+            style={{ minWidth: 150 }}
+            options={[
+              { value: "pending", label: "Pending" },
+              { value: "under_review", label: "Under review" },
+              { value: "approved", label: "Approved" },
+              { value: "rejected", label: "Rejected" },
+              { value: "suspended", label: "Suspended" },
+            ]}
+          />
+          <Button
+            onClick={handleVerificationStatusUpdate}
+            loading={actionLoading === "verification-status"}
+            disabled={verificationStatus === vendorStatus}
+          >
+            Update Status
+          </Button>
+          {isApprovedVendor && (
+            <Popconfirm
+              title="Remove verified status?"
+              description="The vendor will need to be verified again before accessing vendor features."
+              okText="Remove status"
+              onConfirm={() => {
+                setVerificationStatus("pending");
+                handleVerificationStatusUpdate("pending");
+              }}
+            >
+              <Button
+                danger
+                icon={<CloseOutlined />}
+                loading={actionLoading === "verification-status"}
+              >
+                Remove Verified Status
+              </Button>
+            </Popconfirm>
+          )}
+        </Space>
         {vendor.verification_status === "pending" && (
           <Space wrap>
             <Popconfirm

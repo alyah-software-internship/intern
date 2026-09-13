@@ -283,6 +283,7 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::get('/vendors/{id}', [AdminController::class, 'vendorDetails']);
     Route::post('/vendors/{id}/approve', [AdminController::class, 'approveVendor']);
     Route::post('/vendors/{id}/reject', [AdminController::class, 'rejectVendor']);
+    Route::put('/vendors/{id}/verification-status', [AdminController::class, 'updateVendorVerificationStatus']);
     Route::post('/vendors/{id}/activate', [AdminController::class, 'activateVendor']);
     Route::post('/vendors/{id}/deactivate', [AdminController::class, 'deactivateVendor']);
     Route::post('/vendors/{id}/block', [AdminController::class, 'blockVendor']);
