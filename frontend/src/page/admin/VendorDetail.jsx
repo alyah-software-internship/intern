@@ -108,14 +108,32 @@ const VendorDetail = () => {
     }
   };
 
+  const normalizeVerificationStatus = (value) => {
+    if (!value) return "pending";
+
+    return String(value)
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, "_")
+      .replace(/-+/g, "_")
+      .replace(/\.+/g, "")
+      .replace(/^verified$/, "approved")
+      .replace(/^suspended$/, "suspended")
+      .replace(/^pending$/, "pending")
+      .replace(/^under_review$/, "under_review")
+      .replace(/^rejected$/, "rejected")
+      .replace(/^approved$/, "approved");
+  };
+
   const handleVerificationStatusUpdate = async (
     nextStatus = verificationStatus,
   ) => {
+    const normalizedStatus = normalizeVerificationStatus(nextStatus);
     setActionLoading("verification-status");
     try {
       const response = await axios.put(
         `${backendUrl}/admin/vendors/${id}/verification-status`,
-        { status: nextStatus },
+        { status: normalizedStatus, notes: "" },
         authConfig(),
       );
       setVendor(response.data.vendor);
@@ -294,7 +312,9 @@ const VendorDetail = () => {
         <Space wrap>
           <Select
             value={verificationStatus}
-            onChange={setVerificationStatus}
+            onChange={(value) =>
+              setVerificationStatus(normalizeVerificationStatus(value))
+            }
             style={{ minWidth: 150 }}
             options={[
               { value: "pending", label: "Pending" },
