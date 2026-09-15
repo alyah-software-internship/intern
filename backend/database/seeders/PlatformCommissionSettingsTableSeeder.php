@@ -18,6 +18,7 @@ class PlatformCommissionSettingsTableSeeder extends Seeder
                 'min_commission' => 0.00,
                 'max_commission' => 0.00,
                 'applies_to' => 'all',
+                'currency' => 'USD',
                 'is_active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),

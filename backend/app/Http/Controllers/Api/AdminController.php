@@ -380,7 +380,7 @@ class AdminController extends Controller
                 'min_commission' => 'sometimes|numeric|min:0',
                 'max_commission' => 'sometimes|numeric|min:0',
                 'applies_to' => 'sometimes|string|in:all,hourly,daily,weekly,monthly',
-                'currency' => 'sometimes|string|max:3',
+                'currency' => 'sometimes|string|in:USD,ETB,EUR',
                 'is_active' => 'sometimes|boolean',
             ]);
 
