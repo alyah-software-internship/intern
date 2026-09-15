@@ -30,7 +30,7 @@ import {
 } from "@ant-design/icons";
 
 const AdminWithdrawalsPage = () => {
-  const { backendUrl } = useContext(AppContext);
+  const { backendUrl, currency } = useContext(AppContext);
   const [loading, setLoading] = useState(true);
   const [withdrawals, setWithdrawals] = useState([]);
   const [selectedWithdrawal, setSelectedWithdrawal] = useState(null);
@@ -200,7 +200,7 @@ const AdminWithdrawalsPage = () => {
     {
       title: "Amount",
       dataIndex: "amount",
-      render: (amount) => `ETB ${amount}`,
+      render: (amount) => `${currency} ${amount}`,
       width: 120,
     },
     {
@@ -365,7 +365,7 @@ const AdminWithdrawalsPage = () => {
               </Descriptions.Item>
               <Descriptions.Item label="Amount">
                 <strong style={{ color: "#0066cc", fontSize: 16 }}>
-                  ETB {selectedWithdrawal.amount}
+                  {currency} {selectedWithdrawal.amount}
                 </strong>
               </Descriptions.Item>
               <Descriptions.Item label="Status">
@@ -448,7 +448,7 @@ const AdminWithdrawalsPage = () => {
                   <>
                     <Popconfirm
                       title="Approve Withdrawal?"
-                      description={`ETB ${selectedWithdrawal.amount} will be marked for processing`}
+                      description={`${currency} ${selectedWithdrawal.amount} will be marked for processing`}
                       onConfirm={handleApprove}
                       okText="Yes"
                       cancelText="No"

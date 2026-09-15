@@ -22,7 +22,7 @@ import { EyeOutlined, DownloadOutlined, UndoOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 
 const AdminRefundsPage = () => {
-  const { backendUrl } = useContext(AppContext);
+  const { backendUrl, currency } = useContext(AppContext);
   const [loading, setLoading] = useState(true);
   const [refunds, setRefunds] = useState([]);
   const [selectedRefund, setSelectedRefund] = useState(null);
@@ -112,7 +112,7 @@ const AdminRefundsPage = () => {
     {
       title: "Amount",
       dataIndex: "amount",
-      render: (amount) => `ETB ${amount}`,
+      render: (amount) => `${currency} ${amount}`,
       width: 120,
     },
     {
@@ -196,7 +196,7 @@ const AdminRefundsPage = () => {
             <Statistic
               title="Total Amount"
               value={stats.totalAmount}
-              prefix="ETB "
+              prefix={`${currency} `}
               valueStyle={{ color: "#ef4444" }}
             />
           </Card>
@@ -328,7 +328,7 @@ const AdminRefundsPage = () => {
             </Descriptions.Item>
             <Descriptions.Item label="Amount">
               <strong style={{ color: "#ef4444", fontSize: 16 }}>
-                ETB {selectedRefund.amount}
+                {currency} {selectedRefund.amount}
               </strong>
             </Descriptions.Item>
             <Descriptions.Item label="Reason">

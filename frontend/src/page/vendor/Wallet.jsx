@@ -22,7 +22,7 @@ const authConfig = () => ({
 });
 
 const Wallet = () => {
-  const { backendUrl } = useContext(AppContext);
+  const { backendUrl, currency } = useContext(AppContext);
   const { theme } = useTheme();
   const [summary, setSummary] = useState(null);
   const [transactions, setTransactions] = useState([]);
@@ -58,7 +58,7 @@ const Wallet = () => {
   }, [backendUrl]);
 
   const money = (value) =>
-    `${summary?.currency || "ETB"} ${Number(value || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
+    `${summary?.currency || currency} ${Number(value || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
   const columns = [
     {
       title: "Date",

@@ -29,7 +29,7 @@ const { Title, Text } = Typography;
 const Products = () => {
   const navigate = useNavigate();
   const { translation: t, lang } = useTranslation();
-  const { backendUrl } = useContext(AppContext);
+  const { backendUrl, currency } = useContext(AppContext);
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const [products, setProducts] = useState([]);
@@ -197,7 +197,7 @@ const Products = () => {
 
         return (
           <Text strong>
-            {pricing.amount || 0} ETB / {pricing.unit}
+            {pricing.amount || 0} {currency} / {pricing.unit}
           </Text>
         );
       },

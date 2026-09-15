@@ -41,7 +41,7 @@ const { Title, Text } = Typography;
 
 const Bookings = () => {
   const { theme } = useTheme();
-  const { backendUrl } = useContext(AppContext);
+  const { backendUrl, currency } = useContext(AppContext);
   const isDark = theme === "dark";
   const navigate = useNavigate();
   const [bookingsList, setBookingsList] = useState([]);
@@ -392,7 +392,7 @@ const Bookings = () => {
       key: "amount",
       render: (value) => (
         <Text strong style={{ color: isDark ? "#f8fafc" : "#16213b" }}>
-          ETB{" "}
+          {currency}{" "}
           {Number(value).toLocaleString(undefined, {
             minimumFractionDigits: 2,
           })}
@@ -593,7 +593,7 @@ const Bookings = () => {
               </span>
               <small>Total Revenue</small>
               <strong>
-                ETB{" "}
+                {currency}{" "}
                 {bookingStats.revenue.toLocaleString(undefined, {
                   minimumFractionDigits: 2,
                 })}

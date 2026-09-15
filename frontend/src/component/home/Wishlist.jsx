@@ -29,7 +29,7 @@ const readWishlistCache = () => {
 const Wishlist = () => {
   const { translation: t } = useTranslation();
   const { theme } = useTheme();
-  const { backendUrl } = useContext(AppContext);
+  const { backendUrl, currency } = useContext(AppContext);
   const isDark = theme === "dark";
   const navigate = useNavigate();
   const [isMobile, setIsMobile] = useState(false);
@@ -179,7 +179,7 @@ const Wishlist = () => {
               fontSize: 12,
             }}
           >
-            ETB {item.price.toLocaleString()} / day
+            {currency} {item.price.toLocaleString()} / day
           </Text>
         </div>
 

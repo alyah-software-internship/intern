@@ -26,7 +26,7 @@ import {
 import dayjs from "dayjs";
 
 const AdminFinancialDashboard = () => {
-  const { backendUrl } = useContext(AppContext);
+  const { backendUrl, currency } = useContext(AppContext);
   const [loading, setLoading] = useState(true);
   const [dashboard, setDashboard] = useState(null);
   const [messageApi, contextHolder] = message.useMessage();
@@ -76,7 +76,7 @@ const AdminFinancialDashboard = () => {
             <Statistic
               title="Total Payments"
               value={dashboard?.total_payments || 0}
-              prefix="ETB "
+              prefix={`${currency} `}
               valueStyle={{ color: "#0066cc" }}
               icon={<DollarOutlined />}
             />
@@ -87,7 +87,7 @@ const AdminFinancialDashboard = () => {
             <Statistic
               title="Platform Revenue"
               value={dashboard?.platform_revenue || 0}
-              prefix="ETB "
+              prefix={`${currency} `}
               valueStyle={{ color: "#22c55e" }}
               suffix={`(${((dashboard?.platform_revenue / (dashboard?.total_payments || 1)) * 100).toFixed(1)}%)`}
             />
@@ -98,7 +98,7 @@ const AdminFinancialDashboard = () => {
             <Statistic
               title="Vendor Earnings"
               value={dashboard?.total_vendor_earnings || 0}
-              prefix="ETB "
+              prefix={`${currency} `}
               valueStyle={{ color: "#f59e0b" }}
             />
           </Card>
@@ -108,7 +108,7 @@ const AdminFinancialDashboard = () => {
             <Statistic
               title="Pending Earnings"
               value={dashboard?.pending_earnings || 0}
-              prefix="ETB "
+              prefix={`${currency} `}
               valueStyle={{ color: "#f59e0b" }}
             />
           </Card>
@@ -118,7 +118,7 @@ const AdminFinancialDashboard = () => {
             <Statistic
               title="Available Balance"
               value={dashboard?.total_available_balance || 0}
-              prefix="ETB "
+              prefix={`${currency} `}
               valueStyle={{ color: "#6366f1" }}
             />
           </Card>
@@ -128,7 +128,7 @@ const AdminFinancialDashboard = () => {
             <Statistic
               title="Total Withdrawals"
               value={dashboard?.total_withdrawals || 0}
-              prefix="ETB "
+              prefix={`${currency} `}
               valueStyle={{ color: "#8b5cf6" }}
             />
           </Card>
@@ -138,7 +138,7 @@ const AdminFinancialDashboard = () => {
             <Statistic
               title="Pending Withdrawals"
               value={dashboard?.pending_withdrawals || 0}
-              prefix="ETB "
+              prefix={`${currency} `}
               valueStyle={{ color: "#ec4899" }}
             />
           </Card>
@@ -148,7 +148,7 @@ const AdminFinancialDashboard = () => {
             <Statistic
               title="Completed Withdrawals"
               value={dashboard?.completed_withdrawals || 0}
-              prefix="ETB "
+              prefix={`${currency} `}
               valueStyle={{ color: "#22c55e" }}
             />
           </Card>
@@ -158,7 +158,7 @@ const AdminFinancialDashboard = () => {
             <Statistic
               title="Failed Payments"
               value={dashboard?.failed_payment_count || 0}
-              suffix={`(ETB ${dashboard?.failed_payment_amount || 0})`}
+              suffix={`(${currency} ${dashboard?.failed_payment_amount || 0})`}
               valueStyle={{ color: "#ef4444" }}
             />
           </Card>
@@ -168,7 +168,7 @@ const AdminFinancialDashboard = () => {
             <Statistic
               title="Total Refunds"
               value={dashboard?.total_refunds || 0}
-              prefix="ETB "
+              prefix={`${currency} `}
               valueStyle={{ color: "#14b8a6" }}
             />
           </Card>
@@ -212,7 +212,7 @@ const AdminFinancialDashboard = () => {
                 Average Payment Amount
               </div>
               <div style={{ fontSize: 20, fontWeight: "bold" }}>
-                ETB{" "}
+                {currency}{" "}
                 {(
                   (dashboard?.total_payments || 0) /
                   (dashboard?.payment_count || 1)
@@ -228,7 +228,7 @@ const AdminFinancialDashboard = () => {
                 Average Withdrawal Amount
               </div>
               <div style={{ fontSize: 20, fontWeight: "bold" }}>
-                ETB{" "}
+                {currency}{" "}
                 {(
                   (dashboard?.total_withdrawals || 0) /
                   (dashboard?.withdrawal_count || 1)
@@ -261,7 +261,7 @@ const AdminFinancialDashboard = () => {
                 Vendor Commission Paid
               </div>
               <div style={{ fontSize: 20, fontWeight: "bold" }}>
-                ETB {dashboard?.completed_withdrawals || 0}
+                {currency} {dashboard?.completed_withdrawals || 0}
               </div>
             </div>
           </Col>

@@ -12,7 +12,7 @@ const { Title, Text } = Typography;
 const Subscription = () => {
   const { theme } = useTheme();
   const { translation: t } = useTranslation();
-  const { backendUrl } = useContext(AppContext);
+  const { backendUrl, currency } = useContext(AppContext);
   const navigate = useNavigate();
   const [activePlan, setActivePlan] = useState("premium");
   const [selectedPlan, setSelectedPlan] = useState("premium");
@@ -120,7 +120,7 @@ const Subscription = () => {
         key: "basic",
         label: subscriptionText.basicLabel || "STARTER SHOP",
         name: subscriptionText.basicPlan || "Basic Fleet Plan",
-        price: subscriptionText.basicPrice || "ETB 2,900",
+        price: subscriptionText.basicPrice || `${currency} 2,900`,
         duration: subscriptionText.monthSuffix || "/month",
         features: subscriptionText.basicFeatures || [
           "Up to 3 product listings",
@@ -134,7 +134,7 @@ const Subscription = () => {
         key: "premium",
         label: subscriptionText.premiumLabel || "STANDARD GROWTH",
         name: subscriptionText.premiumPlan || "Pro Premium Builder",
-        price: subscriptionText.premiumPrice || "ETB 9,900",
+        price: subscriptionText.premiumPrice || `${currency} 9,900`,
         duration: subscriptionText.monthSuffix || "/month",
         features: subscriptionText.premiumFeatures || [
           "Up to 25 product listings",
@@ -150,7 +150,7 @@ const Subscription = () => {
         key: "enterprise",
         label: subscriptionText.enterpriseLabel || "CORPORATE DEALERSHIPS",
         name: subscriptionText.enterprisePlan || "Enterprise Network",
-        price: subscriptionText.enterprisePrice || "ETB 24,900",
+        price: subscriptionText.enterprisePrice || `${currency} 24,900`,
         duration: subscriptionText.monthSuffix || "/month",
         features: subscriptionText.enterpriseFeatures || [
           "Unlimited product listings",

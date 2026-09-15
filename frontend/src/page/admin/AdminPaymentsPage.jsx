@@ -16,7 +16,7 @@ import {
 } from "@ant-design/icons";
 
 const AdminPaymentsPage = () => {
-  const { backendUrl } = useContext(AppContext);
+  const { backendUrl, currency } = useContext(AppContext);
   const [loading, setLoading] = useState(true);
   const [payments, setPayments] = useState([]);
   const [selectedPayment, setSelectedPayment] = useState(null);
@@ -128,7 +128,7 @@ const AdminPaymentsPage = () => {
   };
 
   const money = (value) =>
-    `ETB ${Number(value || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
+    `${currency} ${Number(value || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
   const customerName = (payment) =>
     payment.customer?.name ||
     payment.customer?.full_name ||

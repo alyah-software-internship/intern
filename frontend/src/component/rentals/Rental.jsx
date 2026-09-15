@@ -40,7 +40,7 @@ const readCache = (key) => {
 const Rental = () => {
   const { translation: t } = useTranslation();
   const { theme } = useTheme();
-  const { backendUrl } = useContext(AppContext);
+  const { backendUrl, currency } = useContext(AppContext);
   const isDark = theme === "dark";
   const productStrings = t.products || t.home?.products || {};
 
@@ -476,11 +476,11 @@ const Rental = () => {
                     }}
                   >
                     <Text>
-                      ETB {selectedPriceRange[0].toLocaleString()}/
+                      {currency} {selectedPriceRange[0].toLocaleString()}/
                       {periodLabels[pricePeriod]}
                     </Text>
                     <Text>
-                      ETB {selectedPriceRange[1].toLocaleString()}/
+                      {currency} {selectedPriceRange[1].toLocaleString()}/
                       {periodLabels[pricePeriod]}
                     </Text>
                   </div>

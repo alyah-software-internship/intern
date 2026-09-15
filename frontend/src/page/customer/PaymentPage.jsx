@@ -22,7 +22,7 @@ const { Title, Text } = Typography;
 const PaymentPage = () => {
   const { bookingId, paymentId } = useParams();
   const location = useLocation();
-  const { backendUrl } = useContext(AppContext);
+  const { backendUrl, currency } = useContext(AppContext);
   const navigate = useNavigate();
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(() => !paymentId);
@@ -229,7 +229,7 @@ const PaymentPage = () => {
               <div>
                 <Text type="secondary">Subscription Amount</Text>
                 <Title level={2} style={{ margin: 0 }}>
-                  ETB{" "}
+                  {currency}{" "}
                   {subscriptionPayment?.amount || location.state?.amount || "-"}
                 </Title>
               </div>

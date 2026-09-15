@@ -19,14 +19,14 @@ const authConfig = () => ({
   headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` },
 });
 
-const formatCurrency = (value, currencyCode = "ETB") =>
+const formatCurrency = (value, currencyCode = "USD") =>
   new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: currencyCode,
     maximumFractionDigits: 2,
   }).format(Number(value || 0));
 
-const createAlerts = (t) => [
+const createAlerts = (t, currencyCode = "USD") => [
   {
     title: t.vendor?.alertNewBookingRequest || "New Booking Request",
     description:
@@ -49,14 +49,14 @@ const createAlerts = (t) => [
     title: t.vendor?.alertWeeklyPayoutCompleted || "Weekly Payout Completed",
     description:
       t.vendor?.alertWeeklyPayoutDesc ||
-      "Your vendor payout of ETB 1,250.00 has been initiated.",
+      `Your vendor payout of ${currencyCode} 1,250.00 has been initiated.`,
     time: t.vendor?.alertTime3 || "12:15 PM",
     icon: <CheckCircleOutlined style={{ color: "#059669" }} />,
   },
 ];
 
 const VendorPage = () => {
-  const { backendUrl } = useContext(AppContext);
+  const { backendUrl, currency } = useContext(AppContext);
   const { theme } = useTheme();
   const { translation: t } = useTranslation();
   const isDark = theme === "dark";
@@ -148,7 +148,7 @@ const VendorPage = () => {
                 level={2}
                 style={{ margin: 0, color: isDark ? "#f8fafc" : "#0f172a" }}
               >
-                {formatCurrency(completedRevenue, "ETB")}
+                {formatCurrency(completedRevenue, currency)}
               </Title>
               <Tag
                 style={{
@@ -160,7 +160,7 @@ const VendorPage = () => {
                 }}
               >
                 {stats.pending_payouts
-                  ? `Pending payout: ${formatCurrency(stats.pending_payouts, "ETB")}`
+                  ? `Pending payout: ${formatCurrency(stats.pending_payouts, currency)}`
                   : "No pending payout"}
               </Tag>
             </Card>
@@ -322,10 +322,10 @@ const VendorPage = () => {
                           whiteSpace: "nowrap",
                         }}
                       >
-                        {formatCurrency(amount, "ETB")}
+                        {formatCurrency(amount, currency)}
                       </Text>
                       <div
-                        title={`${entry.month}: ${formatCurrency(amount, "ETB")}`}
+                        title={`${entry.month}: ${formatCurrency(amount, currency)}`}
                         style={{
                           width: "min(44px, 100%)",
                           height,
@@ -374,7 +374,7 @@ const VendorPage = () => {
                 </Title>
               </div>
               <div>
-                {createAlerts(t).map((item) => (
+                {createAlerts(t, currency).map((item) => (
                   <div key={`${item.title}-${item.time}`}>
                     <Card
                       type="inner"

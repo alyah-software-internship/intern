@@ -27,7 +27,7 @@ import {
 
 const PaymentFlowPage = () => {
   const { bookingId } = useParams();
-  const { backendUrl } = useContext(AppContext);
+  const { backendUrl, currency } = useContext(AppContext);
   const navigate = useNavigate();
 
   const [booking, setBooking] = useState(null);
@@ -220,7 +220,7 @@ const PaymentFlowPage = () => {
               <Statistic
                 title="Rental Amount"
                 value={booking.rental_amount}
-                prefix="ETB "
+                prefix={`${currency} `}
                 valueStyle={{ color: "#0066cc" }}
               />
             </Col>
@@ -228,21 +228,21 @@ const PaymentFlowPage = () => {
               <Statistic
                 title="Delivery Fee"
                 value={booking.delivery_charge}
-                prefix="ETB "
+                prefix={`${currency} `}
               />
             </Col>
             <Col xs={24} sm={12}>
               <Statistic
                 title="Platform Fee"
                 value={booking.platform_fee}
-                prefix="ETB "
+                prefix={`${currency} `}
               />
             </Col>
             <Col xs={24} sm={12}>
               <Statistic
                 title="Security Deposit"
                 value={booking.security_deposit_amount}
-                prefix="ETB "
+                prefix={`${currency} `}
               />
             </Col>
           </Row>
@@ -254,7 +254,7 @@ const PaymentFlowPage = () => {
               <Statistic
                 title="Total Amount Due"
                 value={booking.total_amount}
-                prefix="ETB "
+                prefix={`${currency} `}
                 valueStyle={{ color: "#22c55e", fontSize: 24 }}
               />
             </Col>
@@ -299,7 +299,7 @@ const PaymentFlowPage = () => {
                 size="large"
                 loading={processing}
               >
-                Pay Now (ETB {booking?.total_amount})
+                Pay Now ({currency} {booking?.total_amount})
               </Button>
               <Button onClick={() => navigate(`/booking-details/${bookingId}`)}>
                 Cancel

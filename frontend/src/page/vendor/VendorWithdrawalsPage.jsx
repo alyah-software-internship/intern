@@ -20,7 +20,7 @@ import { AppContext } from "../../context/AppContext.jsx";
 import { DeleteOutlined, EyeOutlined, CopyOutlined } from "@ant-design/icons";
 
 const VendorWithdrawalsPage = () => {
-  const { backendUrl } = useContext(AppContext);
+  const { backendUrl, currency } = useContext(AppContext);
   const [loading, setLoading] = useState(true);
   const [withdrawals, setWithdrawals] = useState([]);
   const [selectedWithdrawal, setSelectedWithdrawal] = useState(null);
@@ -87,7 +87,7 @@ const VendorWithdrawalsPage = () => {
     {
       title: "Amount",
       dataIndex: "amount",
-      render: (amount) => `ETB ${amount}`,
+      render: (amount) => `${currency} ${amount}`,
       width: 120,
     },
     {
@@ -197,7 +197,9 @@ const VendorWithdrawalsPage = () => {
           <div>
             <Descriptions bordered column={1}>
               <Descriptions.Item label="Amount">
-                <strong>ETB {selectedWithdrawal.amount}</strong>
+                <strong>
+                  {currency} {selectedWithdrawal.amount}
+                </strong>
               </Descriptions.Item>
               <Descriptions.Item label="Status">
                 <Tag color={statusColors[selectedWithdrawal.payout_status]}>
