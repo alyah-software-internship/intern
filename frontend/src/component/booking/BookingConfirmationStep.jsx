@@ -12,6 +12,8 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { AppContext } from "../../context/AppContext.jsx";
 
 const { Title, Text } = Typography;
 
@@ -37,6 +39,7 @@ const BookingConfirmationStep = ({
   pendingApproval = false,
 }) => {
   const navigate = useNavigate();
+  const { currency } = useContext(AppContext);
   const item = { ...defaultBooking, ...booking };
   const duration = Math.max(1, Number(item.duration ?? item.totalDays ?? 1));
   const pricePerDay = Number(item.pricePerDay ?? 0);
@@ -365,7 +368,7 @@ const BookingConfirmationStep = ({
                   </div>
                   <div style={{ marginLeft: "auto" }}>
                     <Text strong style={{ fontSize: 18 }}>
-                      ${pricePerDay.toFixed(2)} / day
+                      {currency} {pricePerDay.toFixed(2)} / day
                     </Text>
                   </div>
                 </div>
@@ -394,25 +397,35 @@ const BookingConfirmationStep = ({
                     <Text type="secondary">
                       Rent Subtotal ({duration} days)
                     </Text>
-                    <Text>${(pricePerDay * duration).toFixed(2)}</Text>
+                    <Text>
+                      {currency} {(pricePerDay * duration).toFixed(2)}
+                    </Text>
                   </Row>
                   <Row justify="space-between">
                     <Text type="secondary">Delivery Fee</Text>
-                    <Text>${deliveryFee.toFixed(2)}</Text>
+                    <Text>
+                      {currency} {deliveryFee.toFixed(2)}
+                    </Text>
                   </Row>
                   {operatorCharge > 0 && (
                     <Row justify="space-between">
                       <Text type="secondary">Operator Charge</Text>
-                      <Text>${operatorCharge.toFixed(2)}</Text>
+                      <Text>
+                        {currency} {operatorCharge.toFixed(2)}
+                      </Text>
                     </Row>
                   )}
                   <Row justify="space-between">
                     <Text type="secondary">Refundable Deposit</Text>
-                    <Text>${refundableDeposit.toFixed(2)}</Text>
+                    <Text>
+                      {currency} {refundableDeposit.toFixed(2)}
+                    </Text>
                   </Row>
                   <Row justify="space-between">
                     <Text type="secondary">Platform Commission</Text>
-                    <Text>${platformFee.toFixed(2)}</Text>
+                    <Text>
+                      {currency} {platformFee.toFixed(2)}
+                    </Text>
                   </Row>
                 </div>
 
@@ -427,7 +440,7 @@ const BookingConfirmationStep = ({
                     Total Paid
                   </Text>
                   <Text strong style={{ fontSize: 26, color: "#0f172a" }}>
-                    ${total.toFixed(2)}
+                    {currency} {total.toFixed(2)}
                   </Text>
                 </Row>
 

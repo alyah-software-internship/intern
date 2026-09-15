@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import {
   Button,
   Card,
@@ -20,6 +20,7 @@ import {
   ShopOutlined,
   UserOutlined,
 } from "@ant-design/icons";
+import { AppContext } from "../../context/AppContext.jsx";
 
 const { Title, Text } = Typography;
 
@@ -48,6 +49,7 @@ const BookingDetailsStep = ({
   onCouponApply = () => {},
   onAdditionalInfoChange = () => {},
 }) => {
+  const { currency } = useContext(AppContext);
   const [checkInDate, setCheckInDate] = useState(booking.checkInDate || "");
   const [checkOutDate, setCheckOutDate] = useState(booking.checkOutDate || "");
   const [selectedService, setSelectedService] = useState("delivery");
@@ -270,7 +272,7 @@ const BookingDetailsStep = ({
                             {option.helper}
                           </Text>
                           <Text strong style={{ marginTop: 12 }}>
-                            ${option.fee.toFixed(2)}
+                            {currency} {option.fee.toFixed(2)}
                           </Text>
                         </div>
                       </Col>
@@ -390,7 +392,7 @@ const BookingDetailsStep = ({
                   </div>
                   <div style={{ marginLeft: "auto" }}>
                     <Text strong style={{ fontSize: 18 }}>
-                      ${booking.pricePerDay || 67}/day
+                      {currency} {booking.pricePerDay || 67}/day
                     </Text>
                   </div>
                 </div>
@@ -417,19 +419,27 @@ const BookingDetailsStep = ({
                 <div style={{ display: "grid", gap: 10 }}>
                   <Row justify="space-between">
                     <Text type="secondary">Rental Total ({duration} days)</Text>
-                    <Text>${(booking.pricePerDay || 67) * duration}</Text>
+                    <Text>
+                      {currency} {(booking.pricePerDay || 67) * duration}
+                    </Text>
                   </Row>
                   <Row justify="space-between">
                     <Text type="secondary">Refundable Deposit (3 days)</Text>
-                    <Text>${booking.refundableDeposit || 500}</Text>
+                    <Text>
+                      {currency} {booking.refundableDeposit || 500}
+                    </Text>
                   </Row>
                   <Row justify="space-between">
                     <Text type="secondary">Platform Commission (15%)</Text>
-                    <Text>${booking.platformFee || 38}</Text>
+                    <Text>
+                      {currency} {booking.platformFee || 38}
+                    </Text>
                   </Row>
                   <Row justify="space-between">
                     <Text type="secondary">Delivery Fee</Text>
-                    <Text>${serviceFeeMap[selectedService] || 10}</Text>
+                    <Text>
+                      {currency} {serviceFeeMap[selectedService] || 10}
+                    </Text>
                   </Row>
                 </div>
 
@@ -444,7 +454,7 @@ const BookingDetailsStep = ({
                     Total
                   </Text>
                   <Text strong style={{ fontSize: 26, color: "#0f172a" }}>
-                    ${total}
+                    {currency} {total}
                   </Text>
                 </Row>
 

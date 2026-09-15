@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Row, Col, Card, Typography, Button } from "antd";
 import { useTranslation } from "../../component/LanguageProvider.jsx";
 import { useTheme } from "../../context/ThemeProvider.jsx";
+import { AppContext } from "../../context/AppContext.jsx";
 
 const { Title, Text } = Typography;
 
@@ -9,7 +10,7 @@ const plans = [
   {
     id: "basic",
     title: "Daily Rental",
-    price: "$90",
+    price: 90,
     description: "Perfect for short-term projects and quick equipment needs.",
     items: ["Single-day access", "Standard support", "Flexible return"],
     button: "Start Renting",
@@ -17,7 +18,7 @@ const plans = [
   {
     id: "standard",
     title: "Weekly Rental",
-    price: "$450",
+    price: 450,
     description:
       "Save more when you rent for a full week with premium support.",
     items: ["7-day rental", "Priority scheduling", "Escrow protection"],
@@ -27,7 +28,7 @@ const plans = [
   {
     id: "premium",
     title: "Monthly Rental",
-    price: "$1,600",
+    price: 1600,
     description:
       "Best value for extended projects with the highest availability.",
     items: ["30-day rental", "Dedicated support", "Top-rated vendors"],
@@ -38,6 +39,7 @@ const plans = [
 const PricingPage = () => {
   const { translation: t } = useTranslation();
   const { theme } = useTheme();
+  const { currency } = useContext(AppContext);
   const isDark = theme === "dark";
 
   return (
@@ -135,7 +137,7 @@ const PricingPage = () => {
                       color: isDark ? "#f8fafc" : "#0f172a",
                     }}
                   >
-                    {plan.price}
+                    {currency} {plan.price.toLocaleString()}
                   </Text>
                   <Text
                     style={{

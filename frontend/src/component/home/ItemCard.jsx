@@ -24,7 +24,7 @@ const ItemCard = ({ item, onAction, onSelect }) => {
   } = item;
 
   const { translation: t } = useTranslation();
-  const { backendUrl } = useContext(AppContext);
+  const { backendUrl, currency } = useContext(AppContext);
   const [isFavorite, setIsFavorite] = useState(Boolean(item.isFavorite));
   const [favoriteLoading, setFavoriteLoading] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
@@ -214,7 +214,7 @@ const ItemCard = ({ item, onAction, onSelect }) => {
       <div className="flex justify-around ">
         <div>
           <Text strong style={{ display: "block", fontSize: 20 }}>
-            {price ? `$${price}/day` : "$250/day"}
+            {price ? `${currency} ${price}/day` : `${currency} 250/day`}
           </Text>
           <Text type="secondary" style={{ fontSize: 12 }}>
             {t.home?.dailyRental || "Daily Rental"}

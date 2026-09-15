@@ -1,3 +1,4 @@
+import { useContext } from "react";
 import {
   Button,
   Card,
@@ -19,6 +20,7 @@ import {
   SafetyCertificateOutlined,
   UserOutlined,
 } from "@ant-design/icons";
+import { AppContext } from "../../context/AppContext.jsx";
 
 const { Title, Text } = Typography;
 
@@ -46,6 +48,7 @@ const BookingReviewStep = ({
   onContinue,
   isSubmitting = false,
 }) => {
+  const { currency } = useContext(AppContext);
   const item = {
     ...defaultBooking,
     ...booking,
@@ -163,7 +166,7 @@ const BookingReviewStep = ({
 
                   <div style={{ marginLeft: "auto" }}>
                     <Text strong style={{ fontSize: 18, color: "#0f172a" }}>
-                      ${item.pricePerDay} / day
+                      {currency} {item.pricePerDay} / day
                     </Text>
                   </div>
                 </div>
@@ -289,7 +292,7 @@ const BookingReviewStep = ({
                     </div>
                   </div>
                   <Text strong style={{ fontSize: 18 }}>
-                    ${deliveryFee.toFixed(2)}
+                    {currency} {deliveryFee.toFixed(2)}
                   </Text>
                 </div>
               </div>
@@ -338,7 +341,9 @@ const BookingReviewStep = ({
                     <SafetyCertificateOutlined style={{ color: "#f59e0b" }} />
                     <Text>Refundable Escrow Deposit</Text>
                   </Space>
-                  <Text strong>${refundableDeposit.toFixed(2)}</Text>
+                  <Text strong>
+                    {currency} {refundableDeposit.toFixed(2)}
+                  </Text>
                 </Row>
 
                 <Row
@@ -358,7 +363,7 @@ const BookingReviewStep = ({
                     <ClockCircleOutlined style={{ color: "#3b82f6" }} />
                     <Text>Overdue Fee</Text>
                   </Space>
-                  <Text strong>$0 / hour</Text>
+                  <Text strong>{currency} 0 / hour</Text>
                 </Row>
               </div>
 
@@ -438,7 +443,7 @@ const BookingReviewStep = ({
                   </div>
                   <div style={{ marginLeft: "auto" }}>
                     <Text strong style={{ fontSize: 18 }}>
-                      ${item.pricePerDay || 67} / day
+                      {currency} {item.pricePerDay || 67} / day
                     </Text>
                   </div>
                 </div>
@@ -467,25 +472,35 @@ const BookingReviewStep = ({
                     <Text type="secondary">
                       Rent Subtotal ({duration} days)
                     </Text>
-                    <Text>${(pricePerDay * duration).toFixed(2)}</Text>
+                    <Text>
+                      {currency} {(pricePerDay * duration).toFixed(2)}
+                    </Text>
                   </Row>
                   <Row justify="space-between">
                     <Text type="secondary">Delivery Fee</Text>
-                    <Text>${deliveryFee.toFixed(2)}</Text>
+                    <Text>
+                      {currency} {deliveryFee.toFixed(2)}
+                    </Text>
                   </Row>
                   {operatorCharge > 0 && (
                     <Row justify="space-between">
                       <Text type="secondary">Operator Charge</Text>
-                      <Text>${operatorCharge.toFixed(2)}</Text>
+                      <Text>
+                        {currency} {operatorCharge.toFixed(2)}
+                      </Text>
                     </Row>
                   )}
                   <Row justify="space-between">
                     <Text type="secondary">Refundable Deposit</Text>
-                    <Text>${refundableDeposit.toFixed(2)}</Text>
+                    <Text>
+                      {currency} {refundableDeposit.toFixed(2)}
+                    </Text>
                   </Row>
                   <Row justify="space-between">
                     <Text type="secondary">Platform Commission</Text>
-                    <Text>${platformFee.toFixed(2)}</Text>
+                    <Text>
+                      {currency} {platformFee.toFixed(2)}
+                    </Text>
                   </Row>
                 </div>
 
@@ -500,7 +515,7 @@ const BookingReviewStep = ({
                     Total
                   </Text>
                   <Text strong style={{ fontSize: 26, color: "#0f172a" }}>
-                    ${total.toFixed(2)}
+                    {currency} {total.toFixed(2)}
                   </Text>
                 </Row>
 

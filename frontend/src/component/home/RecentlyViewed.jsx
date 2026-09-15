@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Card, Avatar, Typography } from "antd";
 import { useTranslation } from "../LanguageProvider.jsx";
 import { useTheme } from "../../context/ThemeProvider.jsx";
+import { AppContext } from "../../context/AppContext.jsx";
 import excavatorImage from "../../assets/excavator.png";
 import carImage from "../../assets/car.png";
 
@@ -12,14 +13,14 @@ const sample = [
     id: 1,
     title: "Caterpillar 301.8 Mini Excavator",
     categoryKey: "construction",
-    price: "$250/day",
+    price: 250,
     image: excavatorImage,
   },
   {
     id: 2,
     title: "John Deere 1025R Sub-Compact Tractor",
     categoryKey: "agriculture",
-    price: "$180/day",
+    price: 180,
     image: carImage,
   },
 ];
@@ -27,6 +28,7 @@ const sample = [
 const RecentlyViewed = () => {
   const { translation: t } = useTranslation();
   const { theme } = useTheme();
+  const { currency } = useContext(AppContext);
   const isDark = theme === "dark";
 
   return (
@@ -89,7 +91,7 @@ const RecentlyViewed = () => {
           </div>
 
           <Text style={{ color: "#10b981", fontWeight: 700 }}>
-            {item.price}
+            {currency} {item.price.toLocaleString()}/day
           </Text>
         </div>
       ))}

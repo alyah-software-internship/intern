@@ -11,7 +11,7 @@ const { Text, Title } = Typography;
 const DetailInfo = ({ item }) => {
   const { translation: t } = useTranslation();
   const { isDark } = useTheme();
-  const { backendUrl } = useContext(AppContext);
+  const { backendUrl, currency } = useContext(AppContext);
   const navigate = useNavigate();
 
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -422,7 +422,7 @@ const DetailInfo = ({ item }) => {
                   "Rental Price Rate"}
               </Text>
               <Title level={3} style={{ margin: 0 }}>
-                ${item.price} <Text type="secondary">/day</Text>
+                {currency} {item.price} <Text type="secondary">/day</Text>
               </Title>
             </div>
           </div>
@@ -502,7 +502,9 @@ const DetailInfo = ({ item }) => {
               }}
             >
               <Text strong>{t.common?.total || "Total"}</Text>
-              <Text strong>${totalPrice}</Text>
+              <Text strong>
+                {currency} {totalPrice}
+              </Text>
             </div>
 
             <Button

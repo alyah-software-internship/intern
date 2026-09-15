@@ -17,10 +17,7 @@ export const AppContextProvider = (props) => {
     Boolean(localStorage.getItem("authToken")),
   );
   const [lang, setLang] = useState("en");
-  const [currency, setCurrency] = useState(() => {
-    const savedCurrency = localStorage.getItem("platformCurrency");
-    return savedCurrency || "USD";
-  });
+  const [currency, setCurrency] = useState("USD");
 
   const backendUrl = (() => {
     const configuredUrl =
@@ -35,9 +32,7 @@ export const AppContextProvider = (props) => {
   useEffect(() => {
     const loadPlatformCurrency = async () => {
       if (!backendUrl) {
-        const fallbackCurrency =
-          localStorage.getItem("platformCurrency") || "USD";
-        setCurrency(fallbackCurrency);
+        setCurrency("USD");
         return;
       }
 
@@ -49,18 +44,13 @@ export const AppContextProvider = (props) => {
           headers,
         });
 
-        const nextCurrency =
-          response.data?.currency ||
-          localStorage.getItem("platformCurrency") ||
-          "USD";
+        const nextCurrency = response.data?.currency || "USD";
 
         setCurrency(nextCurrency);
         localStorage.setItem("platformCurrency", nextCurrency);
       } catch (error) {
         console.warn("Unable to load platform currency:", error);
-        const fallbackCurrency =
-          localStorage.getItem("platformCurrency") || "USD";
-        setCurrency(fallbackCurrency);
+        setCurrency("USD");
       }
     };
 

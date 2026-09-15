@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import {
   Button,
   Card,
@@ -23,6 +23,7 @@ import {
   InboxOutlined,
   FileImageOutlined,
 } from "@ant-design/icons";
+import { AppContext } from "../../context/AppContext.jsx";
 
 const { Title, Text } = Typography;
 
@@ -31,6 +32,7 @@ const BookingPaymentStep = ({
   onBack = () => {},
   onPaymentSubmit = () => {},
 }) => {
+  const { currency } = useContext(AppContext);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("cbe");
   const [screenshotFile, setScreenshotFile] = useState(null);
   const [uploading, setUploading] = useState(false);
@@ -509,7 +511,7 @@ const BookingPaymentStep = ({
                   </div>
                   <div style={{ marginLeft: "auto" }}>
                     <Text strong style={{ fontSize: 18 }}>
-                      ${booking.pricePerDay || 67} / day
+                      {currency} {booking.pricePerDay || 67} / day
                     </Text>
                   </div>
                 </div>
@@ -539,20 +541,27 @@ const BookingPaymentStep = ({
                       Rent Subtotal ({booking.duration} days)
                     </Text>
                     <Text>
-                      ${(booking.pricePerDay || 67) * (booking.duration || 1)}
+                      {currency}{" "}
+                      {(booking.pricePerDay || 67) * (booking.duration || 1)}
                     </Text>
                   </Row>
                   <Row justify="space-between">
                     <Text type="secondary">Delivery Fee</Text>
-                    <Text>${booking.deliveryFee || 10}</Text>
+                    <Text>
+                      {currency} {booking.deliveryFee || 10}
+                    </Text>
                   </Row>
                   <Row justify="space-between">
                     <Text type="secondary">Refundable Deposit</Text>
-                    <Text>${booking.refundableDeposit || 500}</Text>
+                    <Text>
+                      {currency} {booking.refundableDeposit || 500}
+                    </Text>
                   </Row>
                   <Row justify="space-between">
                     <Text type="secondary">Platform Commission (15%)</Text>
-                    <Text>${booking.platformFee || 38}</Text>
+                    <Text>
+                      {currency} {booking.platformFee || 38}
+                    </Text>
                   </Row>
                 </div>
 
@@ -567,7 +576,7 @@ const BookingPaymentStep = ({
                     Total
                   </Text>
                   <Text strong style={{ fontSize: 26, color: "#0f172a" }}>
-                    ${booking.total || 749}
+                    {currency} {booking.total || 749}
                   </Text>
                 </Row>
 
