@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Card, Typography, Badge } from "antd";
 import { BellOutlined } from "@ant-design/icons";
 import { useTranslation } from "../LanguageProvider.jsx";
 import { useTheme } from "../../context/ThemeProvider.jsx";
+import { AppContext } from "../../context/AppContext.jsx";
 
 const { Text } = Typography;
 
@@ -22,7 +23,7 @@ const sampleAlerts = [
   {
     id: 3,
     title: "Weekly Payout Completed",
-    body: "Your vendor payout of $1,250.00 has been initiated to your linked account.",
+    body: "Your vendor payout of 1,250.00 has been initiated to your linked account.",
     date: "7/15/2026 at 11:00 AM",
   },
 ];
@@ -30,6 +31,7 @@ const sampleAlerts = [
 const AlertsPanel = () => {
   const { translation: t } = useTranslation();
   const { theme } = useTheme();
+  const { currency } = useContext(AppContext);
   const isDark = theme === "dark";
 
   return (
@@ -95,7 +97,9 @@ const AlertsPanel = () => {
                 marginTop: 6,
               }}
             >
-              {item.body}
+              {item.id === 3
+                ? `Your vendor payout of ${currency} 1,250.00 has been initiated to your linked account.`
+                : item.body}
             </Text>
             <Text
               style={{

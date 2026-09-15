@@ -238,7 +238,7 @@ const DetailInfo = ({ item }) => {
                     <div
                       style={{ fontSize: 20, fontWeight: 800, margin: "8px 0" }}
                     >
-                      ${item.deposit || 0}
+                      {currency} {item.deposit || 0}
                     </div>
                     <Text type="secondary" style={{ fontSize: 12 }}>
                       {t.productDetail?.depositNote || "Fully refundable"}
@@ -266,7 +266,8 @@ const DetailInfo = ({ item }) => {
                     <div
                       style={{ fontSize: 20, fontWeight: 800, margin: "8px 0" }}
                     >
-                      ${item.overdueFee || 0} / {item.overdueFeeUnit || "hour"}
+                      {currency} {item.overdueFee || 0} /{" "}
+                      {item.overdueFeeUnit || "hour"}
                     </div>
                     <Text type="secondary" style={{ fontSize: 12 }}>
                       {t.productDetail?.overdueNote || "Charged per late hour"}
@@ -476,21 +477,27 @@ const DetailInfo = ({ item }) => {
                   {t.productDetail?.rentSubtotal || "Rent Subtotal"} (
                   {rentalDays} day{rentalDays > 1 ? "s" : ""})
                 </Text>
-                <Text>${rentalSubtotal}</Text>
+                <Text>
+                  {currency} {rentalSubtotal}
+                </Text>
               </div>
               <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <Text type="secondary">
                   {t.productDetail?.refundableDeposit ||
                     "Refundable Escrow Deposit"}
                 </Text>
-                <Text>${refundableDeposit}</Text>
+                <Text>
+                  {currency} {refundableDeposit}
+                </Text>
               </div>
               <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <Text type="secondary">
                   {t.productDetail?.platformFee ||
                     "Platform Commission Fee (5%)"}
                 </Text>
-                <Text>${platformFee}</Text>
+                <Text>
+                  {currency} {platformFee}
+                </Text>
               </div>
             </div>
 
