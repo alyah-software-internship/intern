@@ -11,6 +11,7 @@ import {
   DollarOutlined,
   FileTextOutlined,
   LogoutOutlined,
+  MenuOutlined,
   SafetyCertificateOutlined,
   SettingOutlined,
   ShopOutlined,
@@ -263,6 +264,9 @@ const AdminLayout = () => {
               <NavLink
                 key={item.key}
                 to={item.path}
+                onClick={() => {
+                  if (isMobile) setSidebarOpen(false);
+                }}
                 style={{ textDecoration: "none" }}
               >
                 <Button
@@ -331,11 +335,36 @@ const AdminLayout = () => {
               flexWrap: "wrap",
               alignItems: "center",
               justifyContent: "space-between",
-              gap: 20,
+              gap: isMobile ? 12 : 20,
               marginBottom: 24,
             }}
           >
-            <div style={{ minWidth: 0 }}>
+            <div
+              style={{
+                minWidth: 0,
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+              }}
+            >
+              {isMobile && (
+                <Button
+                  type="default"
+                  shape="circle"
+                  icon={<MenuOutlined />}
+                  onClick={() => setSidebarOpen(true)}
+                  aria-label="Open admin menu"
+                  title="Open admin menu"
+                  style={{
+                    width: 44,
+                    height: 44,
+                    flex: "0 0 auto",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                />
+              )}
               <Text
                 style={{
                   display: "block",
@@ -353,7 +382,7 @@ const AdminLayout = () => {
                 style={{
                   margin: "8px 0 0",
                   color: isDark ? "#f8fafc" : "#0f172a",
-                  fontSize: 32,
+                  fontSize: isMobile ? 25 : 32,
                   lineHeight: 1.1,
                 }}
               >
