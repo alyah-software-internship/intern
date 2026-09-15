@@ -36,7 +36,7 @@ class AuthController extends Controller
      */
     public function register(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $validator = Validator::make(['email' => $email], [
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:8|confirmed',
             'first_name' => 'required|string|max:100',
@@ -255,6 +255,8 @@ class AuthController extends Controller
      */
     public function forgotPassword(Request $request)
     {
+        $email = strtolower(trim((string) $request->input('email')));
+
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
         ]);
@@ -268,10 +270,10 @@ class AuthController extends Controller
         }
 
         try {
-            $status = Password::sendResetLink(['email' => $request->email]);
+            $status = Password::sendResetLink(['email' => $email]);
         } catch (\Throwable $exception) {
             Log::error('Password reset link failed.', [
-                'email' => $request->email,
+                'email' => $email,
                 'error' => $exception->getMessage(),
             ]);
 
@@ -279,6 +281,20 @@ class AuthController extends Controller
                 'success' => false,
                 'message' => 'Unable to send the password reset link. Please try again later.',
             ], 503);
+        }
+
+        if ($status === Password::RESET_THROTTLED) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please wait before requesting another reset link.',
+            ], 429);
+        }
+
+        if ($status === Password::INVALID_USER) {
+            return response()->json([
+                'success' => true,
+                'message' => 'If an account exists for that email, a password reset link has been sent.',
+            ]);
         }
 
         if ($status !== Password::RESET_LINK_SENT) {
