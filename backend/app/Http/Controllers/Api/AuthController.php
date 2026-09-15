@@ -13,7 +13,6 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class AuthController extends Controller
@@ -252,7 +251,7 @@ class AuthController extends Controller
     }
 
     /**
-     * Generate and email a temporary password for an existing user.
+     * Send a token-based password reset link.
      */
     public function forgotPassword(Request $request)
     {
@@ -268,83 +267,30 @@ class AuthController extends Controller
             ], 422);
         }
 
-        $user = User::where('email', $request->email)->first();
-
-        if (!$user) {
-            return response()->json([
-                'success' => false,
-                'message' => "User doesn't exist.",
-            ], 404);
-        }
-
-        if (config('mail.default') === 'log') {
-            Log::error('Temporary password email was not sent because the mailer is configured for logging.', [
-                'email' => $user->email,
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Email service is not configured. Please contact support.',
-            ], 503);
-        }
-
-        $temporaryPassword = Str::random(12);
-        $subject = 'Your i-Share temporary password';
-        $body = "Your temporary i-Share password is: {$temporaryPassword}\n\nSign in with this password, then change it from Settings.";
-
         try {
-            if (filled(config('services.resend.key'))) {
-                $response = Http::withToken(config('services.resend.key'))
-                    ->timeout(15)
-                    ->post('https://api.resend.com/emails', [
-                        'from' => config('mail.from.address'),
-                        'to' => [$user->email],
-                        'subject' => $subject,
-                        'text' => $body,
-                    ]);
-
-                if ($response->failed()) {
-                    Log::error('Resend rejected temporary password email.', [
-                        'email' => $user->email,
-                        'status' => $response->status(),
-                        'response' => $response->json() ?: $response->body(),
-                    ]);
-
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Email provider rejected the message. Please check the Resend sender and API key.',
-                    ], 503);
-                }
-            } elseif (config('mail.default') === 'resend') {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Resend API key is not configured. Please contact support.',
-                ], 503);
-            } else {
-                Mail::raw($body, function ($message) use ($user, $subject) {
-                    $message->to($user->email)->subject($subject);
-                });
-            }
+            $status = Password::sendResetLink(['email' => $request->email]);
         } catch (\Throwable $exception) {
-            Log::error('Temporary password email failed.', [
-                'email' => $user->email,
+            Log::error('Password reset link failed.', [
+                'email' => $request->email,
                 'error' => $exception->getMessage(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Unable to send the temporary password. Please try again later.',
+                'message' => 'Unable to send the password reset link. Please try again later.',
             ], 503);
         }
 
-        $user->forceFill([
-            'password' => $temporaryPassword,
-            'must_change_password' => true,
-        ])->save();
+        if ($status !== Password::RESET_LINK_SENT) {
+            return response()->json([
+                'success' => false,
+                'message' => __($status),
+            ], 422);
+        }
 
         return response()->json([
             'success' => true,
-            'message' => 'If an account exists for that email, a temporary password has been sent.',
+            'message' => 'If an account exists for that email, a password reset link has been sent.',
         ]);
     }
 

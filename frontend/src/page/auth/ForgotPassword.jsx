@@ -22,7 +22,7 @@ const ForgotPassword = () => {
     } catch (error) {
       messageApi.error(
         error.response?.data?.message ||
-          "Unable to send the temporary password.",
+          "Unable to send the password reset link.",
       );
     } finally {
       setLoading(false);
@@ -34,7 +34,7 @@ const ForgotPassword = () => {
       {contextHolder}
       <Card className="auth-form-card">
         <Title level={2}>Forgot password?</Title>
-        <Text>Enter your email and we will send a temporary password.</Text>
+        <Text>Enter your email and we will send a password reset link.</Text>
         <Form
           layout="vertical"
           onFinish={handleSubmit}
@@ -64,7 +64,7 @@ const ForgotPassword = () => {
             size="large"
             loading={loading}
           >
-            Send temporary password
+            Send reset link
           </Button>
         </Form>
         <Link to="/signin" className="auth-secondary-link">
