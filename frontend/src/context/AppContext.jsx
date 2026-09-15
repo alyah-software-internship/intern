@@ -5,6 +5,7 @@ export const AppContext = createContext({
   isSignedIn: false,
   user: null,
   currency: "USD",
+  setCurrency: () => {},
 });
 
 export const AppContextProvider = (props) => {
@@ -16,7 +17,10 @@ export const AppContextProvider = (props) => {
     Boolean(localStorage.getItem("authToken")),
   );
   const [lang, setLang] = useState("en");
-  const [currency, setCurrency] = useState("USD");
+  const [currency, setCurrency] = useState(() => {
+    const savedCurrency = localStorage.getItem("platformCurrency");
+    return savedCurrency || "USD";
+  });
 
   const backendUrl = (() => {
     const configuredUrl =
@@ -30,30 +34,36 @@ export const AppContextProvider = (props) => {
 
   useEffect(() => {
     const loadPlatformCurrency = async () => {
-      if (!backendUrl) return;
-
-      const token = localStorage.getItem("authToken");
-      const activeUser = localStorage.getItem("authUser");
-      const userRole = activeUser ? JSON.parse(activeUser)?.role : user?.role;
-
-      if (!token || !userRole || userRole !== "admin") {
-        setCurrency("USD");
+      if (!backendUrl) {
+        const fallbackCurrency =
+          localStorage.getItem("platformCurrency") || "USD";
+        setCurrency(fallbackCurrency);
         return;
       }
+
+      const token = localStorage.getItem("authToken");
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
       try {
         const response = await axios.get(
           `${backendUrl}/admin/platform-settings`,
           {
-            headers: { Authorization: `Bearer ${token}` },
+            headers,
           },
         );
 
-        const nextCurrency = response.data?.settings?.currency || "USD";
+        const nextCurrency =
+          response.data?.settings?.currency ||
+          localStorage.getItem("platformCurrency") ||
+          "USD";
+
         setCurrency(nextCurrency);
+        localStorage.setItem("platformCurrency", nextCurrency);
       } catch (error) {
         console.warn("Unable to load platform currency:", error);
-        setCurrency("USD");
+        const fallbackCurrency =
+          localStorage.getItem("platformCurrency") || "USD";
+        setCurrency(fallbackCurrency);
       }
     };
 
@@ -94,6 +104,11 @@ export const AppContextProvider = (props) => {
   const value = {
     backendUrl,
     currency,
+    setCurrency: (nextCurrency) => {
+      const normalized = nextCurrency || "USD";
+      setCurrency(normalized);
+      localStorage.setItem("platformCurrency", normalized);
+    },
     isSignedIn,
     user,
     lang,

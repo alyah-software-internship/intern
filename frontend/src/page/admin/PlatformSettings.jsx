@@ -87,6 +87,7 @@ const PlatformSettings = () => {
         max_commission: values.max_commission,
         applies_to: values.applies_to,
         is_active: values.is_active,
+        currency: values.currency || "USD",
       };
 
       const response = await axios.put(
