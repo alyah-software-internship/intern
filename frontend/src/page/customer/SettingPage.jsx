@@ -21,10 +21,9 @@ const { Title, Text } = Typography;
 const SettingPage = () => {
   const { theme, toggleTheme } = useTheme();
   const { translation: t } = useTranslation();
-  const { backendUrl } = useContext(AppContext);
+  const { backendUrl, currency } = useContext(AppContext);
   const isDark = theme === "dark";
 
-  const [currency, setCurrency] = useState("USD ($)");
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [smsAlerts, setSmsAlerts] = useState(false);
   const [bannerPrompts, setBannerPrompts] = useState(true);
@@ -178,12 +177,12 @@ const SettingPage = () => {
                   </div>
                   <Select
                     value={currency}
-                    onChange={setCurrency}
+                    disabled
                     style={{ minWidth: 160 }}
                     options={[
-                      { value: "USD ($)", label: "USD ($)" },
-                      { value: "ETB (Br)", label: "ETB (Br)" },
-                      { value: "EUR (€)", label: "EUR (€)" },
+                      { value: "USD", label: "USD ($)" },
+                      { value: "ETB", label: "ETB (Br)" },
+                      { value: "EUR", label: "EUR (€)" },
                     ]}
                   />
                 </div>

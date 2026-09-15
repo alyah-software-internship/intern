@@ -361,6 +361,16 @@ class AdminController extends Controller
     /**
      * Get or update platform settings from the database.
      */
+    public function platformCurrency()
+    {
+        $settings = PlatformCommissionSetting::first();
+
+        return response()->json([
+            'success' => true,
+            'currency' => strtoupper($settings?->currency ?? 'USD'),
+        ]);
+    }
+
     public function platformSettings(Request $request)
     {
         try {

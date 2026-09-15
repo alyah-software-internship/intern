@@ -45,15 +45,12 @@ export const AppContextProvider = (props) => {
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
       try {
-        const response = await axios.get(
-          `${backendUrl}/admin/platform-settings`,
-          {
-            headers,
-          },
-        );
+        const response = await axios.get(`${backendUrl}/platform-currency`, {
+          headers,
+        });
 
         const nextCurrency =
-          response.data?.settings?.currency ||
+          response.data?.currency ||
           localStorage.getItem("platformCurrency") ||
           "USD";
 

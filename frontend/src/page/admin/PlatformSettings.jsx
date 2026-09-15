@@ -25,7 +25,7 @@ const authConfig = () => ({
 });
 
 const PlatformSettings = () => {
-  const { backendUrl } = useContext(AppContext);
+  const { backendUrl, setCurrency } = useContext(AppContext);
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const [form] = Form.useForm();
@@ -97,6 +97,7 @@ const PlatformSettings = () => {
       );
 
       form.setFieldsValue(response.data?.settings || values);
+      setCurrency(response.data?.settings?.currency || values.currency);
       messageApi.success("Platform settings updated successfully");
     } catch (error) {
       messageApi.error("Failed to update settings");
