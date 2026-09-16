@@ -70,6 +70,7 @@ const AddItem = () => {
   }, [backendUrl, messageApi]);
 
   const [form] = Form.useForm();
+  const deliveryAvailable = Form.useWatch("deliveryAvailable", form);
 
   useEffect(() => {
     if (!editId) {
@@ -152,7 +153,7 @@ const AddItem = () => {
         security_deposit_amount: values.securityDeposit || 0,
         delivery_available: values.deliveryAvailable || false,
         rental_policies: {
-          delivery_fee: values.deliveryFee || 0,
+          delivery_fee: values.deliveryAvailable ? values.deliveryFee || 0 : 0,
           late_fee: values.lateFee || 0,
           late_fee_unit: values.lateFeeUnit || "hour",
           cancellation_policy: values.cancellationPolicy || "flexible",
@@ -448,7 +449,15 @@ const AddItem = () => {
               valuePropName="checked"
               initialValue={false}
             >
-              <Switch checkedChildren="Yes" unCheckedChildren="No" />
+              <Switch
+                checkedChildren="Yes"
+                unCheckedChildren="No"
+                onChange={(checked) => {
+                  if (!checked) {
+                    form.setFieldValue("deliveryFee", 0);
+                  }
+                }}
+              />
             </Form.Item>
 
             <Form.Item
@@ -456,13 +465,22 @@ const AddItem = () => {
               label="Delivery Fee"
               rules={[
                 {
+                  required: deliveryAvailable,
+                  message: "Please enter the delivery fee.",
+                },
+                {
                   type: "number",
                   min: 0,
                   message: "Enter a valid delivery fee.",
                 },
               ]}
             >
-              <InputNumber min={0} style={{ width: "100%" }} placeholder="0" />
+              <InputNumber
+                min={0}
+                disabled={!deliveryAvailable}
+                style={{ width: "100%" }}
+                placeholder={deliveryAvailable ? "0" : "Delivery unavailable"}
+              />
             </Form.Item>
 
             <Space style={{ display: "flex" }} align="start">
