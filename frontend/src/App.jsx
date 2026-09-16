@@ -125,7 +125,14 @@ const App = () => {
     <div className={theme === "dark" ? "app-root app-root--dark" : "app-root"}>
       {!hideMainHeader && <Header />}
       <AnimatePresence mode="wait">
-        <Suspense fallback={<div className="app-loading">Loading...</div>}>
+        <Suspense
+          fallback={
+            <div className="app-loading" role="status" aria-live="polite">
+              <span className="app-loading-spinner" aria-hidden="true" />
+              <span>Loading...</span>
+            </div>
+          }
+        >
           <Routes location={location} key={location.pathname}>
             <Route path="/" element={<Home />} />
             <Route path="/signin" element={<Login />} />

@@ -19,6 +19,41 @@ body {
   box-sizing: border-box;
 }
 
+.app-loading {
+  display: flex;
+  min-height: 62vh;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #1769e8;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.app-loading-spinner {
+  width: 26px;
+  height: 26px;
+  border: 3px solid rgba(23, 105, 232, 0.18);
+  border-top-color: #1769e8;
+  border-radius: 50%;
+  animation: app-loading-spin 0.8s linear infinite;
+}
+
+.app-root--dark .app-loading {
+  color: #8bbcff;
+}
+
+.app-root--dark .app-loading-spinner {
+  border-color: rgba(139, 188, 255, 0.2);
+  border-top-color: #8bbcff;
+}
+
+@keyframes app-loading-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .auth-page-shell {
   display: grid;
   min-height: 100vh;
