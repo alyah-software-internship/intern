@@ -103,75 +103,31 @@ const BrowseCategories = () => {
       <Row gutter={[16, 16]}>
         {categories.map((category) => {
           const title = category.name;
-          const subtitle = category.description || "Explore available rentals.";
 
           return (
             <Col key={category.id} xs={24} sm={12} md={12} lg={6} xl={6}>
               <div
                 style={{
                   borderRadius: 18,
-                  minHeight: 160,
-                  padding: 18,
+                  height: 190,
+                  overflow: "hidden",
                   background: isDark ? "rgba(255,255,255,0.03)" : "#f8fafc",
                   border: isDark
                     ? "1px solid rgba(255,255,255,0.04)"
                     : "1px solid rgba(15,23,42,0.08)",
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "space-between",
-                  gap: 16,
                 }}
               >
-                <div
+                <img
+                  src={getCategoryImageUrl(category.image_url, backendUrl)}
+                  alt={title}
+                  onError={useFallbackImage}
                   style={{
-                    width: 44,
-                    height: 44,
-                    borderRadius: 14,
-                    background: category.accent + "1A",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
+                    display: "block",
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
                   }}
-                >
-                  <img
-                    src={getCategoryImageUrl(category.image_url, backendUrl)}
-                    alt={title}
-                    onError={useFallbackImage}
-                    style={{ width: 28, height: 28, objectFit: "contain" }}
-                  />
-                </div>
-
-                <div>
-                  <Text
-                    strong
-                    style={{
-                      display: "block",
-                      color: isDark ? "#f8fafc" : "#0f172a",
-                      fontSize: 14,
-                      marginBottom: 8,
-                    }}
-                  >
-                    {title}
-                  </Text>
-                  <Text
-                    style={{
-                      color: isDark ? "#94a3b8" : "#6b7280",
-                      fontSize: 12,
-                    }}
-                  >
-                    {subtitle}
-                  </Text>
-                </div>
-
-                <Text
-                  strong
-                  style={{
-                    color: isDark ? "#10b981" : "#059669",
-                    fontSize: 12,
-                  }}
-                >
-                  {t.common?.rent || "Rent Now"} →
-                </Text>
+                />
               </div>
             </Col>
           );
