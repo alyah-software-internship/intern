@@ -2695,6 +2695,8 @@ html.dark .text-slate-500,
 .rental-filter-column {
   min-width: 0;
   align-self: start;
+  position: sticky;
+  top: 88px;
 }
 
 .rental-results-column {
@@ -2713,10 +2715,9 @@ html.dark .text-slate-500,
 }
 
 .rental-filter-card {
-  position: sticky;
-  top: 88px;
-  overflow-y: auto;
-  max-height: calc(100vh - 112px);
+  position: relative;
+  overflow: visible;
+  max-height: none;
   border: 1px solid #d8dee8 !important;
   border-radius: 12px !important;
   background: #ffffff;
@@ -2817,6 +2818,7 @@ html.dark .text-slate-500,
 
   .rental-filter-column {
     display: none;
+    position: static;
   }
 
   .rental-mobile-toolbar {
