@@ -8,7 +8,7 @@ import { useFallbackImage } from "../../config/categoryImage.js";
 
 const { Text } = Typography;
 
-const ItemCard = ({ item, onAction, onSelect }) => {
+const ItemCard = ({ item, onAction, onSelect, equalHeight = false }) => {
   const {
     title,
     category,
@@ -27,7 +27,9 @@ const ItemCard = ({ item, onAction, onSelect }) => {
   const { backendUrl, currency } = useContext(AppContext);
   const [isFavorite, setIsFavorite] = useState(Boolean(item.isFavorite));
   const [favoriteLoading, setFavoriteLoading] = useState(false);
+  const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
+  const canExpandDescription = equalHeight && description.length > 180;
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
@@ -76,7 +78,12 @@ const ItemCard = ({ item, onAction, onSelect }) => {
     <Card
       hoverable
       styles={{ body: { padding: 16 } }}
-      style={{ borderRadius: 24, overflow: "hidden", cursor: "pointer" }}
+      style={{
+        height: equalHeight ? "100%" : undefined,
+        borderRadius: 24,
+        overflow: "hidden",
+        cursor: "pointer",
+      }}
       onClick={() => onSelect?.(item)}
     >
       {contextHolder}
@@ -179,10 +186,32 @@ const ItemCard = ({ item, onAction, onSelect }) => {
 
       <Text
         type="secondary"
-        style={{ display: "block", marginBottom: 16, lineHeight: 1.6 }}
+        style={{
+          display: "-webkit-box",
+          marginBottom: canExpandDescription ? 4 : 16,
+          lineHeight: 1.6,
+          overflow: "hidden",
+          WebkitBoxOrient: "vertical",
+          WebkitLineClamp:
+            canExpandDescription && !descriptionExpanded ? 3 : "unset",
+        }}
       >
         {description}
       </Text>
+
+      {canExpandDescription && (
+        <Button
+          type="link"
+          size="small"
+          onClick={(event) => {
+            event.stopPropagation();
+            setDescriptionExpanded((expanded) => !expanded);
+          }}
+          style={{ alignSelf: "flex-start", padding: 0, marginBottom: 12 }}
+        >
+          {descriptionExpanded ? "Less" : "More"}
+        </Button>
+      )}
 
       <div
         style={{
@@ -190,6 +219,7 @@ const ItemCard = ({ item, onAction, onSelect }) => {
           justifyContent: "space-between",
           alignItems: "center",
           marginBottom: 16,
+          marginTop: equalHeight ? "auto" : undefined,
         }}
       >
         <div style={{ textAlign: "right" }} className="flex gap-2">

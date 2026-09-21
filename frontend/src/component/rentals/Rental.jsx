@@ -643,6 +643,7 @@ const Rental = () => {
                   <Col key={item.id} xs={24} sm={12} lg={12}>
                     <ItemCard
                       item={item}
+                      equalHeight
                       onAction={handleRentNow}
                       onSelect={handleSelectItem}
                     />
