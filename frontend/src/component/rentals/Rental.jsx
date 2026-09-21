@@ -468,6 +468,7 @@ const Rental = () => {
 
   return (
     <div
+      className="rental-page-shell"
       style={{
         minHeight: "100vh",
         padding: "40px 24px",

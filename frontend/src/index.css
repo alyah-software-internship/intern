@@ -2681,6 +2681,10 @@ html.dark .text-slate-500,
   display: none;
 }
 
+.rental-page-shell {
+  min-width: 0;
+}
+
 .rental-filter-column {
   align-self: flex-start;
 }
@@ -2756,6 +2760,16 @@ html.dark .text-slate-500,
     width: 75%;
     max-width: 75%;
     margin-left: 25%;
+    height: calc(100vh - 220px);
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding-right: 8px;
+  }
+
+  .rental-page-shell {
+    height: calc(100vh - 66px);
+    min-height: 620px;
+    overflow: hidden;
   }
 
   .rental-filter-card {
@@ -2807,6 +2821,9 @@ html.dark .text-slate-500,
     margin-left: 0;
     width: 100%;
     max-width: 100%;
+    height: auto;
+    overflow: visible;
+    padding-right: 0;
   }
 
   .rental-filter-card {
