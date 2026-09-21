@@ -161,6 +161,7 @@ class ProductService
         return Product::with(['vendor', 'category', 'images'])
             ->where('status', 'active')
             ->where('is_featured', true)
+            ->orderBy('rating', 'desc')
             ->orderBy('created_at', 'desc')
             ->limit($limit)
             ->get();
