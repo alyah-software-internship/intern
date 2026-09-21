@@ -622,8 +622,8 @@ const Rental = () => {
           {filterPanel}
         </Drawer>
 
-        <Row gutter={[24, 24]}>
-          <Col xs={24} lg={6} className="rental-filter-column">
+        <div className="rental-layout">
+          <aside className="rental-filter-column">
             <Card
               title={productStrings.filter || "Filter Products"}
               className="rental-filter-card"
@@ -632,9 +632,9 @@ const Rental = () => {
             >
               {filterPanel}
             </Card>
-          </Col>
+          </aside>
 
-          <Col xs={24} lg={18} className="rental-results-column">
+          <main className="rental-results-column">
             <Row gutter={[24, 24]}>
               {loading ? (
                 <Text>Loading rentals...</Text>
@@ -658,8 +658,8 @@ const Rental = () => {
                 </Col>
               )}
             </Row>
-          </Col>
-        </Row>
+          </main>
+        </div>
       </div>
     </div>
   );

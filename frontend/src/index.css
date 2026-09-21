@@ -2685,8 +2685,20 @@ html.dark .text-slate-500,
   min-width: 0;
 }
 
+.rental-layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 300px) minmax(0, 1fr);
+  align-items: start;
+  gap: 24px;
+}
+
 .rental-filter-column {
-  align-self: flex-start;
+  min-width: 0;
+  align-self: start;
+}
+
+.rental-results-column {
+  min-width: 0;
 }
 
 .app-root > .ant-layout-footer {
@@ -2695,8 +2707,10 @@ html.dark .text-slate-500,
 }
 
 .rental-filter-card {
-  position: static;
+  position: sticky;
+  top: 88px;
   overflow-y: auto;
+  max-height: calc(100vh - 112px);
   border: 1px solid #d8dee8 !important;
   border-radius: 12px !important;
   background: #ffffff;
@@ -2747,33 +2761,8 @@ html.dark .text-slate-500,
 }
 
 @media (min-width: 992px) {
-  .rental-filter-column {
-    position: fixed;
-    top: 156px;
-    left: max(24px, calc((100vw - 1440px) / 2));
-    z-index: 1;
-    width: min(300px, calc(25vw - 24px));
-  }
-
-  .rental-results-column {
-    flex: 0 0 75%;
-    width: 75%;
-    max-width: 75%;
-    margin-left: 25%;
-    height: calc(100vh - 220px);
-    overflow-x: hidden;
-    overflow-y: auto;
-    padding-right: 8px;
-  }
-
   .rental-page-shell {
-    height: calc(100vh - 66px);
-    min-height: 620px;
-    overflow: hidden;
-  }
-
-  .rental-filter-card {
-    max-height: calc(100vh - 180px);
+    min-height: 100vh;
   }
 
   .app-root--dark .rental-filter-card {
@@ -2816,14 +2805,17 @@ html.dark .text-slate-500,
 }
 
 @media (max-width: 991px) {
-  .rental-filter-column,
-  .rental-results-column {
-    margin-left: 0;
-    width: 100%;
-    max-width: 100%;
-    height: auto;
-    overflow: visible;
-    padding-right: 0;
+  .rental-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .rental-filter-column {
+    display: none;
+  }
+
+  .rental-mobile-toolbar {
+    display: block;
+    margin-bottom: 22px;
   }
 
   .rental-filter-card {
@@ -2835,11 +2827,6 @@ html.dark .text-slate-500,
 @media (max-width: 767px) {
   .rental-page-header {
     display: none !important;
-  }
-
-  .rental-mobile-toolbar {
-    display: block;
-    margin-bottom: 22px;
   }
 
   .rental-mobile-search {
@@ -2966,7 +2953,7 @@ html.dark .text-slate-500,
   }
 }
 
-@media (min-width: 768px) {
+@media (min-width: 992px) {
   .rental-mobile-drawer {
     display: none;
   }
