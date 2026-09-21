@@ -15,6 +15,7 @@ const Searchbar = () => {
   const isDark = theme === "dark";
   const [selectedCategory, setSelectedCategory] = useState(undefined);
   const [selectedLocation, setSelectedLocation] = useState(undefined);
+  const [rentalPeriod, setRentalPeriod] = useState([]);
 
   const categories = [
     { label: t.home.search.categories.construction, value: "construction" },
@@ -37,6 +38,11 @@ const Searchbar = () => {
 
     if (selectedLocation) {
       params.set("location", selectedLocation);
+    }
+
+    if (rentalPeriod[0] && rentalPeriod[1]) {
+      params.set("start_date", rentalPeriod[0].format("YYYY-MM-DD"));
+      params.set("end_date", rentalPeriod[1].format("YYYY-MM-DD"));
     }
 
     navigate(`/rentals${params.toString() ? `?${params.toString()}` : ""}`);
@@ -114,7 +120,11 @@ const Searchbar = () => {
             >
               {t.home.search.rentalPeriod}
             </Text>
-            <RangePicker style={{ width: "100%", borderRadius: 24 }} />
+            <RangePicker
+              value={rentalPeriod}
+              onChange={(dates) => setRentalPeriod(dates || [])}
+              style={{ width: "100%", borderRadius: 24 }}
+            />
           </div>
         </Col>
 

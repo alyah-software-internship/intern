@@ -49,6 +49,18 @@ class ProductService
             });
         }
 
+        if (!empty($filters['start_date']) && !empty($filters['end_date'])) {
+            $startDate = $filters['start_date'];
+            $endDate = $filters['end_date'];
+
+            $query->whereDoesntHave('bookings', function ($bookingQuery) use ($startDate, $endDate) {
+                $bookingQuery
+                    ->whereNotIn('status', ['cancelled', 'rejected'])
+                    ->where('start_date', '<', $endDate)
+                    ->where('end_date', '>', $startDate);
+            });
+        }
+
         $sortBy = $filters['sort_by'] ?? 'created_at';
         $sortOrder = strtolower($filters['sort_order'] ?? 'desc') === 'asc' ? 'asc' : 'desc';
 

@@ -36,7 +36,7 @@ class ProductController extends Controller
             $filters = $request->only([
                 'category', 'vendor', 'availability', 
                 'min_price', 'max_price', 'search',
-                'sort_by', 'sort_order', 'per_page'
+                'sort_by', 'sort_order', 'per_page', 'start_date', 'end_date'
             ]);
 
             $products = $this->productService->getProducts($filters);

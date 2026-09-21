@@ -54,6 +54,9 @@ const Rental = () => {
     const categoryValue = searchParams.get("category") || "all";
     return categoryValue;
   });
+  const [location, setLocation] = useState(
+    () => searchParams.get("location") || "all",
+  );
   const [vendor, setVendor] = useState(
     () => searchParams.get("vendor") || "all",
   );
@@ -75,8 +78,14 @@ const Rental = () => {
     const requestConfig = { signal: controller.signal };
     const hasCachedProducts = Boolean(readCache(rentalProductsCacheKey));
 
+    const productParams = new URLSearchParams({ per_page: "100" });
+    if (searchParams.get("start_date") && searchParams.get("end_date")) {
+      productParams.set("start_date", searchParams.get("start_date"));
+      productParams.set("end_date", searchParams.get("end_date"));
+    }
+
     axios
-      .get(`${backendUrl}/products?per_page=100`, requestConfig)
+      .get(`${backendUrl}/products?${productParams.toString()}`, requestConfig)
       .then((response) => {
         const productData = response.data.products;
         const nextProducts = Array.isArray(productData)
@@ -106,7 +115,7 @@ const Rental = () => {
       .catch(() => undefined);
 
     return () => controller.abort();
-  }, [backendUrl]);
+  }, [backendUrl, searchParams]);
 
   const imageUrl = useCallback(
     (product) => {
@@ -254,7 +263,26 @@ const Rental = () => {
         item.category.toLowerCase().includes(search.toLowerCase()) ||
         item.vendor.toLowerCase().includes(search.toLowerCase());
 
-      const matchesCategory = category === "all" || item.category === category;
+      const categoryTerm = category.toLowerCase();
+      const matchesCategory =
+        category === "all" ||
+        item.category.toLowerCase() === categoryTerm ||
+        item.category.toLowerCase().includes(categoryTerm) ||
+        (categoryTerm === "construction" &&
+          item.category.toLowerCase().includes("building")) ||
+        (categoryTerm === "vehicles" &&
+          item.category.toLowerCase().includes("vehicle")) ||
+        (categoryTerm === "tools" &&
+          item.category.toLowerCase().includes("tool"));
+      const locationTerm = location.toLowerCase();
+      const matchesLocation =
+        location === "all" ||
+        (locationTerm === "ethiopia" &&
+          item.location.toLowerCase().includes("ethiopia")) ||
+        (locationTerm === "addis" &&
+          item.location.toLowerCase().includes("addis")) ||
+        (locationTerm === "bahir" &&
+          item.location.toLowerCase().includes("bahir"));
       const matchesVendor = vendor === "all" || item.vendor === vendor;
       const matchesAvailability =
         availability === "all" ||
@@ -267,6 +295,7 @@ const Rental = () => {
       return (
         matchesSearch &&
         matchesCategory &&
+        matchesLocation &&
         matchesVendor &&
         matchesAvailability &&
         matchesPrice
@@ -290,6 +319,7 @@ const Rental = () => {
     periodItems,
     search,
     category,
+    location,
     vendor,
     availability,
     selectedPriceRange,
@@ -301,11 +331,13 @@ const Rental = () => {
     const searchFromQuery =
       searchParams.get("search") || searchParams.get("query") || "";
     const categoryFromQuery = searchParams.get("category") || "all";
+    const locationFromQuery = searchParams.get("location") || "all";
 
     startTransition(() => {
       setVendor(vendorFromQuery || "all");
       setSearch(searchFromQuery);
       setCategory(categoryFromQuery);
+      setLocation(locationFromQuery);
     });
   }, [searchParams]);
 
@@ -518,6 +550,7 @@ const Rental = () => {
                       setSearch("");
                       setCategory("all");
                       setVendor("all");
+                      setLocation("all");
                       setAvailability("all");
                       setPricePeriod("daily");
                       setPriceRange([0, null]);
@@ -538,7 +571,7 @@ const Rental = () => {
             <Row gutter={[24, 24]}>
               {loading ? (
                 <Text>Loading rentals...</Text>
-              ) : (
+              ) : filteredItems.length > 0 ? (
                 filteredItems.map((item) => (
                   <Col key={item.id} xs={24} sm={12} lg={12}>
                     <ItemCard
@@ -548,6 +581,14 @@ const Rental = () => {
                     />
                   </Col>
                 ))
+              ) : (
+                <Col span={24}>
+                  <Card style={{ borderRadius: 24, textAlign: "center" }}>
+                    <Text>
+                      {productStrings.noResults || "No rentals found."}
+                    </Text>
+                  </Card>
+                </Col>
               )}
             </Row>
           </Col>
