@@ -1,27 +1,61 @@
 import { Button, Card, Col, DatePicker, Row, Select, Typography } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
-import { useState } from "react";
+import axios from "axios";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "../LanguageProvider.jsx";
 import { useTheme } from "../../context/ThemeProvider.jsx";
+import { AppContext } from "../../context/AppContext.jsx";
 
 const { RangePicker } = DatePicker;
 const { Text } = Typography;
+const categoryCacheKey = "rentalCategories";
+
+const readCategoryCache = () => {
+  try {
+    const cachedCategories = JSON.parse(
+      localStorage.getItem(categoryCacheKey) || "[]",
+    );
+    return Array.isArray(cachedCategories) ? cachedCategories : [];
+  } catch {
+    return [];
+  }
+};
 
 const Searchbar = () => {
   const { translation: t } = useTranslation();
   const { theme } = useTheme();
+  const { backendUrl } = useContext(AppContext);
   const navigate = useNavigate();
   const isDark = theme === "dark";
   const [selectedCategory, setSelectedCategory] = useState(undefined);
   const [selectedLocation, setSelectedLocation] = useState(undefined);
   const [rentalPeriod, setRentalPeriod] = useState([]);
+  const [categoryRecords, setCategoryRecords] = useState(readCategoryCache);
 
-  const categories = [
-    { label: t.home.search.categories.construction, value: "construction" },
-    { label: t.home.search.categories.vehicles, value: "vehicles" },
-    { label: t.home.search.categories.tools, value: "tools" },
-  ];
+  useEffect(() => {
+    const controller = new AbortController();
+
+    axios
+      .get(`${backendUrl}/categories`, { signal: controller.signal })
+      .then((response) => {
+        const nextCategories = Array.isArray(response.data.categories)
+          ? response.data.categories
+          : [];
+        setCategoryRecords(nextCategories);
+        localStorage.setItem(categoryCacheKey, JSON.stringify(nextCategories));
+      })
+      .catch(() => undefined);
+
+    return () => controller.abort();
+  }, [backendUrl]);
+
+  const categories = categoryRecords
+    .filter((category) => category?.name)
+    .map((category) => ({
+      label: category.name,
+      value: category.name,
+    }));
 
   const locations = [
     { label: t.home.search.locations.ethiopia, value: "ethiopia" },
