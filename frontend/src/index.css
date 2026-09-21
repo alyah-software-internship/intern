@@ -2686,13 +2686,31 @@ html.dark .text-slate-500,
 }
 
 .rental-filter-card {
-  position: sticky;
-  top: 156px;
+  position: static;
   max-height: calc(100vh - 180px);
   overflow-y: auto;
 }
 
 @media (min-width: 992px) {
+  .rental-filter-column {
+    position: fixed;
+    top: 156px;
+    left: max(24px, calc((100vw - 1440px) / 2));
+    z-index: 10;
+    width: min(342px, calc(25vw - 18px));
+  }
+
+  .rental-results-column {
+    flex: 0 0 75%;
+    width: 75%;
+    max-width: 75%;
+    margin-left: 25%;
+  }
+
+  .rental-filter-card {
+    max-height: calc(100vh - 180px);
+  }
+
   .rental-page-header {
     position: sticky;
     top: 0;
@@ -2718,6 +2736,13 @@ html.dark .text-slate-500,
 }
 
 @media (max-width: 991px) {
+  .rental-filter-column,
+  .rental-results-column {
+    margin-left: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+
   .rental-filter-card {
     position: static;
     max-height: none;

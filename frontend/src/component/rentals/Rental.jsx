@@ -633,7 +633,7 @@ const Rental = () => {
             </Card>
           </Col>
 
-          <Col xs={24} lg={18}>
+          <Col xs={24} lg={18} className="rental-results-column">
             <Row gutter={[24, 24]}>
               {loading ? (
                 <Text>Loading rentals...</Text>
