@@ -158,7 +158,13 @@ class ProductService
      */
     public function getFeaturedProducts(int $limit = 6): Collection
     {
-        return Product::with(['vendor', 'category', 'images'])
+        return Product::with([
+            'vendor',
+            'category',
+            'images' => fn ($query) => $query
+                ->orderByDesc('is_primary')
+                ->orderBy('sort_order'),
+        ])
             ->where('status', 'active')
             ->where('is_featured', true)
             ->orderBy('rating', 'desc')
