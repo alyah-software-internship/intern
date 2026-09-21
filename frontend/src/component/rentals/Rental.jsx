@@ -17,7 +17,14 @@ import {
   Card,
   Space,
   Button,
+  Drawer,
 } from "antd";
+import {
+  DownOutlined,
+  FilterOutlined,
+  SearchOutlined,
+  StarFilled,
+} from "@ant-design/icons";
 import ItemCard from "../../component/home/ItemCard.jsx";
 import { useTranslation } from "../../component/LanguageProvider.jsx";
 import { useTheme } from "../../context/ThemeProvider.jsx";
@@ -64,6 +71,7 @@ const Rental = () => {
   const [pricePeriod, setPricePeriod] = useState("daily");
   const [priceRange, setPriceRange] = useState([0, null]);
   const [sortBy, setSortBy] = useState("relevance");
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const cachedProducts = readCache(rentalProductsCacheKey);
   const cachedCategories = readCache(rentalCategoriesCacheKey);
   const [products, setProducts] = useState(cachedProducts || []);
@@ -354,6 +362,110 @@ const Rental = () => {
     navigate(`/rentals/${item.id}`);
   };
 
+  const resetFilters = () => {
+    setSearch("");
+    setCategory("all");
+    setVendor("all");
+    setLocation("all");
+    setAvailability("all");
+    setPricePeriod("daily");
+    setPriceRange([0, null]);
+    setSortBy("relevance");
+  };
+
+  const filterPanel = (
+    <Space orientation="vertical" size={24} style={{ width: "100%" }}>
+      <div>
+        <Text strong>{productStrings.keyword || "Keyword"}</Text>
+        <Input
+          placeholder={productStrings.searchPlaceholder || "Type keyword..."}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          style={{ marginTop: 12, width: "100%" }}
+        />
+      </div>
+
+      <div>
+        <Text strong>{productStrings.filterByCategory || "Category"}</Text>
+        <Select
+          value={category}
+          onChange={setCategory}
+          options={categories}
+          style={{ marginTop: 12, width: "100%" }}
+        />
+      </div>
+
+      <div>
+        <Text strong>{productStrings.filterByPrice || "Price Range"}</Text>
+        <Select
+          value={pricePeriod}
+          onChange={(nextPeriod) => {
+            setPricePeriod(nextPeriod);
+            setPriceRange([0, null]);
+          }}
+          options={Object.entries(periodLabels).map(([value, label]) => ({
+            value,
+            label: `Per ${label}`,
+          }))}
+          style={{ marginTop: 12, width: "100%" }}
+        />
+        <Slider
+          range
+          min={0}
+          max={maxPrice}
+          value={selectedPriceRange}
+          onChange={setPriceRange}
+          style={{ marginTop: 16 }}
+        />
+        <div className="rental-price-range-labels">
+          <Text>
+            {currency} {selectedPriceRange[0].toLocaleString()}/
+            {periodLabels[pricePeriod]}
+          </Text>
+          <Text>
+            {currency} {selectedPriceRange[1].toLocaleString()}/
+            {periodLabels[pricePeriod]}
+          </Text>
+        </div>
+      </div>
+
+      <div>
+        <Text strong>{productStrings.filterByVendor || "Vendor"}</Text>
+        <Select
+          value={vendor}
+          onChange={setVendor}
+          options={vendors}
+          style={{ marginTop: 12, width: "100%" }}
+        />
+      </div>
+
+      <div>
+        <Text strong>
+          {productStrings.filterByAvailability || "Availability"}
+        </Text>
+        <Select
+          value={availability}
+          onChange={setAvailability}
+          options={availabilityOptions}
+          style={{ marginTop: 12, width: "100%" }}
+        />
+      </div>
+
+      <Space orientation="vertical" style={{ width: "100%" }}>
+        <Button type="default" block onClick={resetFilters}>
+          {productStrings.resetFilters || "Reset Filters"}
+        </Button>
+        <Button
+          type="primary"
+          block
+          onClick={() => setMobileFiltersOpen(false)}
+        >
+          {productStrings.applyFilters || "Apply Filters"}
+        </Button>
+      </Space>
+    </Space>
+  );
+
   return (
     <div
       style={{
@@ -367,7 +479,7 @@ const Rental = () => {
           align="middle"
           justify="space-between"
           style={{ marginBottom: 24, gap: 16 }}
-          className="flex justify-between items-center "
+          className="flex justify-between items-center rental-page-header"
         >
           <Col
             flex="1"
@@ -440,130 +552,84 @@ const Rental = () => {
           </Col>
         </Row>
 
+        <div className="rental-mobile-toolbar">
+          <Input
+            aria-label="Search rentals"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Search rentals"
+            suffix={<SearchOutlined />}
+            className="rental-mobile-search"
+          />
+          <div className="rental-mobile-actions">
+            <Button
+              icon={<FilterOutlined />}
+              onClick={() => setMobileFiltersOpen(true)}
+              className="rental-mobile-action rental-mobile-filter"
+            >
+              Filters
+            </Button>
+            <Select
+              value={sortBy}
+              onChange={setSortBy}
+              options={sortOptions}
+              suffixIcon={<DownOutlined />}
+              className="rental-mobile-sort"
+              aria-label="Sort rentals"
+            />
+            <Button
+              onClick={() =>
+                setAvailability(
+                  availability === "available" ? "all" : "available",
+                )
+              }
+              className={`rental-mobile-action rental-mobile-sale${
+                availability === "available" ? " is-active" : ""
+              }`}
+            >
+              Sale
+            </Button>
+            <Button
+              icon={<DownOutlined />}
+              iconPosition="end"
+              onClick={() => setMobileFiltersOpen(true)}
+              className="rental-mobile-action rental-mobile-brand"
+            >
+              Brand+
+            </Button>
+            <Button
+              onClick={() =>
+                setSortBy(sortBy === "rating" ? "relevance" : "rating")
+              }
+              className={`rental-mobile-action rental-mobile-rating${
+                sortBy === "rating" ? " is-active" : ""
+              }`}
+            >
+              <StarFilled /> & up
+            </Button>
+          </div>
+        </div>
+
+        <Drawer
+          title={productStrings.filter || "Filters"}
+          placement="bottom"
+          height="85vh"
+          open={mobileFiltersOpen}
+          onClose={() => setMobileFiltersOpen(false)}
+          className="rental-mobile-drawer"
+        >
+          {filterPanel}
+        </Drawer>
+
         <Row gutter={[24, 24]}>
-          <Col xs={24} lg={6}>
+          <Col xs={24} lg={6} className="rental-filter-column">
             <Card
               title={productStrings.filter || "Filter Products"}
+              className="rental-filter-card"
               style={{ borderRadius: 24 }}
               styles={{ body: { padding: 24 } }}
             >
-              <Space orientation="vertical" size={24} style={{ width: "100%" }}>
-                <div>
-                  <Text strong>{productStrings.keyword || "Keyword"}</Text>
-                  <Input
-                    placeholder={
-                      productStrings.searchPlaceholder || "Type keyword..."
-                    }
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    style={{ marginTop: 12, width: "100%" }}
-                  />
-                </div>
-
-                <div>
-                  <Text strong>
-                    {productStrings.filterByCategory || "Category"}
-                  </Text>
-                  <Select
-                    value={category}
-                    onChange={setCategory}
-                    options={categories}
-                    style={{ marginTop: 12, width: "100%" }}
-                  />
-                </div>
-
-                <div>
-                  <Text strong>
-                    {productStrings.filterByPrice || "Price Range"}
-                  </Text>
-                  <Select
-                    value={pricePeriod}
-                    onChange={(nextPeriod) => {
-                      setPricePeriod(nextPeriod);
-                      setPriceRange([0, null]);
-                    }}
-                    options={Object.entries(periodLabels).map(
-                      ([value, label]) => ({
-                        value,
-                        label: `Per ${label}`,
-                      }),
-                    )}
-                    style={{ marginTop: 12, width: "100%" }}
-                  />
-                  <Slider
-                    range
-                    min={0}
-                    max={maxPrice}
-                    value={selectedPriceRange}
-                    onChange={setPriceRange}
-                    style={{ marginTop: 16 }}
-                  />
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      marginTop: 8,
-                      color: "#64748b",
-                      fontSize: 12,
-                    }}
-                  >
-                    <Text>
-                      {currency} {selectedPriceRange[0].toLocaleString()}/
-                      {periodLabels[pricePeriod]}
-                    </Text>
-                    <Text>
-                      {currency} {selectedPriceRange[1].toLocaleString()}/
-                      {periodLabels[pricePeriod]}
-                    </Text>
-                  </div>
-                </div>
-
-                <div>
-                  <Text strong>
-                    {productStrings.filterByVendor || "Vendor"}
-                  </Text>
-                  <Select
-                    value={vendor}
-                    onChange={setVendor}
-                    options={vendors}
-                    style={{ marginTop: 12, width: "100%" }}
-                  />
-                </div>
-
-                <div>
-                  <Text strong>
-                    {productStrings.filterByAvailability || "Availability"}
-                  </Text>
-                  <Select
-                    value={availability}
-                    onChange={setAvailability}
-                    options={availabilityOptions}
-                    style={{ marginTop: 12, width: "100%" }}
-                  />
-                </div>
-
-                <Space orientation="vertical" style={{ width: "100%" }}>
-                  <Button
-                    type="default"
-                    block
-                    onClick={() => {
-                      setSearch("");
-                      setCategory("all");
-                      setVendor("all");
-                      setLocation("all");
-                      setAvailability("all");
-                      setPricePeriod("daily");
-                      setPriceRange([0, null]);
-                      setSortBy("relevance");
-                    }}
-                  >
-                    {productStrings.resetFilters || "Reset Filters"}
-                  </Button>
-                  <Button type="primary" block>
-                    {productStrings.applyFilters || "Apply Filters"}
-                  </Button>
-                </Space>
-              </Space>
+              {filterPanel}
             </Card>
           </Col>
 

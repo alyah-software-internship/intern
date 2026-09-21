@@ -2676,3 +2676,173 @@ html.dark .text-slate-500,
     padding: 13px;
   }
 }
+
+.rental-mobile-toolbar {
+  display: none;
+}
+
+.rental-filter-column {
+  align-self: flex-start;
+}
+
+.rental-filter-card {
+  position: sticky;
+  top: 24px;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+}
+
+.rental-price-range-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  color: #64748b;
+  font-size: 12px;
+}
+
+@media (max-width: 991px) {
+  .rental-filter-card {
+    position: static;
+    max-height: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .rental-page-header {
+    display: none !important;
+  }
+
+  .rental-mobile-toolbar {
+    display: block;
+    margin-bottom: 22px;
+  }
+
+  .rental-mobile-search {
+    height: 48px;
+    border: 2px solid #202020;
+    border-radius: 28px;
+    background: #fff;
+    box-shadow: none;
+    font-size: 17px;
+  }
+
+  .rental-mobile-search .ant-input {
+    font-size: 17px;
+  }
+
+  .rental-mobile-search .ant-input::placeholder {
+    color: #7a7a7a;
+  }
+
+  .rental-mobile-search .ant-input-suffix {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    margin-right: -3px;
+    border-radius: 50%;
+    background: #191919;
+    color: #fff;
+    font-size: 23px;
+  }
+
+  .rental-mobile-actions {
+    display: flex;
+    align-items: stretch;
+    gap: 10px;
+    margin-top: 14px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+  }
+
+  .rental-mobile-actions::-webkit-scrollbar {
+    display: none;
+  }
+
+  .rental-mobile-action,
+  .rental-mobile-sort {
+    flex: 0 0 auto;
+    height: 52px;
+    border: 0;
+    border-radius: 15px;
+    background: #eff2f6;
+    color: #202020;
+    font-size: 16px;
+    font-weight: 500;
+    box-shadow: none;
+  }
+
+  .rental-mobile-filter {
+    width: 190px;
+    font-size: 17px;
+  }
+
+  .rental-mobile-filter .anticon {
+    font-size: 22px;
+  }
+
+  .rental-mobile-sort .ant-select-selector {
+    height: 52px !important;
+    padding: 0 14px !important;
+    border: 0 !important;
+    border-radius: 15px !important;
+    background: #eff2f6 !important;
+    box-shadow: none !important;
+  }
+
+  .rental-mobile-sort {
+    width: 225px;
+  }
+
+  .rental-mobile-sort .ant-select-selection-item {
+    line-height: 50px !important;
+    font-size: 16px;
+  }
+
+  .rental-mobile-sale {
+    width: 142px;
+    border: 2px solid #c96262;
+    background: #fff;
+    color: #c95353;
+    font-weight: 700;
+  }
+
+  .rental-mobile-sale.is-active,
+  .rental-mobile-rating.is-active {
+    background: #c95353;
+    color: #fff;
+  }
+
+  .rental-mobile-brand {
+    width: 188px;
+  }
+
+  .rental-mobile-rating {
+    width: 225px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    background: #eff2f6;
+  }
+
+  .rental-mobile-rating .anticon {
+    font-size: 17px;
+  }
+
+  .rental-filter-column {
+    display: none;
+  }
+
+  .rental-page-header + .rental-mobile-toolbar + .ant-drawer {
+    display: block;
+  }
+}
+
+@media (min-width: 768px) {
+  .rental-mobile-drawer {
+    display: none;
+  }
+}
