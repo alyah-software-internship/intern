@@ -1,77 +1,67 @@
-import React from "react";
+import { useContext, useEffect, useState } from "react";
+import axios from "axios";
 import { useTranslation } from "../LanguageProvider.jsx";
 import { useTheme } from "../../context/ThemeProvider.jsx";
+import { useNavigate } from "react-router-dom";
 import { Row, Col, Card, Typography, Button } from "antd";
 import ItemCard from "./ItemCard.jsx";
-import excavatorImage from "../../assets/excavator.png";
-import beautyImage from "../../assets/buety.png";
-import carImage from "../../assets/car.png";
-import weddingImage from "../../assets/wedding.png";
+import { AppContext } from "../../context/AppContext.jsx";
+import { getCategoryImageUrl } from "../../config/categoryImage.js";
 
 const { Text } = Typography;
-
-const handpickedItems = [
-  {
-    id: "item-1",
-    title: "Compact Excavator",
-    category: "Construction & Tools",
-    vendor: "Titan Heavy Rentals",
-    rating: "4.8",
-    badge: "Popular",
-    image: excavatorImage,
-    accent: "#f59e0b",
-    description:
-      "High performance in a compact size. The Caterpillar 301.8 Mini Excavator delivers reliable power and speed.",
-  },
-  {
-    id: "item-2",
-    title: "Beauty & Wellness Kit",
-    category: "Beauty & Wellness",
-    vendor: "GlowTech Aesthetic Suites",
-    rating: "4.9",
-    badge: "Premium",
-    image: beautyImage,
-    accent: "#2563eb",
-    description:
-      "The premier aesthetic skincare system preferred by medical spas worldwide.",
-  },
-  {
-    id: "item-3",
-    title: "Agriculture Tractor",
-    category: "Agriculture & Tractors",
-    vendor: "GreenField Agri Services",
-    rating: "4.7",
-    badge: "Verified",
-    image: carImage,
-    accent: "#10b981",
-    description:
-      "The ultimate utility tractor for landowners, small farms, and commercial landscape projects.",
-  },
-  {
-    id: "item-4",
-    title: "Event Sound System",
-    category: "Event Management",
-    vendor: "SoundVibe Event Gear",
-    rating: "4.6",
-    badge: "Fast Escrow",
-    image: weddingImage,
-    accent: "#8b5cf6",
-    description:
-      "Elevate your outdoor event with this high-peak elegant canopy and complete sound setup.",
-  },
-];
 
 const HandPicked = () => {
   const { translation: t } = useTranslation();
   const { theme } = useTheme();
+  const { backendUrl } = useContext(AppContext);
+  const navigate = useNavigate();
   const isDark = theme === "dark";
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    axios
+      .get(`${backendUrl}/products/featured?limit=4`, {
+        signal: controller.signal,
+      })
+      .then((response) => {
+        setProducts(
+          Array.isArray(response.data?.products) ? response.data.products : [],
+        );
+      })
+      .catch(() => setProducts([]))
+      .finally(() => setLoading(false));
+
+    return () => controller.abort();
+  }, [backendUrl]);
+
+  const handpickedItems = products.map((product) => {
+    const primaryImage =
+      product.images?.find((image) => image.is_primary) || product.images?.[0];
+
+    return {
+      id: product.id,
+      title: product.name,
+      category: product.category?.name || "Uncategorized",
+      vendor: product.vendor?.business_name || "Unknown vendor",
+      rating: product.rating || 0,
+      badge: "FEATURED",
+      image: getCategoryImageUrl(primaryImage?.image_url, backendUrl),
+      description: product.description || "No description available.",
+      price: Number(product.price_daily || 0),
+      accent: "#10b981",
+      actionLabel: t.common?.rent || "Rent Now",
+    };
+  });
 
   const handleRentNow = (item) => {
-    console.log("Rent now clicked for", item.title);
+    navigate(`/rentals/${item.id}`);
   };
 
   const handleSelectItem = (item) => {
-    console.log("Selected item", item.title);
+    navigate(`/rentals/${item.id}`);
   };
 
   return (
@@ -128,6 +118,7 @@ const HandPicked = () => {
 
         <Button
           type="text"
+          onClick={() => navigate("/rentals")}
           style={{ color: "#10b981", fontWeight: 700, padding: 0 }}
         >
           {t.common?.viewAll || "View All"}
@@ -135,15 +126,25 @@ const HandPicked = () => {
       </div>
 
       <Row gutter={[16, 16]}>
-        {handpickedItems.map((item) => (
-          <Col key={item.id} xs={24} sm={12} md={12} lg={6}>
-            <ItemCard
-              item={item}
-              onAction={handleRentNow}
-              onSelect={handleSelectItem}
-            />
+        {loading ? (
+          <Col span={24}>
+            <Text type="secondary">Loading featured products...</Text>
           </Col>
-        ))}
+        ) : handpickedItems.length === 0 ? (
+          <Col span={24}>
+            <Text type="secondary">No featured products available.</Text>
+          </Col>
+        ) : (
+          handpickedItems.map((item) => (
+            <Col key={item.id} xs={24} sm={12} md={12} lg={6}>
+              <ItemCard
+                item={item}
+                onAction={handleRentNow}
+                onSelect={handleSelectItem}
+              />
+            </Col>
+          ))
+        )}
       </Row>
     </Card>
   );
