@@ -15,6 +15,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../../context/ThemeProvider.jsx";
 import { AppContext } from "../../context/AppContext.jsx";
+import { formatVendorMoney } from "../../utils/currency.js";
 
 const { Title, Text } = Typography;
 
@@ -106,7 +107,7 @@ const Customers = () => {
         bookingId: firstBooking.id,
         productName,
         bookingsDispatched: customer.bookings.length,
-        totalRentalRevenue: `$${totalRevenue.toFixed(2)}`,
+        totalRentalRevenue: formatVendorMoney(totalRevenue),
         lastActivity:
           typeof lastActivity === "string"
             ? new Date(lastActivity).toLocaleDateString()

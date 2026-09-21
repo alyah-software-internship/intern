@@ -11,6 +11,7 @@ import {
 } from "antd";
 import { FilePdfOutlined, DownloadOutlined } from "@ant-design/icons";
 import { useTheme } from "../../context/ThemeProvider.jsx";
+import { VENDOR_CURRENCY } from "../../utils/currency.js";
 
 const { Title, Text } = Typography;
 
@@ -31,9 +32,9 @@ const buildCsvReport = (cycle, generatedAt) => {
     ["Status", "Approved"],
     [""],
     ["Category", "Value"],
-    ["Total Revenue", "$0.00"],
-    ["Platform Fees", "$0.00"],
-    ["Vendor Payout", "$0.00"],
+    ["Total Revenue", `${VENDOR_CURRENCY} 0.00`],
+    ["Platform Fees", `${VENDOR_CURRENCY} 0.00`],
+    ["Vendor Payout", `${VENDOR_CURRENCY} 0.00`],
     ["Bookings Count", "0"],
   ];
 
@@ -72,9 +73,9 @@ const buildPdfReport = (cycle, generatedAt) => {
     `Generated At: ${generatedAt}`,
     "Statement Type: Official Monthly Rental Transactions",
     "Status: Approved",
-    "Total Revenue: $0.00",
-    "Platform Fees: $0.00",
-    "Vendor Payout: $0.00",
+    `Total Revenue: ${VENDOR_CURRENCY} 0.00`,
+    `Platform Fees: ${VENDOR_CURRENCY} 0.00`,
+    `Vendor Payout: ${VENDOR_CURRENCY} 0.00`,
     "Bookings Count: 0",
   ];
 

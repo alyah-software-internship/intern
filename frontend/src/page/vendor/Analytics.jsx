@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { Row, Col, Card, Typography, Space, Button, Progress } from "antd";
 import { useTheme } from "../../context/ThemeProvider.jsx";
+import { formatVendorMoney } from "../../utils/currency.js";
 import { AppContext } from "../../context/AppContext.jsx";
 
 const { Title, Text } = Typography;
@@ -314,7 +315,7 @@ const Analytics = () => {
                   Est. Profit / Item:
                 </Text>
                 <Text strong style={{ color: "#4f46e5", fontSize: 28 }}>
-                  ${estimatedProfit}
+                  {formatVendorMoney(estimatedProfit)}
                 </Text>
               </div>
             </div>

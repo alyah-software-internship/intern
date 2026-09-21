@@ -17,10 +17,11 @@ import {
   Drawer,
 } from "antd";
 import { AppContext } from "../../context/AppContext.jsx";
+import { formatVendorMoney } from "../../utils/currency.js";
 import { DeleteOutlined, EyeOutlined, CopyOutlined } from "@ant-design/icons";
 
 const VendorWithdrawalsPage = () => {
-  const { backendUrl, currency } = useContext(AppContext);
+  const { backendUrl } = useContext(AppContext);
   const [loading, setLoading] = useState(true);
   const [withdrawals, setWithdrawals] = useState([]);
   const [selectedWithdrawal, setSelectedWithdrawal] = useState(null);
@@ -87,7 +88,7 @@ const VendorWithdrawalsPage = () => {
     {
       title: "Amount",
       dataIndex: "amount",
-      render: (amount) => `${currency} ${amount}`,
+      render: (amount) => formatVendorMoney(amount),
       width: 120,
     },
     {
@@ -197,9 +198,7 @@ const VendorWithdrawalsPage = () => {
           <div>
             <Descriptions bordered column={1}>
               <Descriptions.Item label="Amount">
-                <strong>
-                  {currency} {selectedWithdrawal.amount}
-                </strong>
+                <strong>{formatVendorMoney(selectedWithdrawal.amount)}</strong>
               </Descriptions.Item>
               <Descriptions.Item label="Status">
                 <Tag color={statusColors[selectedWithdrawal.payout_status]}>

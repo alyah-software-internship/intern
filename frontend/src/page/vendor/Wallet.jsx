@@ -15,6 +15,7 @@ import {
 import { WalletOutlined, ReloadOutlined } from "@ant-design/icons";
 import { AppContext } from "../../context/AppContext.jsx";
 import { useTheme } from "../../context/ThemeProvider.jsx";
+import { formatVendorMoney } from "../../utils/currency.js";
 
 const { Title, Text } = Typography;
 const authConfig = () => ({
@@ -22,7 +23,7 @@ const authConfig = () => ({
 });
 
 const Wallet = () => {
-  const { backendUrl, currency } = useContext(AppContext);
+  const { backendUrl } = useContext(AppContext);
   const { theme } = useTheme();
   const [summary, setSummary] = useState(null);
   const [transactions, setTransactions] = useState([]);
@@ -57,8 +58,7 @@ const Wallet = () => {
     }
   }, [backendUrl]);
 
-  const money = (value) =>
-    `${summary?.currency || currency} ${Number(value || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
+  const money = (value) => formatVendorMoney(value);
   const columns = [
     {
       title: "Date",

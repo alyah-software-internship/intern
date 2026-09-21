@@ -5,6 +5,7 @@ import { CheckCircleOutlined } from "@ant-design/icons";
 import { useTheme } from "../../context/ThemeProvider.jsx";
 import { useTranslation } from "../../component/LanguageProvider.jsx";
 import { AppContext } from "../../context/AppContext.jsx";
+import { VENDOR_CURRENCY } from "../../utils/currency.js";
 import { useNavigate } from "react-router-dom";
 
 const { Title, Text } = Typography;
@@ -12,7 +13,7 @@ const { Title, Text } = Typography;
 const Subscription = () => {
   const { theme } = useTheme();
   const { translation: t } = useTranslation();
-  const { backendUrl, currency } = useContext(AppContext);
+  const { backendUrl } = useContext(AppContext);
   const navigate = useNavigate();
   const [activePlan, setActivePlan] = useState("premium");
   const [selectedPlan, setSelectedPlan] = useState("premium");
@@ -120,7 +121,7 @@ const Subscription = () => {
         key: "basic",
         label: subscriptionText.basicLabel || "STARTER SHOP",
         name: subscriptionText.basicPlan || "Basic Fleet Plan",
-        price: subscriptionText.basicPrice || `${currency} 2,900`,
+        price: subscriptionText.basicPrice || `${VENDOR_CURRENCY} 2,900`,
         duration: subscriptionText.monthSuffix || "/month",
         features: subscriptionText.basicFeatures || [
           "Up to 3 product listings",
@@ -134,7 +135,7 @@ const Subscription = () => {
         key: "premium",
         label: subscriptionText.premiumLabel || "STANDARD GROWTH",
         name: subscriptionText.premiumPlan || "Pro Premium Builder",
-        price: subscriptionText.premiumPrice || `${currency} 9,900`,
+        price: subscriptionText.premiumPrice || `${VENDOR_CURRENCY} 9,900`,
         duration: subscriptionText.monthSuffix || "/month",
         features: subscriptionText.premiumFeatures || [
           "Up to 25 product listings",
@@ -150,7 +151,7 @@ const Subscription = () => {
         key: "enterprise",
         label: subscriptionText.enterpriseLabel || "CORPORATE DEALERSHIPS",
         name: subscriptionText.enterprisePlan || "Enterprise Network",
-        price: subscriptionText.enterprisePrice || `${currency} 24,900`,
+        price: subscriptionText.enterprisePrice || `${VENDOR_CURRENCY} 24,900`,
         duration: subscriptionText.monthSuffix || "/month",
         features: subscriptionText.enterpriseFeatures || [
           "Unlimited product listings",

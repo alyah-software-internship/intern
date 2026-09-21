@@ -19,6 +19,7 @@ import {
   Select,
 } from "antd";
 import { AppContext } from "../../context/AppContext.jsx";
+import { formatVendorMoney, VENDOR_CURRENCY } from "../../utils/currency.js";
 import {
   WalletOutlined,
   DollarOutlined,
@@ -27,7 +28,7 @@ import {
 } from "@ant-design/icons";
 
 const VendorWalletPage = () => {
-  const { backendUrl, currency } = useContext(AppContext);
+  const { backendUrl } = useContext(AppContext);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [wallet, setWallet] = useState(null);
@@ -168,7 +169,7 @@ const VendorWalletPage = () => {
       dataIndex: "amount",
       render: (amount, record) => (
         <span style={{ color: amount > 0 ? "#22c55e" : "#ef4444" }}>
-          {amount > 0 ? "+" : ""} {currency} {Math.abs(amount)}
+          {amount > 0 ? "+" : ""} {formatVendorMoney(Math.abs(amount))}
         </span>
       ),
       width: 120,
@@ -176,7 +177,7 @@ const VendorWalletPage = () => {
     {
       title: "Balance",
       dataIndex: "balance_after",
-      render: (balance) => `${currency} ${balance}`,
+      render: (balance) => formatVendorMoney(balance),
       width: 120,
     },
     {
@@ -190,7 +191,7 @@ const VendorWalletPage = () => {
     {
       title: "Amount",
       dataIndex: "amount",
-      render: (amount) => `${currency} ${amount}`,
+      render: (amount) => formatVendorMoney(amount),
       width: 120,
     },
     {
@@ -265,7 +266,7 @@ const VendorWalletPage = () => {
             <Statistic
               title="Available Balance"
               value={wallet?.available_balance || 0}
-              prefix={`${currency} `}
+              prefix={`${VENDOR_CURRENCY} `}
               styles={{ content: { color: "#22c55e" } }}
               prefix={<DollarOutlined />}
             />
@@ -276,7 +277,7 @@ const VendorWalletPage = () => {
             <Statistic
               title="Pending Balance"
               value={wallet?.pending_balance || 0}
-              prefix={`${currency} `}
+              prefix={`${VENDOR_CURRENCY} `}
               styles={{ content: { color: "#f59e0b" } }}
             />
           </Card>
@@ -286,7 +287,7 @@ const VendorWalletPage = () => {
             <Statistic
               title="Total Earnings"
               value={wallet?.total_earnings || 0}
-              prefix={`${currency} `}
+              prefix={`${VENDOR_CURRENCY} `}
               styles={{ content: { color: "#0066cc" } }}
             />
           </Card>
@@ -296,7 +297,7 @@ const VendorWalletPage = () => {
             <Statistic
               title="Total Withdrawn"
               value={wallet?.total_withdrawn || 0}
-              prefix={`${currency} `}
+              prefix={`${VENDOR_CURRENCY} `}
               styles={{ content: { color: "#6366f1" } }}
             />
           </Card>
@@ -329,11 +330,11 @@ const VendorWalletPage = () => {
         <Form form={form} layout="vertical" onFinish={handleRequestWithdrawal}>
           <Form.Item
             label="Available Balance"
-            value={`${currency} ${wallet?.available_balance || 0}`}
+            value={formatVendorMoney(wallet?.available_balance)}
           >
             <Input
               disabled
-              value={`${currency} ${wallet?.available_balance || 0}`}
+              value={formatVendorMoney(wallet?.available_balance)}
             />
           </Form.Item>
 
@@ -359,7 +360,7 @@ const VendorWalletPage = () => {
                 step={10}
                 style={{ width: "100%" }}
               />
-              <Input disabled value={currency} style={{ width: 58 }} />
+              <Input disabled value={VENDOR_CURRENCY} style={{ width: 58 }} />
             </Space.Compact>
           </Form.Item>
 

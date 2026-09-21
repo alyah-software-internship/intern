@@ -23,13 +23,14 @@ import {
 import { useTheme } from "../../context/ThemeProvider.jsx";
 import { useTranslation } from "../../component/LanguageProvider.jsx";
 import { AppContext } from "../../context/AppContext.jsx";
+import { VENDOR_CURRENCY } from "../../utils/currency.js";
 
 const { Title, Text } = Typography;
 
 const Products = () => {
   const navigate = useNavigate();
   const { translation: t, lang } = useTranslation();
-  const { backendUrl, currency } = useContext(AppContext);
+  const { backendUrl } = useContext(AppContext);
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const [products, setProducts] = useState([]);
@@ -197,7 +198,7 @@ const Products = () => {
 
         return (
           <Text strong>
-            {pricing.amount || 0} {currency} / {pricing.unit}
+            {pricing.amount || 0} {VENDOR_CURRENCY} / {pricing.unit}
           </Text>
         );
       },

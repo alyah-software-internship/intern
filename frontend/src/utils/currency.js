@@ -1,4 +1,5 @@
 export const DEFAULT_CURRENCY = "USD";
+export const VENDOR_CURRENCY = "ETB";
 
 export const getPlatformCurrency = () => {
   const stored = localStorage.getItem("platformCurrency");
@@ -25,3 +26,6 @@ export const formatCurrencyValue = (
   currencyCode = getPlatformCurrency(),
 ) =>
   `${currencyCode} ${Number(value || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
+
+export const formatVendorMoney = (value) =>
+  formatCurrencyValue(value, VENDOR_CURRENCY);
