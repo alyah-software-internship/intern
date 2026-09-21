@@ -76,10 +76,10 @@ Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
 // Product Routes (Public)
 Route::get('/products', [ProductController::class, 'index']);
-Route::get('/products/{id}', [ProductController::class, 'show']);
 Route::get('/products/featured', [ProductController::class, 'featured']);
-Route::get('/platform-currency', [AdminController::class, 'platformCurrency']);
 Route::get('/products/search', [ProductController::class, 'search']);
+Route::get('/products/{id}', [ProductController::class, 'show']);
+Route::get('/platform-currency', [AdminController::class, 'platformCurrency']);
 
 // Category Routes (Public)
 Route::get('/categories', [CategoryController::class, 'index']);
