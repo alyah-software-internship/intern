@@ -2772,6 +2772,11 @@ html.dark .text-slate-500,
     min-height: 100vh;
   }
 
+  .rental-filter-column {
+    margin-top: 24px;
+    top: 112px;
+  }
+
   .app-root--dark .rental-filter-card {
     border-color: #334155 !important;
     background: #111827;
