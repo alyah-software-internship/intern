@@ -2692,7 +2692,6 @@ html.dark .text-slate-500,
 
 .rental-filter-card {
   position: static;
-  max-height: calc(100vh - 180px);
   overflow-y: auto;
   border: 1px solid #d8dee8 !important;
   border-radius: 12px !important;
@@ -2743,6 +2742,7 @@ html.dark .text-slate-500,
   .rental-filter-column {
     position: fixed;
     top: 156px;
+    bottom: 24px;
     left: max(24px, calc((100vw - 1440px) / 2));
     z-index: 1;
     width: min(342px, calc(25vw - 18px));
@@ -2756,7 +2756,8 @@ html.dark .text-slate-500,
   }
 
   .rental-filter-card {
-    max-height: calc(100vh - 180px);
+    height: 100%;
+    max-height: none;
   }
 
   .app-root--dark .rental-filter-card {
