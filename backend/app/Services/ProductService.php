@@ -166,7 +166,7 @@ class ProductService
                 ->orderBy('sort_order'),
         ])
             ->where('status', 'active')
-            ->where('is_featured', true)
+            ->orderBy('is_featured', 'desc')
             ->orderBy('rating', 'desc')
             ->orderBy('created_at', 'desc')
             ->limit($limit)
