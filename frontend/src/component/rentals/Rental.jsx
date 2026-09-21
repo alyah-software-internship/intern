@@ -376,16 +376,6 @@ const Rental = () => {
   const filterPanel = (
     <Space orientation="vertical" size={24} style={{ width: "100%" }}>
       <div>
-        <Text strong>{productStrings.keyword || "Keyword"}</Text>
-        <Input
-          placeholder={productStrings.searchPlaceholder || "Type keyword..."}
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          style={{ marginTop: 12, width: "100%" }}
-        />
-      </div>
-
-      <div>
         <Text strong>{productStrings.filterByCategory || "Category"}</Text>
         <Select
           value={category}
