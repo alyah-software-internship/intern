@@ -533,6 +533,16 @@ const Rental = () => {
                 whiteSpace: "nowrap",
               }}
             >
+              <Input
+                allowClear
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder={
+                  productStrings.searchPlaceholder || "Search rentals..."
+                }
+                prefix={<SearchOutlined />}
+                className="rental-header-search"
+              />
               <Text
                 style={{
                   color: isDark ? "#cbd5e1" : "#334155",
