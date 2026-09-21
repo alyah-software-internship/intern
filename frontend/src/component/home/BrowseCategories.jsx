@@ -108,6 +108,7 @@ const BrowseCategories = () => {
             <Col key={category.id} xs={24} sm={12} md={12} lg={6} xl={6}>
               <div
                 style={{
+                  position: "relative",
                   borderRadius: 18,
                   height: 190,
                   overflow: "hidden",
@@ -128,6 +129,22 @@ const BrowseCategories = () => {
                     objectFit: "cover",
                   }}
                 />
+                <div
+                  style={{
+                    position: "absolute",
+                    right: 0,
+                    bottom: 0,
+                    left: 0,
+                    padding: "32px 16px 14px",
+                    background:
+                      "linear-gradient(transparent, rgba(15, 23, 42, 0.82))",
+                    color: "#ffffff",
+                    fontSize: 16,
+                    fontWeight: 700,
+                  }}
+                >
+                  {title}
+                </div>
               </div>
             </Col>
           );
