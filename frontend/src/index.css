@@ -2687,9 +2687,26 @@ html.dark .text-slate-500,
 
 .rental-filter-card {
   position: sticky;
-  top: 24px;
-  max-height: calc(100vh - 48px);
+  top: 156px;
+  max-height: calc(100vh - 180px);
   overflow-y: auto;
+}
+
+@media (min-width: 992px) {
+  .rental-page-header {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    margin-left: -24px;
+    margin-right: -24px;
+    padding: 18px 24px;
+    background: rgba(248, 251, 255, 0.96);
+    backdrop-filter: blur(12px);
+  }
+
+  .app-root--dark .rental-page-header {
+    background: rgba(4, 11, 26, 0.96);
+  }
 }
 
 .rental-price-range-labels {
