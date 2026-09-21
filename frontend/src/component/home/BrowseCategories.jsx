@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { Card, Row, Col, Typography, Button } from "antd";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "../LanguageProvider.jsx";
 import { useTheme } from "../../context/ThemeProvider.jsx";
 import { AppContext } from "../../context/AppContext.jsx";
@@ -17,6 +18,11 @@ const BrowseCategories = () => {
   const { backendUrl } = useContext(AppContext);
   const isDark = theme === "dark";
   const [categories, setCategories] = useState([]);
+  const navigate = useNavigate();
+
+  const openCategory = (category) => {
+    navigate(`/rentals?category=${encodeURIComponent(category.name)}`);
+  };
 
   useEffect(() => {
     axios
@@ -89,6 +95,7 @@ const BrowseCategories = () => {
         <div style={{ justifySelf: "end" }}>
           <Button
             type="text"
+            onClick={() => navigate("/rentals")}
             style={{
               color: "#10b981",
               fontWeight: 700,
@@ -107,11 +114,21 @@ const BrowseCategories = () => {
           return (
             <Col key={category.id} xs={24} sm={12} md={12} lg={6} xl={6}>
               <div
+                role="button"
+                tabIndex={0}
+                onClick={() => openCategory(category)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    openCategory(category);
+                  }
+                }}
                 style={{
                   position: "relative",
                   borderRadius: 18,
                   height: 190,
                   overflow: "hidden",
+                  cursor: "pointer",
                   background: isDark ? "rgba(255,255,255,0.03)" : "#f8fafc",
                   border: isDark
                     ? "1px solid rgba(255,255,255,0.04)"
