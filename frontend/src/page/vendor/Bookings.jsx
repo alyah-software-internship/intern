@@ -473,62 +473,81 @@ const Bookings = () => {
       title: "HANDOVERS / DAMAGE LOG",
       dataIndex: "actions",
       key: "actions",
-      render: (_, record) => (
-        <Space className="vendor-booking-actions" size={8} wrap>
-          {String(record.checkoutStatus).toLowerCase() === "pending" && (
+      render: (_, record) => {
+        const isCompleted =
+          String(record.checkoutStatus).toLowerCase() === "completed";
+
+        return (
+          <Space className="vendor-booking-actions" size={8} wrap>
+            {String(record.checkoutStatus).toLowerCase() === "pending" && (
+              <Button
+                type="primary"
+                size="small"
+                className="vendor-booking-action vendor-booking-action--approve"
+                icon={<CheckOutlined />}
+                loading={approvingBookingId === record.bookingId}
+                disabled={Boolean(approvingBookingId)}
+                onClick={() => handleApprove(record.bookingId)}
+              >
+                Approve
+              </Button>
+            )}
             <Button
-              type="primary"
+              type="text"
               size="small"
-              className="vendor-booking-action vendor-booking-action--approve"
-              icon={<CheckOutlined />}
-              loading={approvingBookingId === record.bookingId}
-              disabled={Boolean(approvingBookingId)}
-              onClick={() => handleApprove(record.bookingId)}
+              className="vendor-booking-action vendor-booking-action--message"
+              icon={<MessageOutlined />}
+              title="Chat with customer"
+              onClick={() =>
+                navigate("/vendor/messages", {
+                  state: {
+                    bookingId: record.bookingId,
+                    customerId: record.customerId,
+                    customerName: record.customerName,
+                    productName: record.productName,
+                  },
+                })
+              }
             >
-              Approve
+              Message
             </Button>
-          )}
-          <Button
-            type="text"
-            size="small"
-            className="vendor-booking-action vendor-booking-action--message"
-            icon={<MessageOutlined />}
-            title="Chat with customer"
-            onClick={() =>
-              navigate("/vendor/messages", {
-                state: {
-                  bookingId: record.bookingId,
-                  customerId: record.customerId,
-                  customerName: record.customerName,
-                  productName: record.productName,
-                },
-              })
-            }
-          >
-            Message
-          </Button>
-          <Button
-            type="default"
-            size="small"
-            className="vendor-booking-action vendor-booking-action--returned"
-            loading={returningBookingId === record.bookingId}
-            disabled={Boolean(approvingBookingId || returningBookingId)}
-            onClick={() => handleReturnedClean(record.bookingId)}
-          >
-            Returned Clean
-          </Button>
-          <Button
-            danger
-            size="small"
-            className="vendor-booking-action vendor-booking-action--damage"
-            icon={<FileProtectOutlined />}
-            disabled={Boolean(approvingBookingId || returningBookingId)}
-            onClick={() => setDamageBooking(record)}
-          >
-            Log Damages
-          </Button>
-        </Space>
-      ),
+            {isCompleted ? (
+              <Button
+                type="primary"
+                size="small"
+                className="vendor-booking-action vendor-booking-action--completed"
+                icon={<CheckCircleFilled />}
+                disabled
+              >
+                Completed
+              </Button>
+            ) : (
+              <>
+                <Button
+                  type="default"
+                  size="small"
+                  className="vendor-booking-action vendor-booking-action--returned"
+                  loading={returningBookingId === record.bookingId}
+                  disabled={Boolean(approvingBookingId || returningBookingId)}
+                  onClick={() => handleReturnedClean(record.bookingId)}
+                >
+                  Returned Clean
+                </Button>
+                <Button
+                  danger
+                  size="small"
+                  className="vendor-booking-action vendor-booking-action--damage"
+                  icon={<FileProtectOutlined />}
+                  disabled={Boolean(approvingBookingId || returningBookingId)}
+                  onClick={() => setDamageBooking(record)}
+                >
+                  Log Damages
+                </Button>
+              </>
+            )}
+          </Space>
+        );
+      },
     },
   ];
 
