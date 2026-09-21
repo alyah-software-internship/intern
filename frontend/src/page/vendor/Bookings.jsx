@@ -476,6 +476,7 @@ const Bookings = () => {
       render: (_, record) => {
         const isCompleted =
           String(record.checkoutStatus).toLowerCase() === "completed";
+        const isPaid = String(record.paymentStatus).toLowerCase() === "paid";
 
         return (
           <Space className="vendor-booking-actions" size={8} wrap>
@@ -521,7 +522,7 @@ const Bookings = () => {
               >
                 Completed
               </Button>
-            ) : (
+            ) : isPaid ? (
               <>
                 <Button
                   type="default"
@@ -544,7 +545,7 @@ const Bookings = () => {
                   Log Damages
                 </Button>
               </>
-            )}
+            ) : null}
           </Space>
         );
       },
