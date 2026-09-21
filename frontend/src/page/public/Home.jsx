@@ -1,5 +1,4 @@
 import { lazy } from "react";
-import DashboardShortcut from "../../component/home/DashboardShortcut.jsx";
 import Hero from "../../component/home/Hero.jsx";
 import BrowseCategories from "../../component/home/BrowseCategories.jsx";
 import DeferredSection from "../../component/DeferredSection.jsx";
@@ -19,7 +18,6 @@ function Home() {
     <div>
       <Hero />
 
-      <DashboardShortcut />
       <div style={{ marginTop: 24 }}>
         <BrowseCategories />
         <div style={{ marginTop: 24 }}>
