@@ -1,4 +1,10 @@
-import { useContext, useEffect, useState } from "react";
+import {
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import axios from "axios";
 import { Card, Typography, Button, Row, message } from "antd";
 import { HeartFilled, HeartOutlined, StarFilled } from "@ant-design/icons";
@@ -16,20 +22,32 @@ const ItemCard = ({ item, onAction, onSelect, equalHeight = false }) => {
     rating,
     badge,
     image,
-    description,
+    description: rawDescription,
     accent,
     price,
     location,
     actionLabel,
   } = item;
+  const description = rawDescription || "No description available.";
 
   const { translation: t } = useTranslation();
   const { backendUrl, currency } = useContext(AppContext);
   const [isFavorite, setIsFavorite] = useState(Boolean(item.isFavorite));
   const [favoriteLoading, setFavoriteLoading] = useState(false);
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
+  const [descriptionOverflowing, setDescriptionOverflowing] = useState(false);
+  const descriptionRef = useRef(null);
   const [messageApi, contextHolder] = message.useMessage();
-  const canExpandDescription = equalHeight && description.length > 180;
+
+  useLayoutEffect(() => {
+    if (!equalHeight || descriptionExpanded || !descriptionRef.current) return;
+
+    setDescriptionOverflowing(
+      descriptionRef.current.scrollHeight > descriptionRef.current.clientHeight,
+    );
+  }, [description, descriptionExpanded, equalHeight]);
+
+  const canExpandDescription = equalHeight && descriptionOverflowing;
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
@@ -77,9 +95,16 @@ const ItemCard = ({ item, onAction, onSelect, equalHeight = false }) => {
   return (
     <Card
       hoverable
-      styles={{ body: { padding: 16 } }}
+      className={equalHeight ? "rental-product-card" : undefined}
+      styles={{
+        body: {
+          display: "flex",
+          flexDirection: "column",
+          height: "100%",
+          padding: 16,
+        },
+      }}
       style={{
-        height: equalHeight ? "100%" : undefined,
         borderRadius: 24,
         overflow: "hidden",
         cursor: "pointer",
@@ -88,13 +113,21 @@ const ItemCard = ({ item, onAction, onSelect, equalHeight = false }) => {
     >
       {contextHolder}
       <div
-        style={{ position: "relative", borderRadius: 20, overflow: "hidden" }}
+        className={equalHeight ? "rental-product-image" : undefined}
+        style={{
+          position: "relative",
+          width: "100%",
+          height: 200,
+          flexShrink: 0,
+          borderRadius: 20,
+          overflow: "hidden",
+        }}
       >
         <img
           src={image}
           alt={title}
           onError={useFallbackImage}
-          style={{ width: "100%", height: 200, objectFit: "cover" }}
+          style={{ width: "100%", height: "100%", objectFit: "cover" }}
         />
         <div
           style={{
@@ -142,7 +175,7 @@ const ItemCard = ({ item, onAction, onSelect, equalHeight = false }) => {
         </button>
       </div>
 
-      <div style={{ marginTop: 16, marginBottom: 12 }}>
+      <div style={{ marginTop: 16, marginBottom: 12, flexShrink: 0 }}>
         <Row className="flex justify-between">
           <div>
             <Text
@@ -159,7 +192,15 @@ const ItemCard = ({ item, onAction, onSelect, equalHeight = false }) => {
 
             <Text
               strong
-              style={{ display: "block", fontSize: 18, marginTop: 8 }}
+              style={{
+                display: "-webkit-box",
+                minHeight: equalHeight ? 54 : undefined,
+                marginTop: 8,
+                overflow: "hidden",
+                fontSize: 18,
+                WebkitBoxOrient: "vertical",
+                WebkitLineClamp: equalHeight ? 2 : "unset",
+              }}
             >
               {title}
             </Text>
@@ -178,26 +219,46 @@ const ItemCard = ({ item, onAction, onSelect, equalHeight = false }) => {
           </div>
         </Row>
         {location && (
-          <Text type="secondary" style={{ display: "block", marginTop: 8 }}>
+          <Text
+            type="secondary"
+            style={{
+              display: "block",
+              minHeight: equalHeight ? 22 : undefined,
+              marginTop: 8,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
+          >
             {location}
           </Text>
         )}
+        {equalHeight && !location && <div style={{ minHeight: 22 }} />}
       </div>
 
-      <Text
-        type="secondary"
+      <div
+        className={equalHeight ? "rental-product-description" : undefined}
         style={{
-          display: "-webkit-box",
+          minHeight: equalHeight ? 77 : undefined,
+          maxHeight: equalHeight && descriptionExpanded ? 128 : undefined,
           marginBottom: canExpandDescription ? 4 : 16,
-          lineHeight: 1.6,
-          overflow: "hidden",
-          WebkitBoxOrient: "vertical",
-          WebkitLineClamp:
-            canExpandDescription && !descriptionExpanded ? 3 : "unset",
+          overflow: equalHeight && descriptionExpanded ? "auto" : "hidden",
         }}
       >
-        {description}
-      </Text>
+        <Text
+          ref={descriptionRef}
+          type="secondary"
+          style={{
+            display: "-webkit-box",
+            lineHeight: 1.6,
+            overflow: "hidden",
+            WebkitBoxOrient: "vertical",
+            WebkitLineClamp: equalHeight && !descriptionExpanded ? 3 : "unset",
+          }}
+        >
+          {description}
+        </Text>
+      </div>
 
       {canExpandDescription && (
         <Button
@@ -207,6 +268,7 @@ const ItemCard = ({ item, onAction, onSelect, equalHeight = false }) => {
             event.stopPropagation();
             setDescriptionExpanded((expanded) => !expanded);
           }}
+          aria-expanded={descriptionExpanded}
           style={{ alignSelf: "flex-start", padding: 0, marginBottom: 12 }}
         >
           {descriptionExpanded ? "Less" : "More"}
@@ -220,6 +282,7 @@ const ItemCard = ({ item, onAction, onSelect, equalHeight = false }) => {
           alignItems: "center",
           marginBottom: 16,
           marginTop: equalHeight ? "auto" : undefined,
+          flexShrink: 0,
         }}
       >
         <div style={{ textAlign: "right" }} className="flex gap-2">
@@ -232,16 +295,7 @@ const ItemCard = ({ item, onAction, onSelect, equalHeight = false }) => {
         </div>
       </div>
 
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: 16,
-        }}
-      ></div>
-
-      <div className="flex justify-around ">
+      <div className="flex justify-around" style={{ flexShrink: 0 }}>
         <div>
           <Text strong style={{ display: "block", fontSize: 20 }}>
             {price ? `${currency} ${price}/day` : `${currency} 250/day`}

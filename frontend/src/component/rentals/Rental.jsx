@@ -635,7 +635,7 @@ const Rental = () => {
           </aside>
 
           <main className="rental-results-column">
-            <Row gutter={[24, 24]}>
+            <Row gutter={[24, 24]} className="rental-product-grid">
               {loading ? (
                 <Text>Loading rentals...</Text>
               ) : filteredItems.length > 0 ? (

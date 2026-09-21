@@ -2703,6 +2703,39 @@ html.dark .text-slate-500,
   min-width: 0;
 }
 
+.rental-product-grid > .ant-col {
+  display: flex;
+}
+
+.rental-product-card {
+  display: flex;
+  width: 100%;
+  height: 610px;
+  flex-direction: column;
+}
+
+.rental-product-card .ant-card-body {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+}
+
+.rental-product-image {
+  height: 200px !important;
+  min-height: 200px;
+}
+
+.rental-product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.rental-product-description {
+  flex-shrink: 0;
+}
+
 .rental-header-search {
   width: min(280px, 28vw);
   height: 40px;
