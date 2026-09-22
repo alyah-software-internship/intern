@@ -40,7 +40,7 @@ const ItemCard = ({ item, onAction, onSelect, equalHeight = false }) => {
   const [messageApi, contextHolder] = message.useMessage();
 
   useLayoutEffect(() => {
-    if (!equalHeight || descriptionExpanded || !descriptionRef.current) return;
+    if (!equalHeight || !descriptionRef.current) return;
 
     setDescriptionOverflowing(
       descriptionRef.current.scrollHeight > descriptionRef.current.clientHeight,
@@ -48,6 +48,7 @@ const ItemCard = ({ item, onAction, onSelect, equalHeight = false }) => {
   }, [description, descriptionExpanded, equalHeight]);
 
   const canExpandDescription = equalHeight && descriptionOverflowing;
+  const descriptionId = `rental-description-${item.id}`;
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
@@ -239,19 +240,23 @@ const ItemCard = ({ item, onAction, onSelect, equalHeight = false }) => {
       <div
         className={equalHeight ? "rental-product-description" : undefined}
         style={{
-          minHeight: equalHeight ? 77 : undefined,
-          maxHeight: equalHeight && descriptionExpanded ? 128 : undefined,
+          height: equalHeight ? 77 : undefined,
           marginBottom: canExpandDescription ? 4 : 16,
           overflow: equalHeight && descriptionExpanded ? "auto" : "hidden",
+          overflowWrap: "anywhere",
         }}
       >
         <Text
           ref={descriptionRef}
+          id={descriptionId}
           type="secondary"
           style={{
-            display: "-webkit-box",
+            display:
+              equalHeight && !descriptionExpanded ? "-webkit-box" : "block",
             lineHeight: 1.6,
-            overflow: "hidden",
+            maxHeight: equalHeight ? 77 : undefined,
+            overflow: equalHeight && descriptionExpanded ? "visible" : "hidden",
+            overflowWrap: "anywhere",
             WebkitBoxOrient: "vertical",
             WebkitLineClamp: equalHeight && !descriptionExpanded ? 3 : "unset",
           }}
@@ -269,6 +274,8 @@ const ItemCard = ({ item, onAction, onSelect, equalHeight = false }) => {
             setDescriptionExpanded((expanded) => !expanded);
           }}
           aria-expanded={descriptionExpanded}
+          aria-controls={descriptionId}
+          aria-label={`${descriptionExpanded ? "Collapse" : "Expand"} description for ${title}`}
           style={{ alignSelf: "flex-start", padding: 0, marginBottom: 12 }}
         >
           {descriptionExpanded ? "Less" : "More"}
