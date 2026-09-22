@@ -101,7 +101,7 @@ const ItemCard = ({ item, onAction, onSelect, equalHeight = false }) => {
         body: {
           display: "flex",
           flexDirection: "column",
-          height: "100%",
+          height: equalHeight && !descriptionExpanded ? "100%" : "auto",
           padding: 16,
         },
       }}
@@ -109,6 +109,7 @@ const ItemCard = ({ item, onAction, onSelect, equalHeight = false }) => {
         borderRadius: 24,
         overflow: "hidden",
         cursor: "pointer",
+        height: equalHeight && !descriptionExpanded ? 610 : "auto",
       }}
       onClick={() => onSelect?.(item)}
     >
@@ -240,9 +241,9 @@ const ItemCard = ({ item, onAction, onSelect, equalHeight = false }) => {
       <div
         className={equalHeight ? "rental-product-description" : undefined}
         style={{
-          height: equalHeight ? 77 : undefined,
+          height: equalHeight && !descriptionExpanded ? 77 : undefined,
           marginBottom: canExpandDescription ? 4 : 16,
-          overflow: equalHeight && descriptionExpanded ? "auto" : "hidden",
+          overflow: equalHeight && descriptionExpanded ? "visible" : "hidden",
           overflowWrap: "anywhere",
         }}
       >
@@ -254,8 +255,8 @@ const ItemCard = ({ item, onAction, onSelect, equalHeight = false }) => {
             display:
               equalHeight && !descriptionExpanded ? "-webkit-box" : "block",
             lineHeight: 1.6,
-            maxHeight: equalHeight ? 77 : undefined,
-            overflow: equalHeight && descriptionExpanded ? "visible" : "hidden",
+            maxHeight: equalHeight && !descriptionExpanded ? 77 : undefined,
+            overflow: "hidden",
             overflowWrap: "anywhere",
             WebkitBoxOrient: "vertical",
             WebkitLineClamp: equalHeight && !descriptionExpanded ? 3 : "unset",
