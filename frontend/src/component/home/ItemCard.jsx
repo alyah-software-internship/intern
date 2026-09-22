@@ -40,7 +40,9 @@ const ItemCard = ({ item, onAction, onSelect, equalHeight = false }) => {
   const [messageApi, contextHolder] = message.useMessage();
 
   useLayoutEffect(() => {
-    if (!equalHeight || !descriptionRef.current) return;
+    if (!equalHeight || descriptionExpanded || !descriptionRef.current) {
+      return;
+    }
 
     setDescriptionOverflowing(
       descriptionRef.current.scrollHeight > descriptionRef.current.clientHeight,
@@ -258,6 +260,8 @@ const ItemCard = ({ item, onAction, onSelect, equalHeight = false }) => {
             maxHeight: equalHeight && !descriptionExpanded ? 77 : undefined,
             overflow: "hidden",
             overflowWrap: "anywhere",
+            textOverflow:
+              equalHeight && !descriptionExpanded ? "ellipsis" : undefined,
             WebkitBoxOrient: "vertical",
             WebkitLineClamp: equalHeight && !descriptionExpanded ? 3 : "unset",
           }}
