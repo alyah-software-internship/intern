@@ -9,7 +9,6 @@ const MarketPlaceJourny = lazy(
 );
 const TrustedBy = lazy(() => import("../../component/home/TrustedBy.jsx"));
 const UserReview = lazy(() => import("../../component/home/UserReview.jsx"));
-const Subscribe = lazy(() => import("../../component/home/Subscribe.jsx"));
 
 const deferredFallback = <div style={{ minHeight: 180 }} />;
 
@@ -37,11 +36,6 @@ function Home() {
         <div style={{ marginTop: 24 }}>
           <DeferredSection fallback={deferredFallback}>
             <UserReview />
-          </DeferredSection>
-        </div>
-        <div style={{ marginTop: 24 }}>
-          <DeferredSection fallback={deferredFallback}>
-            <Subscribe />
           </DeferredSection>
         </div>
       </div>
