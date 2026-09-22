@@ -1,4 +1,5 @@
 {
+    "buildCommand": "composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader",
     "functions": {
         "api/index.php": {
             "runtime": "vercel-php@0.9.0"
